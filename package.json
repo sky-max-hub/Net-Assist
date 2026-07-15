@@ -1,0 +1,36 @@
+{
+  "name": "net-assist",
+  "version": "1.0.0",
+  "description": "跨平台 TCP/UDP 调试工具",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "antd": "^5.12.0",
+    "@ant-design/icons": "^5.2.6",
+    "zustand": "^4.4.7",
+    "iconv-lite": "^0.6.3",
+    "@electron-toolkit/utils": "^3.0.0",
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-vite": "^2.0.0",
+    "electron-builder": "^24.9.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.6",
+    "jsdom": "^23.0.1",
+    "@vitejs/plugin-react": "^4.2.1"
+  }
+}
