@@ -3,6 +3,7 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc/ipc-router'
 import { ConnectionManager } from './connections/connection-manager'
+import { saveTabs } from './store/tab-store'
 
 let connectionManager: ConnectionManager
 
@@ -43,6 +44,11 @@ function createWindow(): void {
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null)
   createWindow()
+
+  app.on('before-quit', () => {
+    // Tab 数据在 renderer 端每次 createTab/closeTab/setTabConfig/updateTabTitle 时已实时保存。
+    // electron-store 写入为同步操作，正常退出时数据已在磁盘 — 此处为保底占位。
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
