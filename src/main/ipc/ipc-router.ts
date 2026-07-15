@@ -4,9 +4,11 @@ import type {
   ConnectPayload,
   DisconnectPayload,
   SendPayload,
-  ServerSetTargetPayload
+  ServerSetTargetPayload,
+  SaveTabsPayload
 } from '../../shared/ipc-channels'
 import { ConnectionManager } from '../connections/connection-manager'
+import { getTabs, saveTabs } from '../store/tab-store'
 
 export function registerIpcHandlers(connectionManager: ConnectionManager): void {
   ipcMain.handle(
@@ -36,6 +38,15 @@ export function registerIpcHandlers(connectionManager: ConnectionManager): void 
       connectionManager.setTarget(payload.tabId, payload.clientId)
     }
   )
+
+  // Store
+  ipcMain.handle(IPC_CHANNELS.STORE_LOAD_TABS, () => {
+    return getTabs()
+  })
+
+  ipcMain.on(IPC_CHANNELS.STORE_SAVE_TABS, (_event, payload: SaveTabsPayload) => {
+    saveTabs(payload.tabs)
+  })
 }
 
 export function unregisterIpcHandlers(): void {
@@ -43,4 +54,6 @@ export function unregisterIpcHandlers(): void {
   ipcMain.removeHandler(IPC_CHANNELS.CONN_DISCONNECT)
   ipcMain.removeHandler(IPC_CHANNELS.CONN_SEND)
   ipcMain.removeHandler(IPC_CHANNELS.CONN_SERVER_SET_TARGET)
+  ipcMain.removeHandler(IPC_CHANNELS.STORE_LOAD_TABS)
+  ipcMain.removeAllListeners(IPC_CHANNELS.STORE_SAVE_TABS)
 }

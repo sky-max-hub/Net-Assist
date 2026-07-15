@@ -9,8 +9,10 @@ import type {
   DataPayload,
   ErrorPayload,
   ClientJoinedPayload,
-  ClientLeftPayload
+  ClientLeftPayload,
+  SaveTabsPayload
 } from '../shared/ipc-channels'
+import type { PersistedTab } from '../shared/types'
 
 const electronAPI = {
   // Renderer -> Main (invoke)
@@ -68,6 +70,15 @@ const electronAPI = {
     ): void => callback(payload)
     ipcRenderer.on(IPC_CHANNELS.CONN_CLIENT_LEFT, handler)
     return () => ipcRenderer.removeListener(IPC_CHANNELS.CONN_CLIENT_LEFT, handler)
+  },
+
+  store: {
+    loadTabs: (): Promise<PersistedTab[]> => {
+      return ipcRenderer.invoke(IPC_CHANNELS.STORE_LOAD_TABS)
+    },
+    saveTabs: (tabs: PersistedTab[]): void => {
+      ipcRenderer.send(IPC_CHANNELS.STORE_SAVE_TABS, { tabs } as SaveTabsPayload)
+    }
   }
 }
 
