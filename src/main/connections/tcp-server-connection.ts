@@ -65,8 +65,6 @@ export class TcpServerConnection {
       const socket = this.clients.get(clientId)
       if (socket && !socket.destroyed) {
         socket.write(data)
-        const remote = `${socket.remoteAddress}:${socket.remotePort}`
-        this.callbacks?.onData(data, remote)
       }
     } else {
       for (const [, socket] of this.clients) {

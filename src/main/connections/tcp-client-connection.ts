@@ -64,10 +64,6 @@ export class TcpClientConnection {
   send(data: Buffer): void {
     if (this.socket && !this.socket.destroyed) {
       this.socket.write(data)
-      if (this.callbacks && this.config) {
-        const remote = `${this.config.host}:${this.config.port}`
-        this.callbacks.onData(data, remote)
-      }
     }
   }
 
