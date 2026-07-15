@@ -1,11 +1,10 @@
 import { useState, useCallback, KeyboardEvent } from 'react'
 import { Input, Button, Space } from 'antd'
 import { SendOutlined, ClearOutlined } from '@ant-design/icons'
-import type { EncodingMode, DisplayMode, LineEnding } from '../../../shared/types'
+import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
 import EncodingSelector from '../encoding/EncodingSelector'
-import WhitespaceRenderer from '../encoding/WhitespaceRenderer'
 import './SendPanel.css'
 
 interface Props {
@@ -74,9 +73,6 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
           rows={4}
           style={{ resize: 'none' }}
         />
-        <div className="send-preview">
-          <WhitespaceRenderer text={input} />
-        </div>
       </div>
       <div className="send-actions">
         <Space>

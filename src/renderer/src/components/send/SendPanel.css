@@ -1,11 +1,5 @@
-.send-panel { border-top: 1px solid #f0f0f0; background: #fff; }
+.send-panel { border-top: 1px solid #f0f0f0; background: #fff; display: flex; flex-direction: column; }
 .send-toolbar { padding: 8px 16px; border-bottom: 1px solid #f5f5f5; }
-.send-input-area { position: relative; padding: 8px 16px; }
-.send-preview {
-  position: absolute; top: 8px; left: 16px; right: 16px; pointer-events: none;
-  font-family: 'Consolas', 'Monaco', monospace; font-size: 14px;
-  color: transparent; line-height: 1.5715; white-space: pre-wrap; word-break: break-all; padding: 8px 12px;
-}
-.send-preview span { color: #d4d4d4; }
+.send-input-area { padding: 8px 16px; flex: 1; }
 .send-actions { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
 .send-hint { font-size: 12px; color: #999; }

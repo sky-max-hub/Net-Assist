@@ -10,7 +10,7 @@ import './TcpClientConfig.css'
 interface Props { tab: TabState }
 
 export default function TcpServerConfigPanel({ tab }: Props): JSX.Element {
-  const { setTabConfig } = useTabStore()
+  const { setTabConfig, updateTabStatus } = useTabStore()
   const { connect, disconnect } = useIpc()
   const [port, setPort] = useState<number | null>((tab.config as TcpServerConfigType).port || null)
   const [loading, setLoading] = useState(false)
@@ -42,9 +42,10 @@ export default function TcpServerConfigPanel({ tab }: Props): JSX.Element {
 
   const handleStop = useCallback(async (): Promise<void> => {
     setLoading(true)
+    updateTabStatus(tab.id, 'idle')
     try { await disconnect(tab.id); setClients([]); setSelectedClient('broadcast') }
     catch (err) { console.error('stop server failed:', err) } finally { setLoading(false) }
-  }, [tab.id, disconnect])
+  }, [tab.id, disconnect, updateTabStatus])
 
   const handleTargetChange = useCallback(async (value: string): Promise<void> => {
     setSelectedClient(value)

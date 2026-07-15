@@ -106,6 +106,7 @@ export class ConnectionManager {
       existing.cleanup()
       this.connections.delete(tabId)
     }
+    this.emitStatus(tabId, 'idle')
   }
 
   send(tabId: string, data: number[]): void {

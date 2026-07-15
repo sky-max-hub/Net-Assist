@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
-  const { setTabConfig } = useTabStore()
+  const { setTabConfig, updateTabStatus } = useTabStore()
   const { connect, disconnect } = useIpc()
   const [host, setHost] = useState((tab.config as TcpClientConfigType).host || '')
   const [port, setPort] = useState<number | null>((tab.config as TcpClientConfigType).port || null)
@@ -37,6 +37,7 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
 
   const handleDisconnect = useCallback(async (): Promise<void> => {
     setLoading(true)
+    updateTabStatus(tab.id, 'idle')
     try {
       await disconnect(tab.id)
     } catch (err) {
@@ -44,7 +45,7 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
     } finally {
       setLoading(false)
     }
-  }, [tab.id, disconnect])
+  }, [tab.id, disconnect, updateTabStatus])
 
   const statusColor: Record<string, string> = {
     idle: 'default',

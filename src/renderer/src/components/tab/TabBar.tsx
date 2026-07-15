@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Dropdown, Input } from 'antd'
-import { PlusOutlined, CloseOutlined } from '@ant-design/icons'
+import { PlusOutlined, CloseOutlined, ApiOutlined, CloudServerOutlined, WifiOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { TabType } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
@@ -19,6 +19,12 @@ const statusColors: Record<string, string> = {
   connected: '#52c41a',
   listening: '#52c41a',
   error: '#ff4d4f'
+}
+
+const tabTypeIcons: Record<TabType, JSX.Element> = {
+  'tcp-client': <ApiOutlined style={{ fontSize: 12 }} />,
+  'tcp-server': <CloudServerOutlined style={{ fontSize: 12 }} />,
+  udp: <WifiOutlined style={{ fontSize: 12 }} />
 }
 
 export default function TabBar(): JSX.Element {
@@ -72,6 +78,7 @@ export default function TabBar(): JSX.Element {
               className="tab-status-dot"
               style={{ backgroundColor: statusColors[tab.status] || '#999' }}
             />
+            <span className="tab-type-icon">{tabTypeIcons[tab.type]}</span>
             {editTabId === tab.id ? (
               <Input
                 size="small"

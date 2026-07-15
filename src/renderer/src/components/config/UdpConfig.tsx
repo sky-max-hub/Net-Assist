@@ -10,7 +10,7 @@ import './TcpClientConfig.css'
 interface Props { tab: TabState }
 
 export default function UdpConfigPanel({ tab }: Props): JSX.Element {
-  const { setTabConfig } = useTabStore()
+  const { setTabConfig, updateTabStatus } = useTabStore()
   const { connect, disconnect } = useIpc()
   const config = tab.config as UdpConfigType
   const [localPort, setLocalPort] = useState<number | null>(config.localPort || null)
@@ -29,8 +29,9 @@ export default function UdpConfigPanel({ tab }: Props): JSX.Element {
 
   const handleClose = useCallback(async (): Promise<void> => {
     setLoading(true)
+    updateTabStatus(tab.id, 'idle')
     try { await disconnect(tab.id) } catch (err) { console.error('close failed:', err) } finally { setLoading(false) }
-  }, [tab.id, disconnect])
+  }, [tab.id, disconnect, updateTabStatus])
 
   const statusLabel: Record<string, string> = { idle: '未绑定', connected: '已绑定', error: '错误' }
   const statusColor: Record<string, string> = { idle: 'default', connected: 'success', error: 'error' }
