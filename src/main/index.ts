@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell } from 'electron'
+import { app, BrowserWindow, Menu, shell, nativeImage } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc/ipc-router'
@@ -7,12 +7,14 @@ import { ConnectionManager } from './connections/connection-manager'
 let connectionManager: ConnectionManager
 
 function createWindow(): void {
+  const iconPath = join(__dirname, '../../resources/icon.svg')
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 900,
     minHeight: 600,
     title: 'NetAssist',
+    icon: nativeImage.createFromPath(iconPath),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
