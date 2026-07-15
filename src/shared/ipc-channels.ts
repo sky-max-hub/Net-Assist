@@ -1,4 +1,4 @@
-import type { TabType, TabStatus, TabConfig, ClientInfo } from './types'
+import type { TabType, TabStatus, TabConfig, ClientInfo, PersistedTab } from './types'
 
 // ---- Channel 名称常量 ----
 export const IPC_CHANNELS = {
@@ -13,7 +13,13 @@ export const IPC_CHANNELS = {
   CONN_DATA: 'conn:data',
   CONN_ERROR: 'conn:error',
   CONN_CLIENT_JOINED: 'conn:client-joined',
-  CONN_CLIENT_LEFT: 'conn:client-left'
+  CONN_CLIENT_LEFT: 'conn:client-left',
+
+  // Renderer -> Main (invoke — requires return value)
+  STORE_LOAD_TABS: 'store:load-tabs',
+
+  // Renderer -> Main (send — one-way notification)
+  STORE_SAVE_TABS: 'store:save-tabs'
 } as const
 
 // ---- Renderer -> Main Payloads ----
@@ -64,4 +70,9 @@ export interface ClientJoinedPayload {
 export interface ClientLeftPayload {
   tabId: string
   clientId: string
+}
+
+// ---- Store Payloads ----
+export interface SaveTabsPayload {
+  tabs: PersistedTab[]
 }

@@ -56,3 +56,10 @@ export interface ClientInfo {
   remoteAddress: string
   remotePort: number
 }
+
+export interface PersistedTab {
+  id: string
+  title: string
+  type: TabType
+  config: TabConfig
+}
