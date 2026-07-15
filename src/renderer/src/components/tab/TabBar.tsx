@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Dropdown, Input } from 'antd'
-import { PlusOutlined, CloseOutlined, ApiOutlined, CloudServerOutlined, WifiOutlined } from '@ant-design/icons'
+import { PlusOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { TabType } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
@@ -21,10 +21,10 @@ const statusColors: Record<string, string> = {
   error: '#ff4d4f'
 }
 
-const tabTypeIcons: Record<TabType, JSX.Element> = {
-  'tcp-client': <ApiOutlined style={{ fontSize: 12 }} />,
-  'tcp-server': <CloudServerOutlined style={{ fontSize: 12 }} />,
-  udp: <WifiOutlined style={{ fontSize: 12 }} />
+const tabTypeConfig: Record<TabType, { label: string; color: string }> = {
+  'tcp-client': { label: 'CLI', color: '#52c41a' },
+  'tcp-server': { label: 'SRV', color: '#1890ff' },
+  udp: { label: 'UDP', color: '#fa8c16' }
 }
 
 export default function TabBar(): JSX.Element {
@@ -78,7 +78,19 @@ export default function TabBar(): JSX.Element {
               className="tab-status-dot"
               style={{ backgroundColor: statusColors[tab.status] || '#999' }}
             />
-            <span className="tab-type-icon">{tabTypeIcons[tab.type]}</span>
+            <span className="tab-type-tag" style={{
+              background: tabTypeConfig[tab.type].color,
+              color: '#fff',
+              fontSize: 10,
+              fontWeight: 700,
+              padding: '1px 5px',
+              borderRadius: 3,
+              flexShrink: 0,
+              lineHeight: '16px',
+              letterSpacing: 0.5
+            }}>
+              {tabTypeConfig[tab.type].label}
+            </span>
             {editTabId === tab.id ? (
               <Input
                 size="small"

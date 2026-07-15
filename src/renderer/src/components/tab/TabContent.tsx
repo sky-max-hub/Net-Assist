@@ -34,7 +34,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
       <div style={{ flex: 1, minHeight: 0 }}>
         <MessageList messages={tab.messages} displayMode={displayMode} encoding={encoding} />
       </div>
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flexShrink: 0 }}>
         <SendPanel tabId={tab.id} />
       </div>
     </div>
