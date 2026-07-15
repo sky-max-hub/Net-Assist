@@ -6,7 +6,7 @@ base-ref: 0f6ae910fb6852375ab809a5dbeb32f4e7fc1cff
 
 # 连接 UX 增强 — 实施计划
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 为网络助手实现连接 tab 持久化、消息清空和 TCP 客户端默认 IP 三项 UX 增强。
 
@@ -51,7 +51,7 @@ base-ref: 0f6ae910fb6852375ab809a5dbeb32f4e7fc1cff
 **Interfaces:**
 - Produces: `PersistedTab` (interface), `SaveTabsPayload` (interface), `IPC_CHANNELS.STORE_LOAD_TABS`, `IPC_CHANNELS.STORE_SAVE_TABS`
 
-- [ ] **Step 1: 在 types.ts 中新增 PersistedTab 接口**
+- [x] **Step 1: 在 types.ts 中新增 PersistedTab 接口**
 
 在 `src/shared/types.ts` 的 `ClientInfo` 接口之后新增：
 
@@ -64,7 +64,7 @@ export interface PersistedTab {
 }
 ```
 
-- [ ] **Step 2: 在 ipc-channels.ts 中新增 Store IPC 通道和 payload 类型**
+- [x] **Step 2: 在 ipc-channels.ts 中新增 Store IPC 通道和 payload 类型**
 
 在 `src/shared/ipc-channels.ts` 顶部 import 中新增 `PersistedTab`：
 
@@ -91,7 +91,7 @@ export interface SaveTabsPayload {
 }
 ```
 
-- [ ] **Step 3: 验证 TypeScript 编译**
+- [x] **Step 3: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -99,7 +99,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```bash
 git add src/shared/types.ts src/shared/ipc-channels.ts
@@ -116,7 +116,7 @@ git commit -m "feat: add PersistedTab type and store IPC channel definitions"
 **Interfaces:**
 - Produces: `getTabs(): PersistedTab[]`, `saveTabs(tabs: PersistedTab[]): void`
 
-- [ ] **Step 1: 创建 Main Process store 模块**
+- [x] **Step 1: 创建 Main Process store 模块**
 
 创建 `src/main/store/tab-store.ts`：
 
@@ -166,7 +166,7 @@ export function saveTabs(tabs: PersistedTab[]): void {
 }
 ```
 
-- [ ] **Step 2: 验证 TypeScript 编译**
+- [x] **Step 2: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -174,7 +174,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```bash
 git add src/main/store/tab-store.ts
@@ -193,7 +193,7 @@ git commit -m "feat: add main process tab persistence store (electron-store)"
 - Consumes: `getTabs()` / `saveTabs()` from `src/main/store/tab-store.ts`, `IPC_CHANNELS.STORE_LOAD_TABS`, `IPC_CHANNELS.STORE_SAVE_TABS`, `SaveTabsPayload`, `PersistedTab`
 - Produces: `window.electronAPI.store.loadTabs()`, `window.electronAPI.store.saveTabs(tabs)`
 
-- [ ] **Step 1: 在 ipc-router.ts 中注册 store IPC handler**
+- [x] **Step 1: 在 ipc-router.ts 中注册 store IPC handler**
 
 在 `src/main/ipc/ipc-router.ts` 的 import 区域添加：
 
@@ -233,7 +233,7 @@ ipcMain.removeHandler(IPC_CHANNELS.STORE_LOAD_TABS)
 ipcMain.removeAllListeners(IPC_CHANNELS.STORE_SAVE_TABS)
 ```
 
-- [ ] **Step 2: 在 Preload 中暴露 store API**
+- [x] **Step 2: 在 Preload 中暴露 store API**
 
 在 `src/preload/index.ts` 的 import 区域添加：
 
@@ -254,7 +254,7 @@ store: {
 }
 ```
 
-- [ ] **Step 3: 验证 TypeScript 编译**
+- [x] **Step 3: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -262,7 +262,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```bash
 git add src/main/ipc/ipc-router.ts src/preload/index.ts
@@ -279,7 +279,7 @@ git commit -m "feat: register store IPC handlers and expose store API in preload
 **Interfaces:**
 - Consumes: `saveTabs` from `src/main/store/tab-store.ts`
 
-- [ ] **Step 1: 在 index.ts 中添加 before-quit 保底保存**
+- [x] **Step 1: 在 index.ts 中添加 before-quit 保底保存**
 
 在 `src/main/index.ts` 的 import 区域，`import { ConnectionManager }` 之后添加：
 
@@ -296,7 +296,7 @@ app.on('before-quit', () => {
 })
 ```
 
-- [ ] **Step 2: 验证 TypeScript 编译**
+- [x] **Step 2: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -304,7 +304,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```bash
 git add src/main/index.ts
@@ -322,7 +322,7 @@ git commit -m "feat: add before-quit safeguard for tab persistence"
 - Consumes: `window.electronAPI.store.loadTabs()`, `window.electronAPI.store.saveTabs()`, `PersistedTab`
 - Produces: `loadPersistedTabs(): Promise<void>`, 修改后的 `createTab`, `closeTab`, `setTabConfig`, `updateTabTitle`（均自动触发 saveTabs）、`clearMessages(tabId)`
 
-- [ ] **Step 1: 添加类型声明和持久化辅助函数**
+- [x] **Step 1: 添加类型声明和持久化辅助函数**
 
 在 `src/renderer/src/store/tab-store.ts` 的 import 区域添加 `PersistedTab` 类型：
 
@@ -379,7 +379,7 @@ async function loadPersistedTabs(): Promise<TabState[]> {
 }
 ```
 
-- [ ] **Step 2: 在 TabStore interface 中添加新方法**
+- [x] **Step 2: 在 TabStore interface 中添加新方法**
 
 在 `TabStore` interface 的 `removeQuickSendItem` 之后、闭合大括号之前添加：
 
@@ -388,7 +388,7 @@ loadPersistedTabs: () => Promise<void>
 clearMessages: (tabId: string) => void
 ```
 
-- [ ] **Step 3: 在 create 函数中添加实现**
+- [x] **Step 3: 在 create 函数中添加实现**
 
 在 `create<TabStore>((set, get) => ({` 的函数体内，`removeQuickSendItem` 之后添加两个方法实现：
 
@@ -410,7 +410,7 @@ clearMessages: (tabId: string): void => {
 },
 ```
 
-- [ ] **Step 4: 修改 createTab —— 创建后自动触发 persistTabs**
+- [x] **Step 4: 修改 createTab —— 创建后自动触发 persistTabs**
 
 将现有的 `createTab` 方法修改为：
 
@@ -436,7 +436,7 @@ createTab: (type: TabType): string | null => {
 },
 ```
 
-- [ ] **Step 5: 修改 closeTab —— 关闭后自动触发 persistTabs**
+- [x] **Step 5: 修改 closeTab —— 关闭后自动触发 persistTabs**
 
 将现有的 `closeTab` 方法中的 `set({ tabs: newTabs, activeTabId: newActiveId })` 行改为：
 
@@ -447,7 +447,7 @@ persistTabs(newTabs)
 
 在 `set(...)` 之后立即添加 `persistTabs(newTabs)`。
 
-- [ ] **Step 6: 修改 setTabConfig —— 更新后自动触发 persistTabs**
+- [x] **Step 6: 修改 setTabConfig —— 更新后自动触发 persistTabs**
 
 将现有的 `setTabConfig` 方法修改为：
 
@@ -459,7 +459,7 @@ setTabConfig: (tabId: string, config: TabConfig): void => {
 },
 ```
 
-- [ ] **Step 7: 修改 updateTabTitle —— 更新后自动触发 persistTabs**
+- [x] **Step 7: 修改 updateTabTitle —— 更新后自动触发 persistTabs**
 
 将现有的 `updateTabTitle` 方法修改为：
 
@@ -472,7 +472,7 @@ updateTabTitle: (tabId: string, title: string): void => {
 },
 ```
 
-- [ ] **Step 8: 修改 defaultConfig —— TCP 客户端默认 IP**
+- [x] **Step 8: 修改 defaultConfig —— TCP 客户端默认 IP**
 
 将 `defaultConfig` 函数中 `tcp-client` case 的 host 从 `''` 改为 `'127.0.0.1'`：
 
@@ -481,7 +481,7 @@ case 'tcp-client':
   return { host: '127.0.0.1', port: 0 } as TcpClientConfig
 ```
 
-- [ ] **Step 9: 验证 TypeScript 编译**
+- [x] **Step 9: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -489,7 +489,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 10: 提交**
+- [x] **Step 10: 提交**
 
 ```bash
 git add src/renderer/src/store/tab-store.ts
@@ -506,7 +506,7 @@ git commit -m "feat: add tab persistence, clearMessages, and default TCP client 
 **Interfaces:**
 - Consumes: `useTabStore().loadPersistedTabs()`
 
-- [ ] **Step 1: 在 MainLayout 中加 useEffect 加载持久化 tab**
+- [x] **Step 1: 在 MainLayout 中加 useEffect 加载持久化 tab**
 
 在 `src/renderer/src/components/layout/MainLayout.tsx` 中，修改 import 和组件。
 
@@ -548,7 +548,7 @@ const { tabs, activeTabId, loadPersistedTabs } = useTabStore()
 
 并在 `const activeTab = ...` 之后添加 `useEffect`。
 
-- [ ] **Step 2: 验证 TypeScript 编译**
+- [x] **Step 2: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -556,7 +556,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```bash
 git add src/renderer/src/components/layout/MainLayout.tsx
@@ -573,7 +573,7 @@ git commit -m "feat: restore persisted tabs on app startup"
 **Interfaces:**
 - Consumes: `TcpClientConfig` (types.ts)
 
-- [ ] **Step 1: 修改 host 的 useState fallback 值**
+- [x] **Step 1: 修改 host 的 useState fallback 值**
 
 在 `src/renderer/src/components/config/TcpClientConfig.tsx` 中，修改 `host` 的 `useState` 初始值。
 
@@ -589,7 +589,7 @@ const [host, setHost] = useState(
 )
 ```
 
-- [ ] **Step 2: 验证 TypeScript 编译**
+- [x] **Step 2: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -597,7 +597,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```bash
 git add src/renderer/src/components/config/TcpClientConfig.tsx
@@ -616,7 +616,7 @@ git commit -m "feat: default TCP client host to 127.0.0.1"
 **Interfaces:**
 - Consumes: `useTabStore().clearMessages(tabId)`, `tabId` (通过 Props 传入)
 
-- [ ] **Step 1: 修改 MessageList 组件**
+- [x] **Step 1: 修改 MessageList 组件**
 
 将 `src/renderer/src/components/messages/MessageList.tsx` 完整替换为：
 
@@ -671,7 +671,7 @@ export default function MessageList({ tabId, messages, displayMode, encoding }: 
 }
 ```
 
-- [ ] **Step 2: 添加工具栏 CSS 样式**
+- [x] **Step 2: 添加工具栏 CSS 样式**
 
 在 `src/renderer/src/components/messages/MessageList.css` 文件开头新增：
 
@@ -685,7 +685,7 @@ export default function MessageList({ tabId, messages, displayMode, encoding }: 
 }
 ```
 
-- [ ] **Step 3: 修改 TabContent 传入 tabId**
+- [x] **Step 3: 修改 TabContent 传入 tabId**
 
 在 `src/renderer/src/components/tab/TabContent.tsx` 中，修改 `MessageList` 的调用。
 
@@ -699,7 +699,7 @@ export default function MessageList({ tabId, messages, displayMode, encoding }: 
 <MessageList tabId={tab.id} messages={tab.messages} displayMode={displayMode} encoding={encoding} />
 ```
 
-- [ ] **Step 4: 验证 TypeScript 编译**
+- [x] **Step 4: 验证 TypeScript 编译**
 
 ```bash
 npx tsc --noEmit
@@ -707,7 +707,7 @@ npx tsc --noEmit
 
 预期：无类型错误
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/renderer/src/components/messages/MessageList.tsx src/renderer/src/components/messages/MessageList.css src/renderer/src/components/tab/TabContent.tsx
@@ -718,7 +718,7 @@ git commit -m "feat: add clear messages button to message list"
 
 ### Task 9: 手动验证（端到端测试清单）
 
-- [ ] **Step 1: 验证 Tab 持久化**
+- [x] **Step 1: 验证 Tab 持久化**
 
 1. 启动应用 `npm run dev`
 2. 创建多个不同类型的 tab（TCP Client、TCP Server、UDP）
@@ -728,13 +728,13 @@ git commit -m "feat: add clear messages button to message list"
 6. 重新启动应用
 7. 确认：所有 tab 恢复，标题正确，配置正确，状态为 `idle`（灰色圆点），消息列表为空
 
-- [ ] **Step 2: 验证 Tab 删除持久化**
+- [x] **Step 2: 验证 Tab 删除持久化**
 
 1. 在恢复的 tab 基础上，关闭其中一个 tab
 2. 关闭应用再重新打开
 3. 确认：被关闭的 tab 不再出现
 
-- [ ] **Step 3: 验证消息清空**
+- [x] **Step 3: 验证消息清空**
 
 1. 在 TCP Client 中连接并发送/接收消息
 2. 点击"清空消息"按钮
@@ -742,7 +742,7 @@ git commit -m "feat: add clear messages button to message list"
 4. 切换到其他 tab
 5. 确认：其他 tab 消息未受影响
 
-- [ ] **Step 4: 验证默认 IP**
+- [x] **Step 4: 验证默认 IP**
 
 1. 新建 TCP Client tab
 2. 确认：host 输入框默认显示 `127.0.0.1`
@@ -750,14 +750,14 @@ git commit -m "feat: add clear messages button to message list"
 4. 关闭应用重新打开
 5. 确认：该 tab 的 host 仍为自定义 IP（非 `127.0.0.1`）
 
-- [ ] **Step 5: 验证空消息时清空按钮禁用**
+- [x] **Step 5: 验证空消息时清空按钮禁用**
 
 1. 新建 tab（消息为空）
 2. 确认：清空消息按钮处于禁用状态
 3. 发送消息后再清空
 4. 确认：清空后按钮重新变为禁用
 
-- [ ] **Step 6: 验证首次启动（无持久化数据）**
+- [x] **Step 6: 验证首次启动（无持久化数据）**
 
 1. 删除 `%APPDATA%/net-assist/config.json`（Windows）或 `~/Library/Application Support/net-assist/config.json`（macOS）
 2. 启动应用
