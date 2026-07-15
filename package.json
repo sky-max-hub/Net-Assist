@@ -32,5 +32,22 @@
     "@testing-library/jest-dom": "^6.1.6",
     "jsdom": "^23.0.1",
     "@vitejs/plugin-react": "^4.2.1"
+  },
+  "build": {
+    "appId": "com.netassist.app",
+    "productName": "NetAssist",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "resources/icon.svg",
+      "target": ["nsis"]
+    },
+    "mac": {
+      "icon": "resources/icon.svg"
+    },
+    "linux": {
+      "icon": "resources/icon.svg"
+    }
   }
 }

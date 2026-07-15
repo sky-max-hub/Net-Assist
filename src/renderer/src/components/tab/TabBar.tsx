@@ -4,6 +4,7 @@ import { PlusOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { TabType } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
+import { useIpc } from '../../hooks/useIpc'
 import './TabBar.css'
 
 const tabTypeLabels: Record<TabType, string> = {
@@ -22,8 +23,14 @@ const statusColors: Record<string, string> = {
 
 export default function TabBar(): JSX.Element {
   const { tabs, activeTabId, createTab, closeTab, setActiveTab } = useTabStore()
+  const { disconnect } = useIpc()
   const [editTabId, setEditTabId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
+
+  const handleCloseTab = async (tabId: string): Promise<void> => {
+    try { await disconnect(tabId) } catch { /* force close */ }
+    closeTab(tabId)
+  }
 
   const newTabItems: MenuProps['items'] = (
     Object.entries(tabTypeLabels) as [TabType, string][]
@@ -90,7 +97,7 @@ export default function TabBar(): JSX.Element {
               icon={<CloseOutlined />}
               onClick={(e) => {
                 e.stopPropagation()
-                closeTab(tab.id)
+                handleCloseTab(tab.id)
               }}
               className="tab-close-btn"
             />
