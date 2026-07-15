@@ -7,9 +7,9 @@
           <value>
             <TabSessionState>
               <option name="provider" value="claude" />
-              <option name="sessionId" value="28d26ffb-bd83-4408-bb0c-65de7b230452" />
-              <option name="cwd" value="$PROJECT_DIR$" />
-              <option name="model" value="claude-opus-4-8[1m]" />
+              <option name="sessionId" value="5bbe1f80-734b-4ef0-b965-c9ca4dff6ca1" />
+              <option name="cwd" value="D:\Download\current\net-assist" />
+              <option name="model" value="claude-sonnet-4-6[1m]" />
               <option name="permissionMode" value="bypassPermissions" />
             </TabSessionState>
           </value>

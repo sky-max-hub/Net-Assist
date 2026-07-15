@@ -1,0 +1,13 @@
+{
+  "change": "connection-ux-enhance",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "60b27988192d5dfc31cab45af9bca60440d093d75fef8593c12dc306c212d54d",
+  "files": [
+    { "path": "openspec/changes/connection-ux-enhance/proposal.md", "sha256": "cc0bdf6d77217768598fa099ea34791382190cd8293fbe8f1b42176343265d2e" },
+    { "path": "openspec/changes/connection-ux-enhance/design.md", "sha256": "a5eb591fd28896f0a6a637a581ab183e48070bc4aecaf9de1ab0da59c6ede5a0" },
+    { "path": "openspec/changes/connection-ux-enhance/tasks.md", "sha256": "2d618238839e7cf82e2384d7e8d44095f1e3da3cfc55086908f17f39ae5629d1" }
+  ]
+}

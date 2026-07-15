@@ -3,7 +3,6 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerIpcHandlers } from './ipc/ipc-router'
 import { ConnectionManager } from './connections/connection-manager'
-import { saveTabs } from './store/tab-store'
 
 let connectionManager: ConnectionManager
 

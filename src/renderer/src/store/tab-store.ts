@@ -217,6 +217,8 @@ export const useTabStore = create<TabStore>((set, get) => ({
     if (restored.length > 0) {
       tabCounter = restored.length
       set({ tabs: restored, activeTabId: restored[0].id })
+    } else {
+      tabCounter = 0
     }
   },
 

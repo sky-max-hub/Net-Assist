@@ -11,6 +11,7 @@ export default function MainLayout(): JSX.Element {
 
   useEffect(() => {
     loadPersistedTabs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

@@ -21,12 +21,17 @@ export function getTabs(): PersistedTab[] {
     }
     const validTypes = ['tcp-client', 'tcp-server', 'udp']
     return tabs.filter(
-      (t) =>
-        t &&
-        typeof t.id === 'string' &&
-        typeof t.title === 'string' &&
-        validTypes.includes(t.type as string) &&
-        typeof t.config === 'object'
+      (t) => {
+        const valid = t &&
+          typeof t.id === 'string' &&
+          typeof t.title === 'string' &&
+          validTypes.includes(t.type as string) &&
+          typeof t.config === 'object'
+        if (!valid) {
+          console.warn('[tab-store] skipping invalid tab entry:', t)
+        }
+        return valid
+      }
     )
   } catch (err) {
     console.error('[tab-store] failed to read tabs from store:', err)
