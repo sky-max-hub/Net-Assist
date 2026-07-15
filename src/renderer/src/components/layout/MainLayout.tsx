@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useTabStore } from '../../store/tab-store'
 import TabBar from '../tab/TabBar'
 import TabContent from '../tab/TabContent'
@@ -5,8 +6,12 @@ import QuickSendPanel from '../quick-send/QuickSendPanel'
 import './MainLayout.css'
 
 export default function MainLayout(): JSX.Element {
-  const { tabs, activeTabId } = useTabStore()
+  const { tabs, activeTabId, loadPersistedTabs } = useTabStore()
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null
+
+  useEffect(() => {
+    loadPersistedTabs()
+  }, [])
 
   return (
     <div className="main-layout">
