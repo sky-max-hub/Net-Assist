@@ -6,7 +6,7 @@ base-ref: 80bf5edf42a1507b1dfcfa18a7f8a774b3031249
 
 # NetAssist — TCP/UDP 调试工具 实施计划
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 构建一个基于 Electron + React + TypeScript 的跨平台 TCP/UDP 调试工具，支持多 Tab 同时管理 TCP Client、TCP Server、UDP 三种连接模式。
 
@@ -48,7 +48,7 @@ base-ref: 80bf5edf42a1507b1dfcfa18a7f8a774b3031249
 - Consumes: nothing (greenfield)
 - Produces: 可启动的 Electron 窗口，显示 "NetAssist" 标题
 
-- [ ] **Step 1: 创建 `package.json` 并安装依赖**
+- [x] **Step 1: 创建 `package.json` 并安装依赖**
 
 ```json
 {
@@ -90,7 +90,7 @@ base-ref: 80bf5edf42a1507b1dfcfa18a7f8a774b3031249
 
 Run: `cd D:\Download\current\net-assist && npm install`
 
-- [ ] **Step 2: 创建 `electron.vite.config.ts`**
+- [x] **Step 2: 创建 `electron.vite.config.ts`**
 
 ```typescript
 import { resolve } from 'path'
@@ -115,7 +115,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 3: 创建 TypeScript 配置文件**
+- [x] **Step 3: 创建 TypeScript 配置文件**
 
 `tsconfig.json`:
 ```json
@@ -184,7 +184,7 @@ export default defineConfig({
 }
 ```
 
-- [ ] **Step 4: 创建 Main Process 入口 `src/main/index.ts`**
+- [x] **Step 4: 创建 Main Process 入口 `src/main/index.ts`**
 
 ```typescript
 import { app, BrowserWindow, shell } from 'electron'
@@ -237,7 +237,7 @@ app.on('window-all-closed', () => {
 })
 ```
 
-- [ ] **Step 5: 创建 Preload 占位 `src/preload/index.ts`**
+- [x] **Step 5: 创建 Preload 占位 `src/preload/index.ts`**
 
 ```typescript
 import { contextBridge } from 'electron'
@@ -247,7 +247,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 })
 ```
 
-- [ ] **Step 6: 创建 Renderer 入口文件**
+- [x] **Step 6: 创建 Renderer 入口文件**
 
 `src/renderer/index.html`:
 ```html
@@ -307,12 +307,12 @@ interface Window {
 }
 ```
 
-- [ ] **Step 7: 验证项目能启动**
+- [x] **Step 7: 验证项目能启动**
 
 Run: `cd D:\Download\current\net-assist && npx electron-vite dev`
 Expected: Electron 窗口打开，显示 "NetAssist" 标题和 "TCP/UDP 调试工具" 文字。
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add package.json package-lock.json electron.vite.config.ts tsconfig.json tsconfig.node.json tsconfig.web.json src/
@@ -339,7 +339,7 @@ git commit -m "feat: initialize Electron + React + TypeScript project scaffold w
   - `TabState { id, title, type, status, config, messages }`
   - IPC channel name constants and payload types for all 9 channels
 
-- [ ] **Step 1: 创建 `src/shared/types.ts`**
+- [x] **Step 1: 创建 `src/shared/types.ts`**
 
 ```typescript
 export type TabType = 'tcp-client' | 'tcp-server' | 'udp'
@@ -402,7 +402,7 @@ export interface ClientInfo {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/shared/ipc-channels.ts`**
+- [x] **Step 2: 创建 `src/shared/ipc-channels.ts`**
 
 ```typescript
 import type { TabType, TabStatus, TabConfig, ClientInfo } from './types'
@@ -474,7 +474,7 @@ export interface ClientLeftPayload {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/shared/
@@ -495,7 +495,7 @@ git commit -m "feat: define shared types and IPC channel protocol"
   - `ConnectionManager` class with methods: `connect(tabId, type, config)`, `disconnect(tabId)`, `send(tabId, data)`, `setTarget(tabId, clientId)`, `destroyAll()`
   - `registerIpcHandlers()` -- registers all ipcMain.handle() calls
 
-- [ ] **Step 1: 创建 `src/main/connections/connection-manager.ts` 骨架**
+- [x] **Step 1: 创建 `src/main/connections/connection-manager.ts` 骨架**
 
 ```typescript
 import type { TabType, TabConfig, ClientInfo } from '../../shared/types'
@@ -578,7 +578,7 @@ export class ConnectionManager {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/main/ipc/ipc-router.ts`**
+- [x] **Step 2: 创建 `src/main/ipc/ipc-router.ts`**
 
 ```typescript
 import { ipcMain } from 'electron'
@@ -629,7 +629,7 @@ export function unregisterIpcHandlers(): void {
 }
 ```
 
-- [ ] **Step 3: 更新 Main Process 入口，集成 ConnectionManager 和 IPC Router**
+- [x] **Step 3: 更新 Main Process 入口，集成 ConnectionManager 和 IPC Router**
 
 Modify `src/main/index.ts` -- 在 `app.whenReady()` 回调内，`createWindow()` 之后添加:
 
@@ -652,7 +652,7 @@ app.on('window-all-closed', () => {
 })
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/main/ipc/ src/main/connections/ src/main/index.ts
@@ -671,7 +671,7 @@ git commit -m "feat: add IPC router and connection manager skeleton"
 - Consumes: `IPC_CHANNELS` from `src/shared/ipc-channels.ts`
 - Produces: `window.electronAPI` with methods: `connect`, `disconnect`, `send`, `serverSetTarget`, `onStatus`, `onData`, `onError`, `onClientJoined`, `onClientLeft`
 
-- [ ] **Step 1: 重写 `src/preload/index.ts`**
+- [x] **Step 1: 重写 `src/preload/index.ts`**
 
 ```typescript
 import { contextBridge, ipcRenderer } from 'electron'
@@ -750,7 +750,7 @@ const electronAPI = {
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)
 ```
 
-- [ ] **Step 2: 更新 `src/renderer/src/env.d.ts` 类型声明**
+- [x] **Step 2: 更新 `src/renderer/src/env.d.ts` 类型声明**
 
 ```typescript
 /// <reference types="vite/client" />
@@ -784,7 +784,7 @@ interface Window {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/preload/index.ts src/renderer/src/env.d.ts
@@ -806,7 +806,7 @@ git commit -m "feat: implement preload contextBridge API with full IPC surface"
   - Store state: `{ tabs: TabState[], activeTabId: string | null, quickSendItems: QuickSendItem[] }`
   - Store actions: `createTab`, `closeTab`, `setActiveTab`, `updateTabStatus`, `addMessage`, `setTabConfig`, `updateTabTitle`, `addQuickSendItem`, `updateQuickSendItem`, `removeQuickSendItem`
 
-- [ ] **Step 1: 创建 `src/renderer/src/store/tab-store.ts`**
+- [x] **Step 1: 创建 `src/renderer/src/store/tab-store.ts`**
 
 ```typescript
 import { create } from 'zustand'
@@ -974,7 +974,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
 }))
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/store/__tests__/tab-store.test.ts`**
+- [x] **Step 2: 创建 `src/renderer/src/store/__tests__/tab-store.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -1054,12 +1054,12 @@ describe('useTabStore', () => {
 })
 ```
 
-- [ ] **Step 3: 运行测试确认通过**
+- [x] **Step 3: 运行测试确认通过**
 
 Run: `cd D:\Download\current\net-assist && npx vitest run`
 Expected: 6 tests PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/store/
@@ -1086,7 +1086,7 @@ git commit -m "feat: add Zustand tab state management store with tests"
   - `TabBar` -- renders tab buttons with status indicators, new tab dropdown, close buttons
   - `TabContent` -- renders config panel + message area for active tab
 
-- [ ] **Step 1: 创建 `src/renderer/src/components/layout/MainLayout.tsx`**
+- [x] **Step 1: 创建 `src/renderer/src/components/layout/MainLayout.tsx`**
 
 ```typescript
 import { useTabStore } from '../../store/tab-store'
@@ -1119,7 +1119,7 @@ export default function MainLayout(): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/layout/MainLayout.css`**
+- [x] **Step 2: 创建 `src/renderer/src/components/layout/MainLayout.css`**
 
 ```css
 .main-layout {
@@ -1156,7 +1156,7 @@ export default function MainLayout(): JSX.Element {
 }
 ```
 
-- [ ] **Step 3: 创建 `src/renderer/src/components/tab/TabBar.tsx`**
+- [x] **Step 3: 创建 `src/renderer/src/components/tab/TabBar.tsx`**
 
 ```typescript
 import { useState } from 'react'
@@ -1263,7 +1263,7 @@ export default function TabBar(): JSX.Element {
 }
 ```
 
-- [ ] **Step 4: 创建 `src/renderer/src/components/tab/TabBar.css`**
+- [x] **Step 4: 创建 `src/renderer/src/components/tab/TabBar.css`**
 
 ```css
 .tab-bar {
@@ -1342,7 +1342,7 @@ export default function TabBar(): JSX.Element {
 }
 ```
 
-- [ ] **Step 5: 创建 `src/renderer/src/components/tab/TabContent.tsx`**
+- [x] **Step 5: 创建 `src/renderer/src/components/tab/TabContent.tsx`**
 
 ```typescript
 import type { TabState } from '../../../shared/types'
@@ -1363,7 +1363,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 6: 更新 `App.tsx` 使用 MainLayout**
+- [x] **Step 6: 更新 `App.tsx` 使用 MainLayout**
 
 Modify `src/renderer/src/App.tsx`:
 ```typescript
@@ -1376,7 +1376,7 @@ function App(): JSX.Element {
 export default App
 ```
 
-- [ ] **Step 7: 验证 UI 渲染正常**
+- [x] **Step 7: 验证 UI 渲染正常**
 
 Run: `cd D:\Download\current\net-assist && npx electron-vite dev`
 Manual check:
@@ -1386,7 +1386,7 @@ Manual check:
   4. 双击 Tab 标题可编辑，回车或失焦保存
   5. 悬停 Tab 出现关闭按钮，点击可关闭
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/renderer/src/components/layout/ src/renderer/src/components/tab/ src/renderer/src/App.tsx
@@ -1405,7 +1405,7 @@ git commit -m "feat: add main layout with sidebar tab bar and content area"
 - Consumes: `useTabStore` (quickSendItems, addQuickSendItem, updateQuickSendItem, removeQuickSendItem)
 - Produces: `QuickSendPanel` -- renders list of quick send items with add/edit/delete and click-to-send (sending delegated to parent via callback prop)
 
-- [ ] **Step 1: 创建 `src/renderer/src/components/quick-send/QuickSendPanel.tsx`**
+- [x] **Step 1: 创建 `src/renderer/src/components/quick-send/QuickSendPanel.tsx`**
 
 ```typescript
 import { useState } from 'react'
@@ -1528,7 +1528,7 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/quick-send/QuickSendPanel.css`**
+- [x] **Step 2: 创建 `src/renderer/src/components/quick-send/QuickSendPanel.css`**
 
 ```css
 .quick-send-panel {
@@ -1564,7 +1564,7 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 3: 更新 `MainLayout.tsx` 传递 `onSend` 回调（占位）**
+- [x] **Step 3: 更新 `MainLayout.tsx` 传递 `onSend` 回调（占位）**
 
 Modify `src/renderer/src/components/layout/MainLayout.tsx`:
 ```typescript
@@ -1574,7 +1574,7 @@ Modify `src/renderer/src/components/layout/MainLayout.tsx`:
 }} />
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/quick-send/ src/renderer/src/components/layout/MainLayout.tsx
@@ -1598,7 +1598,7 @@ git commit -m "feat: add quick send panel with add/edit/delete/one-click-send"
   - `TcpClientConnection` class: `connect(config, callbacks)`, `disconnect()`, `send(data)`, `isConnected()`
   - Updated `ConnectionManager.connect()` that creates `TcpClientConnection` for `tcp-client` type
 
-- [ ] **Step 1: 创建 `src/main/connections/tcp-client-connection.ts`**
+- [x] **Step 1: 创建 `src/main/connections/tcp-client-connection.ts`**
 
 ```typescript
 import * as net from 'net'
@@ -1696,7 +1696,7 @@ export class TcpClientConnection {
 }
 ```
 
-- [ ] **Step 2: 更新 `ConnectionManager` 集成 `TcpClientConnection`**
+- [x] **Step 2: 更新 `ConnectionManager` 集成 `TcpClientConnection`**
 
 Modify `src/main/connections/connection-manager.ts`:
 
@@ -1785,7 +1785,7 @@ destroyAll(): void {
 }
 ```
 
-- [ ] **Step 3: 创建 `src/main/connections/__tests__/tcp-client-connection.test.ts`**
+- [x] **Step 3: 创建 `src/main/connections/__tests__/tcp-client-connection.test.ts`**
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -1894,12 +1894,12 @@ describe('TcpClientConnection', () => {
 })
 ```
 
-- [ ] **Step 4: 运行测试**
+- [x] **Step 4: 运行测试**
 
 Run: `cd D:\Download\current\net-assist && npx vitest run`
 Expected: All tests PASS, including 4 new TcpClientConnection tests
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/connections/
@@ -1925,7 +1925,7 @@ git commit -m "feat: implement TCP client connection with connect/disconnect/sen
   - `useIpc()` hook -- returns `{ connect, disconnect, send }` bound to preload API, with global IPC event listeners
   - `TcpClientConfigPanel` -- IP/port inputs, connect/disconnect button, status display
 
-- [ ] **Step 1: 创建 `src/renderer/src/hooks/useIpc.ts`**
+- [x] **Step 1: 创建 `src/renderer/src/hooks/useIpc.ts`**
 
 ```typescript
 import { useCallback, useEffect } from 'react'
@@ -1993,7 +1993,7 @@ export function useIpc() {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/config/TcpClientConfig.tsx`**
+- [x] **Step 2: 创建 `src/renderer/src/components/config/TcpClientConfig.tsx`**
 
 ```typescript
 import { useState, useCallback } from 'react'
@@ -2113,7 +2113,7 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 3: 创建 `src/renderer/src/components/config/TcpClientConfig.css`**
+- [x] **Step 3: 创建 `src/renderer/src/components/config/TcpClientConfig.css`**
 
 ```css
 .config-panel {
@@ -2123,7 +2123,7 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 4: 更新 `TabContent` 根据 `tab.type` 渲染配置组件**
+- [x] **Step 4: 更新 `TabContent` 根据 `tab.type` 渲染配置组件**
 
 Modify `src/renderer/src/components/tab/TabContent.tsx`:
 
@@ -2163,7 +2163,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/hooks/ src/renderer/src/components/config/ src/renderer/src/components/tab/TabContent.tsx
@@ -2187,7 +2187,7 @@ git commit -m "feat: add useIpc hook and TCP client config panel UI"
   - Updated `ConnectionManager.connect()` for `tcp-server` type
   - Updated `ConnectionManager.send()` and `setTarget()` for TCP server
 
-- [ ] **Step 1: 创建 `src/main/connections/tcp-server-connection.ts`**
+- [x] **Step 1: 创建 `src/main/connections/tcp-server-connection.ts`**
 
 ```typescript
 import * as net from 'net'
@@ -2294,7 +2294,7 @@ export class TcpServerConnection {
 }
 ```
 
-- [ ] **Step 2: 更新 `ConnectionManager` 集成 `TcpServerConnection`**
+- [x] **Step 2: 更新 `ConnectionManager` 集成 `TcpServerConnection`**
 
 Modify `src/main/connections/connection-manager.ts`:
 
@@ -2388,7 +2388,7 @@ destroyAll(): void {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/main/connections/
@@ -2411,7 +2411,7 @@ git commit -m "feat: implement TCP server connection with multi-client managemen
   - Updated `ConnectionManager.connect()` for `udp` type
   - Updated `ConnectionManager.send()` for UDP
 
-- [ ] **Step 1: 创建 `src/main/connections/udp-connection.ts`**
+- [x] **Step 1: 创建 `src/main/connections/udp-connection.ts`**
 
 ```typescript
 import * as dgram from 'dgram'
@@ -2490,7 +2490,7 @@ export class UdpConnection {
 }
 ```
 
-- [ ] **Step 2: 更新 `ConnectionManager` 集成 `UdpConnection`**
+- [x] **Step 2: 更新 `ConnectionManager` 集成 `UdpConnection`**
 
 Modify `src/main/connections/connection-manager.ts`:
 
@@ -2568,7 +2568,7 @@ destroyAll(): void {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/main/connections/
@@ -2591,7 +2591,7 @@ git commit -m "feat: implement UDP socket connection with bind/send/close"
   - `MessageList` -- scrollable message list with auto-scroll to bottom
   - `MessageItem` -- single message row: timestamp, direction arrow, remote, byte count, decoded content
 
-- [ ] **Step 1: 创建 `src/renderer/src/components/messages/MessageItem.tsx`**
+- [x] **Step 1: 创建 `src/renderer/src/components/messages/MessageItem.tsx`**
 
 ```typescript
 import type { Message, DisplayMode, EncodingMode } from '../../../shared/types'
@@ -2656,7 +2656,7 @@ export default function MessageItem({ message, displayMode, encoding }: Props): 
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/messages/MessageList.tsx`**
+- [x] **Step 2: 创建 `src/renderer/src/components/messages/MessageList.tsx`**
 
 ```typescript
 import { useEffect, useRef } from 'react'
@@ -2697,7 +2697,7 @@ export default function MessageList({ messages, displayMode, encoding }: Props):
 }
 ```
 
-- [ ] **Step 3: 创建 `src/renderer/src/components/messages/MessageList.css`**
+- [x] **Step 3: 创建 `src/renderer/src/components/messages/MessageList.css`**
 
 ```css
 .message-list {
@@ -2758,7 +2758,7 @@ export default function MessageList({ messages, displayMode, encoding }: Props):
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/messages/
@@ -2787,7 +2787,7 @@ git commit -m "feat: add message list with timestamp, direction, and content dis
   - `LineEndingSelector` -- Select dropdown for CRLF / LF / CR
   - `WhitespaceRenderer` -- renders text with invisible character visualization
 
-- [ ] **Step 1: 创建 `src/renderer/src/components/encoding/WhitespaceRenderer.tsx`**
+- [x] **Step 1: 创建 `src/renderer/src/components/encoding/WhitespaceRenderer.tsx`**
 
 ```typescript
 interface Props {
@@ -2808,7 +2808,7 @@ export default function WhitespaceRenderer({ text }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/encoding/EncodingSelector.tsx`**
+- [x] **Step 2: 创建 `src/renderer/src/components/encoding/EncodingSelector.tsx`**
 
 ```typescript
 import { Radio } from 'antd'
@@ -2834,7 +2834,7 @@ export default function EncodingSelector({ value, onChange }: Props): JSX.Elemen
 }
 ```
 
-- [ ] **Step 3: 创建 `src/renderer/src/components/encoding/LineEndingSelector.tsx`**
+- [x] **Step 3: 创建 `src/renderer/src/components/encoding/LineEndingSelector.tsx`**
 
 ```typescript
 import { Select } from 'antd'
@@ -2864,7 +2864,7 @@ export default function LineEndingSelector({ value, onChange }: Props): JSX.Elem
 }
 ```
 
-- [ ] **Step 4: 创建 `src/renderer/src/components/send/SendPanel.tsx`**
+- [x] **Step 4: 创建 `src/renderer/src/components/send/SendPanel.tsx`**
 
 ```typescript
 import { useState, useCallback, KeyboardEvent } from 'react'
@@ -2987,7 +2987,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 5: 创建 `src/renderer/src/components/send/SendPanel.css`**
+- [x] **Step 5: 创建 `src/renderer/src/components/send/SendPanel.css`**
 
 ```css
 .send-panel {
@@ -3037,7 +3037,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/renderer/src/components/send/ src/renderer/src/components/encoding/
@@ -3059,7 +3059,7 @@ git commit -m "feat: add send panel with encoding selector and whitespace visual
   - `validateHex(input: string): boolean` -- exported validation function
   - `hexToBytes(input: string): Uint8Array` -- exported conversion function
 
-- [ ] **Step 1: 创建 `src/renderer/src/components/encoding/HexEditor.tsx`**
+- [x] **Step 1: 创建 `src/renderer/src/components/encoding/HexEditor.tsx`**
 
 ```typescript
 import { useMemo } from 'react'
@@ -3125,7 +3125,7 @@ export default function HexEditor({ value, onChange }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/encoding/HexEditor.css`**
+- [x] **Step 2: 创建 `src/renderer/src/components/encoding/HexEditor.css`**
 
 ```css
 .hex-editor {
@@ -3155,7 +3155,7 @@ export default function HexEditor({ value, onChange }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/renderer/src/components/encoding/HexEditor.tsx src/renderer/src/components/encoding/HexEditor.css
@@ -3180,7 +3180,7 @@ git commit -m "feat: add HEX editor with real-time validation and formatting"
   - `TcpServerConfigPanel` -- port input, start/stop button, client list with target selection
   - `UdpConfigPanel` -- local port, target IP, target port inputs, bind/close button
 
-- [ ] **Step 1: 创建 `src/renderer/src/components/config/TcpServerConfig.tsx`**
+- [x] **Step 1: 创建 `src/renderer/src/components/config/TcpServerConfig.tsx`**
 
 ```typescript
 import { useState, useCallback, useEffect } from 'react'
@@ -3336,7 +3336,7 @@ export default function TcpServerConfigPanel({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 创建 `src/renderer/src/components/config/UdpConfig.tsx`**
+- [x] **Step 2: 创建 `src/renderer/src/components/config/UdpConfig.tsx`**
 
 ```typescript
 import { useState, useCallback } from 'react'
@@ -3467,7 +3467,7 @@ export default function UdpConfigPanel({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 3: 更新 `TabContent` 集成所有配置面板和消息收发**
+- [x] **Step 3: 更新 `TabContent` 集成所有配置面板和消息收发**
 
 Modify `src/renderer/src/components/tab/TabContent.tsx`:
 
@@ -3516,7 +3516,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/config/ src/renderer/src/components/tab/TabContent.tsx
@@ -3538,13 +3538,13 @@ git commit -m "feat: add TCP server and UDP config panels, wire up full tab cont
   - `encodeGBK(text: string): Buffer` -- convert text to GBK bytes
   - `decodeGBK(buffer: Buffer): string` -- convert GBK bytes to text
 
-- [ ] **Step 1: 确认 iconv-lite 已安装**
+- [x] **Step 1: 确认 iconv-lite 已安装**
 
 Run: `cd D:\Download\current\net-assist && node -e "require('iconv-lite')"`
 
 Expected: No error (module loads successfully)
 
-- [ ] **Step 2: 创建 `src/main/encoding/gbk-codec.ts`**
+- [x] **Step 2: 创建 `src/main/encoding/gbk-codec.ts`**
 
 ```typescript
 import * as iconv from 'iconv-lite'
@@ -3558,7 +3558,7 @@ export function decodeGBK(buffer: Buffer): string {
 }
 ```
 
-- [ ] **Step 3: 创建 `src/main/encoding/__tests__/gbk-codec.test.ts`**
+- [x] **Step 3: 创建 `src/main/encoding/__tests__/gbk-codec.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -3591,12 +3591,12 @@ describe('GBK codec', () => {
 })
 ```
 
-- [ ] **Step 4: 运行测试**
+- [x] **Step 4: 运行测试**
 
 Run: `cd D:\Download\current\net-assist && npx vitest run`
 Expected: All GBK codec tests PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/encoding/
@@ -3619,7 +3619,7 @@ git commit -m "feat: add GBK encoding/decoding via iconv-lite"
   - On `conn:status` idle from Main Process after close, Renderer resets tab state
   - Closing a tab in TabBar triggers `disconnect` IPC before removing tab
 
-- [ ] **Step 1: 更新 `useIpc` Hook 处理状态变更**
+- [x] **Step 1: 更新 `useIpc` Hook 处理状态变更**
 
 Modify `src/renderer/src/hooks/useIpc.ts`:
 
@@ -3635,7 +3635,7 @@ const unsubStatus = window.electronAPI.onStatus((payload: StatusPayload) => {
 })
 ```
 
-- [ ] **Step 2: 更新 `TabBar` 关闭时调用 IPC disconnect**
+- [x] **Step 2: 更新 `TabBar` 关闭时调用 IPC disconnect**
 
 Modify `src/renderer/src/components/tab/TabBar.tsx`:
 
@@ -3669,7 +3669,7 @@ onClick={(e) => {
 }}
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/renderer/src/hooks/useIpc.ts src/renderer/src/components/tab/TabBar.tsx
@@ -3689,14 +3689,14 @@ git commit -m "feat: auto-disconnect on tab close, reset status on idle event"
 - Consumes: nothing
 - Produces: app window with custom title "NetAssist", app icon configured in build
 
-- [ ] **Step 1: 确认 Main Process 窗口标题**
+- [x] **Step 1: 确认 Main Process 窗口标题**
 
 Verify `src/main/index.ts` already has:
 ```typescript
 title: 'NetAssist',
 ```
 
-- [ ] **Step 2: 创建占位图标目录和文件**
+- [x] **Step 2: 创建占位图标目录和文件**
 
 Run:
 ```bash
@@ -3705,7 +3705,7 @@ mkdir -p D:/Download/current/net-assist/resources
 
 Place a 256x256 placeholder PNG at `resources/icon.png` (any solid-color PNG works for dev).
 
-- [ ] **Step 3: 更新 `package.json` 添加 electron-builder 打包配置**
+- [x] **Step 3: 更新 `package.json` 添加 electron-builder 打包配置**
 
 Modify `package.json` to add:
 ```json
@@ -3728,7 +3728,7 @@ Modify `package.json` to add:
 }
 ```
 
-- [ ] **Step 4: 端到端验证（手动测试清单）**
+- [x] **Step 4: 端到端验证（手动测试清单）**
 
 Run: `cd D:\Download\current\net-assist && npx electron-vite dev`
 
@@ -3746,7 +3746,7 @@ Manual test checklist:
 11. 关闭 Tab 后网络资源被释放
 12. 连接不存在的地址显示"连接被拒绝"错误
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add resources/ package.json src/main/index.ts
