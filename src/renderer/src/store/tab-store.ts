@@ -8,8 +8,54 @@ import type {
   QuickSendItem,
   TcpClientConfig,
   TcpServerConfig,
-  UdpConfig
+  UdpConfig,
+  PersistedTab
 } from '../../shared/types'
+
+declare global {
+  interface Window {
+    electronAPI?: {
+      store: {
+        loadTabs: () => Promise<PersistedTab[]>
+        saveTabs: (tabs: PersistedTab[]) => void
+      }
+    }
+  }
+}
+
+function persistTabs(tabs: TabState[]): void {
+  const toSave: PersistedTab[] = tabs.map((t) => ({
+    id: t.id,
+    title: t.title,
+    type: t.type,
+    config: t.config
+  }))
+  try {
+    window.electronAPI?.store.saveTabs(toSave)
+  } catch (err) {
+    console.error('[tab-store] failed to save tabs:', err)
+  }
+}
+
+async function loadPersistedTabs(): Promise<TabState[]> {
+  try {
+    if (!window.electronAPI?.store) return []
+    const persisted = await window.electronAPI.store.loadTabs()
+    if (!persisted || persisted.length === 0) return []
+
+    return persisted.map((p) => ({
+      id: p.id,
+      title: p.title,
+      type: p.type,
+      status: 'idle' as const,
+      config: p.config,
+      messages: []
+    }))
+  } catch (err) {
+    console.error('[tab-store] failed to load persisted tabs:', err)
+    return []
+  }
+}
 
 const MAX_MESSAGES = 5000
 const MAX_TABS = 20
@@ -28,7 +74,7 @@ function generateMessageId(): string {
 function defaultConfig(type: TabType): TabConfig {
   switch (type) {
     case 'tcp-client':
-      return { host: '', port: 0 } as TcpClientConfig
+      return { host: '127.0.0.1', port: 0 } as TcpClientConfig
     case 'tcp-server':
       return { port: 0 } as TcpServerConfig
     case 'udp':
@@ -62,6 +108,8 @@ interface TabStore {
   addQuickSendItem: (item: Omit<QuickSendItem, 'id'>) => void
   updateQuickSendItem: (id: string, item: Partial<Omit<QuickSendItem, 'id'>>) => void
   removeQuickSendItem: (id: string) => void
+  loadPersistedTabs: () => Promise<void>
+  clearMessages: (tabId: string) => void
 }
 
 export const useTabStore = create<TabStore>((set, get) => ({
@@ -83,7 +131,9 @@ export const useTabStore = create<TabStore>((set, get) => ({
       messages: []
     }
 
-    set({ tabs: [...tabs, newTab], activeTabId: id })
+    const newTabs = [...tabs, newTab]
+    set({ tabs: newTabs, activeTabId: id })
+    persistTabs(newTabs)
     return id
   },
 
@@ -106,6 +156,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
     }
 
     set({ tabs: newTabs, activeTabId: newActiveId })
+    persistTabs(newTabs)
   },
 
   setActiveTab: (tabId: string): void => {
@@ -132,16 +183,16 @@ export const useTabStore = create<TabStore>((set, get) => ({
   },
 
   setTabConfig: (tabId: string, config: TabConfig): void => {
-    set({
-      tabs: get().tabs.map((t) => (t.id === tabId ? { ...t, config } : t))
-    })
+    const newTabs = get().tabs.map((t) => (t.id === tabId ? { ...t, config } : t))
+    set({ tabs: newTabs })
+    persistTabs(newTabs)
   },
 
   updateTabTitle: (tabId: string, title: string): void => {
     if (!title.trim()) return
-    set({
-      tabs: get().tabs.map((t) => (t.id === tabId ? { ...t, title: title.trim() } : t))
-    })
+    const newTabs = get().tabs.map((t) => (t.id === tabId ? { ...t, title: title.trim() } : t))
+    set({ tabs: newTabs })
+    persistTabs(newTabs)
   },
 
   addQuickSendItem: (item: Omit<QuickSendItem, 'id'>): void => {
@@ -159,5 +210,21 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
   removeQuickSendItem: (id: string): void => {
     set({ quickSendItems: get().quickSendItems.filter((item) => item.id !== id) })
+  },
+
+  loadPersistedTabs: async (): Promise<void> => {
+    const restored = await loadPersistedTabs()
+    if (restored.length > 0) {
+      tabCounter = restored.length
+      set({ tabs: restored, activeTabId: restored[0].id })
+    }
+  },
+
+  clearMessages: (tabId: string): void => {
+    set({
+      tabs: get().tabs.map((t) =>
+        t.id === tabId ? { ...t, messages: [] } : t
+      )
+    })
   }
 }))
