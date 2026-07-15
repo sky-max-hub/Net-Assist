@@ -14,7 +14,9 @@ interface Props {
 export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
   const { setTabConfig, updateTabStatus } = useTabStore()
   const { connect, disconnect } = useIpc()
-  const [host, setHost] = useState((tab.config as TcpClientConfigType).host || '')
+  const [host, setHost] = useState(
+    (tab.config as TcpClientConfigType).host || '127.0.0.1'
+  )
   const [port, setPort] = useState<number | null>((tab.config as TcpClientConfigType).port || null)
   const [loading, setLoading] = useState(false)
 
