@@ -1,10 +1,7 @@
+import MainLayout from './components/layout/MainLayout'
+
 function App(): JSX.Element {
-  return (
-    <div style={{ padding: 24 }}>
-      <h1>NetAssist</h1>
-      <p>TCP/UDP 调试工具</p>
-    </div>
-  )
+  return <MainLayout />
 }
 
 export default App
