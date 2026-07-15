@@ -70,7 +70,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
           onKeyDown={handleKeyDown}
           placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送)' : '请先建立连接'}
           disabled={!isConnected || sending}
-          rows={4}
+          rows={3}
           style={{ resize: 'none' }}
         />
       </div>

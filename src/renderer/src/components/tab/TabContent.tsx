@@ -29,9 +29,11 @@ export default function TabContent({ tab }: Props): JSX.Element {
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {renderConfigPanel()}
-      <div style={{ flex: 1, minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+      <div style={{ flexShrink: 0 }}>
+        {renderConfigPanel()}
+      </div>
+      <div style={{ flex: 1, minHeight: 150, overflow: 'hidden' }}>
         <MessageList messages={tab.messages} displayMode={displayMode} encoding={encoding} />
       </div>
       <div style={{ flexShrink: 0 }}>
