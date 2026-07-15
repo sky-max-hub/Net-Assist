@@ -3,18 +3,52 @@ import type {
   DataPayload
 } from '../../shared/ipc-channels'
 import { BrowserWindow } from 'electron'
+import { TcpClientConnection } from './tcp-client-connection'
+import type { TcpClientConfig } from '../../shared/types'
 
 export class ConnectionManager {
   private connections = new Map<
     string,
     { type: TabType; config: TabConfig; cleanup: () => void }
   >()
+  private tcpClients = new Map<string, TcpClientConnection>()
 
   constructor(private getMainWindow: () => BrowserWindow | null) {}
 
   async connect(tabId: string, type: TabType, config: TabConfig): Promise<void> {
     this.disconnect(tabId)
-    this.emitStatus(tabId, 'connected')
+
+    if (type === 'tcp-client') {
+      const tcpConfig = config as TcpClientConfig
+      const tcpClient = new TcpClientConnection()
+      this.tcpClients.set(tabId, tcpClient)
+
+      this.connections.set(tabId, {
+        type,
+        config,
+        cleanup: () => {
+          tcpClient.disconnect()
+          this.tcpClients.delete(tabId)
+        }
+      })
+
+      tcpClient.connect(tcpConfig, {
+        onStatus: (status) => {
+          this.emitStatus(tabId, status)
+        },
+        onData: (data: Buffer, remote: string) => {
+          this.emitData(tabId, {
+            direction: 'rx',
+            remote,
+            data: Array.from(data),
+            timestamp: Date.now()
+          })
+        },
+        onError: (message: string) => {
+          this.emitError(tabId, message)
+        }
+      })
+    }
   }
 
   disconnect(tabId: string): void {
@@ -26,7 +60,23 @@ export class ConnectionManager {
   }
 
   send(tabId: string, data: number[]): void {
-    console.log(`send to ${tabId}: ${data.length} bytes (not implemented)`)
+    const buffer = Buffer.from(data)
+    const conn = this.connections.get(tabId)
+    if (!conn) return
+
+    if (conn.type === 'tcp-client') {
+      const tcpClient = this.tcpClients.get(tabId)
+      if (tcpClient?.isConnected()) {
+        const tcpConfig = conn.config as TcpClientConfig
+        tcpClient.send(buffer)
+        this.emitData(tabId, {
+          direction: 'tx',
+          remote: `${tcpConfig.host}:${tcpConfig.port}`,
+          data: data,
+          timestamp: Date.now()
+        })
+      }
+    }
   }
 
   setTarget(tabId: string, clientId: string | null): void {
@@ -37,6 +87,7 @@ export class ConnectionManager {
     for (const tabId of this.connections.keys()) {
       this.disconnect(tabId)
     }
+    this.tcpClients.clear()
   }
 
   private emit(tabId: string, channel: string, payload: Record<string, unknown>): void {
