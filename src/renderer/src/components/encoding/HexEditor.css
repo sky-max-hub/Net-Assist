@@ -1,0 +1,8 @@
+.hex-editor { position: relative; }
+.hex-editor .hex-invalid textarea { color: #ff4d4f; border-color: #ff4d4f; }
+.hex-error { color: #ff4d4f; font-size: 12px; margin-top: 4px; }
+.hex-preview {
+  font-family: 'Consolas', 'Monaco', monospace; font-size: 13px;
+  color: #52c41a; margin-top: 4px; padding: 4px 8px;
+  background: #f6ffed; border-radius: 4px; word-break: break-all;
+}

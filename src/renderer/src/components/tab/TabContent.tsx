@@ -1,22 +1,28 @@
+import { useState } from 'react'
 import type { TabState } from '../../../shared/types'
+import type { DisplayMode, EncodingMode } from '../../../shared/types'
 import TcpClientConfigPanel from '../config/TcpClientConfig'
+import TcpServerConfigPanel from '../config/TcpServerConfig'
+import UdpConfigPanel from '../config/UdpConfig'
+import MessageList from '../messages/MessageList'
+import SendPanel from '../send/SendPanel'
 
 interface Props {
   tab: TabState
 }
 
 export default function TabContent({ tab }: Props): JSX.Element {
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('text')
+  const [encoding, setEncoding] = useState<EncodingMode>('utf-8')
+
   const renderConfigPanel = (): JSX.Element | null => {
     switch (tab.type) {
       case 'tcp-client':
         return <TcpClientConfigPanel tab={tab} />
       case 'tcp-server':
+        return <TcpServerConfigPanel tab={tab} />
       case 'udp':
-        return (
-          <div style={{ padding: 16 }}>
-            {tab.type} 配置面板将在后续任务中实现
-          </div>
-        )
+        return <UdpConfigPanel tab={tab} />
       default:
         return null
     }
@@ -25,9 +31,8 @@ export default function TabContent({ tab }: Props): JSX.Element {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {renderConfigPanel()}
-      <div style={{ flex: 1, padding: 16, overflow: 'auto' }}>
-        <p>消息区域将在后续任务实现</p>
-      </div>
+      <MessageList messages={tab.messages} displayMode={displayMode} encoding={encoding} />
+      <SendPanel tabId={tab.id} />
     </div>
   )
 }

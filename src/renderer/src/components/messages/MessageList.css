@@ -1,0 +1,32 @@
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  line-height: 1.6;
+}
+
+.message-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+}
+
+.message-item {
+  white-space: pre-wrap;
+  word-break: break-all;
+  padding: 1px 0;
+}
+
+.message-item.message-tx .message-direction { color: #6a9955; }
+.message-item.message-rx .message-direction { color: #569cd6; }
+.message-time { color: #858585; margin-right: 6px; }
+.message-direction { margin-right: 6px; font-weight: bold; }
+.message-remote { color: #ce9178; margin-right: 6px; }
+.message-length { color: #858585; margin-right: 6px; }
+.message-content { color: #d4d4d4; }
