@@ -35,14 +35,16 @@ export default function MessageList({ tabId, messages, displayMode, encoding }: 
           清空消息
         </Button>
       </div>
-      {messages.length === 0 ? (
-        <div className="message-list-empty">暂无消息</div>
-      ) : (
-        messages.map((msg) => (
-          <MessageItem key={msg.id} message={msg} displayMode={displayMode} encoding={encoding} />
-        ))
-      )}
-      <div ref={bottomRef} />
+      <div className="message-list-scroll">
+        {messages.length === 0 ? (
+          <div className="message-list-empty">暂无消息</div>
+        ) : (
+          messages.map((msg) => (
+            <MessageItem key={msg.id} message={msg} displayMode={displayMode} encoding={encoding} />
+          ))
+        )}
+        <div ref={bottomRef} />
+      </div>
     </div>
   )
 }
