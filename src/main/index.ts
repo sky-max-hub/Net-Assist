@@ -1,6 +1,10 @@
 import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
+import { registerIpcHandlers } from './ipc/ipc-router'
+import { ConnectionManager } from './connections/connection-manager'
+
+let connectionManager: ConnectionManager
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -31,6 +35,9 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  connectionManager = new ConnectionManager(() => BrowserWindow.getAllWindows()[0] ?? null)
+  registerIpcHandlers(connectionManager)
 }
 
 app.whenReady().then(() => {
@@ -42,6 +49,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  connectionManager?.destroyAll()
   if (process.platform !== 'darwin') {
     app.quit()
   }
