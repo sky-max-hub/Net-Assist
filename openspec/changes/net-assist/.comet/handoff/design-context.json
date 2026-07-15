@@ -1,0 +1,19 @@
+{
+  "change": "net-assist",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "c451824e9dbc9107e2f735e987df9688f15629358833c7ef19fadb701e5f47f5",
+  "files": [
+    { "path": "openspec/changes/net-assist/proposal.md", "sha256": "a25ab66e6cb1e31a4de5b8dd66f3b9f7c8328b3bbe5c10380171a5426d9bbe39" },
+    { "path": "openspec/changes/net-assist/design.md", "sha256": "8cee8a8cbc20aef27da05b32c2a22acac5bcf7dffcf61e41dfb7fb401875958a" },
+    { "path": "openspec/changes/net-assist/tasks.md", "sha256": "3cb5cebbfd83c67728bec8aec1449c612f5a8f1bedd2f94ef1b6e0ec9e4f2b82" },
+    { "path": "openspec/changes/net-assist/specs/hex-editor/spec.md", "sha256": "9c63e947ebd4506bec3939149946a8cd059771b2333e06c1450df96cdfaa5263" },
+    { "path": "openspec/changes/net-assist/specs/multi-tab/spec.md", "sha256": "78813fdf19c32921aed268f37abd9d342569172253e4c6acde04948e00e79f18" },
+    { "path": "openspec/changes/net-assist/specs/quick-send/spec.md", "sha256": "f7605cd59a9d9e22855ea62a53498316a1a72210a3c354c59473c305ddcdff94" },
+    { "path": "openspec/changes/net-assist/specs/tcp-client/spec.md", "sha256": "6e8c24a6e7447981556b99a34f59bda3e43c5207d9519c364c31382ddbf333f1" },
+    { "path": "openspec/changes/net-assist/specs/tcp-server/spec.md", "sha256": "94321daf49a91cfbe0426b6d629b3d738468430e66217e939d56b96323df6fcb" },
+    { "path": "openspec/changes/net-assist/specs/udp-socket/spec.md", "sha256": "92921ad83b10bbee50cf6f912d98867aef7c87262a1d109299e9442d1a09b85e" }
+  ]
+}

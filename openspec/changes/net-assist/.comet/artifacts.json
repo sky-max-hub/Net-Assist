@@ -1,0 +1,8 @@
+{
+  "openspec_proposal": "openspec/changes/net-assist/proposal.md",
+  "openspec_design": "openspec/changes/net-assist/design.md",
+  "openspec_tasks": "openspec/changes/net-assist/tasks.md",
+  "openspec_delta_spec": "openspec/changes/net-assist/specs/hex-editor/spec.md",
+  "handoff_context": "openspec/changes/net-assist/.comet/handoff/design-context.json",
+  "handoff_markdown": "openspec/changes/net-assist/.comet/handoff/design-context.md"
+}

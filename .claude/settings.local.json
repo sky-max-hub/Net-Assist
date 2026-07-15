@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"D:/Download/current/net-assist/.claude/skills/comet/scripts/comet-hook-guard.mjs\" --project-root \"D:/Download/current/net-assist\""
+          }
+        ]
+      }
+    ]
+  }
+}

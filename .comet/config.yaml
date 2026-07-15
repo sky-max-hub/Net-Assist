@@ -1,0 +1,8 @@
+# language: en | zh-CN
+language: zh-CN
+# context_compression: off | beta
+context_compression: off
+# review_mode: off | standard | thorough
+review_mode: standard
+# auto_transition: true | false
+auto_transition: true
