@@ -34,26 +34,26 @@ export function highlightAscii(text: string): React.ReactNode[] {
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i)
 
-    // CRLF pair: one line break + both tags
+    // CRLF pair: both tags then one line break
     if (code === 0x0D && i + 1 < text.length && text.charCodeAt(i + 1) === 0x0A) {
-      result.push(<br key={`br-${i}`} />)
       result.push(asciiTag(0x0D, i))
       result.push(asciiTag(0x0A, i + 0.5))
+      result.push(<br key={`br-${i}`} />)
       i++ // skip LF
       continue
     }
 
-    // CR alone: line break + CR tag
+    // CR alone: CR tag then line break
     if (code === 0x0D) {
-      result.push(<br key={`br-${i}`} />)
       result.push(asciiTag(code, i))
+      result.push(<br key={`br-${i}`} />)
       continue
     }
 
-    // LF alone: line break + LF tag
+    // LF alone: LF tag then line break
     if (code === 0x0A) {
-      result.push(<br key={`br-${i}`} />)
       result.push(asciiTag(code, i))
+      result.push(<br key={`br-${i}`} />)
       continue
     }
 
