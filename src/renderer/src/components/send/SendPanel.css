@@ -5,3 +5,32 @@
 .send-hint { font-size: 12px; color: #999; }
 .send-option { display: inline-flex; align-items: center; gap: 4px; }
 .send-option-label { font-size: 11px; color: #888; }
+
+.send-quick-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 16px;
+}
+
+.send-quick-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  font-size: 11px;
+  color: #555;
+  background: #f0f0f0;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  cursor: pointer;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.send-quick-tag:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #e6f7ff;
+}

@@ -22,6 +22,7 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
   const [draftInput, setDraftInput] = useState<string>('')
   const { send } = useIpc()
   const tab = useTabStore((s) => s.tabs.find((t) => t.id === tabId))
+  const quickSendItems = useTabStore((s) => s.quickSendItems)
   const updateSendOptions = useTabStore((s) => s.updateSendOptions)
   const encoding = tab?.sendOptions.encoding ?? 'utf-8'
   const displayMode = tab?.sendOptions.displayMode ?? 'text'
@@ -101,6 +102,10 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
 
   const ctrlChars = countControlChars(input)
 
+  const handleQuickTag = useCallback((content: string) => {
+    setInput(content)
+  }, [])
+
   return (
     <div className="send-panel">
       <div className="send-toolbar">
@@ -126,6 +131,16 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
           </Button>
         )}
       </div>
+      {quickSendItems.length > 0 && (
+        <div className="send-quick-tags">
+          {quickSendItems.map((item) => (
+            <span key={item.id} className="send-quick-tag" title={item.content}
+              onClick={() => handleQuickTag(item.content)}>
+              {item.name}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="send-input-area">
         <Input.TextArea
           value={input}
