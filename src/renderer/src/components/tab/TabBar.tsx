@@ -22,8 +22,8 @@ const statusColors: Record<string, string> = {
 }
 
 const tabTypeConfig: Record<TabType, { label: string; color: string }> = {
-  'tcp-client': { label: 'CLI', color: '#52c41a' },
-  'tcp-server': { label: 'SRV', color: '#1890ff' },
+  'tcp-client': { label: 'TCP_CLIENT', color: '#52c41a' },
+  'tcp-server': { label: 'TCP_SERVER', color: '#1890ff' },
   udp: { label: 'UDP', color: '#fa8c16' }
 }
 

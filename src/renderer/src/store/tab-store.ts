@@ -92,9 +92,9 @@ function defaultSendOptions(): SendOptions {
 function defaultTitle(type: TabType): string {
   switch (type) {
     case 'tcp-client':
-      return 'TCP_CLIENT'
+      return 'TCP Client'
     case 'tcp-server':
-      return 'TCP_SERVER'
+      return 'TCP Server'
     case 'udp':
       return 'UDP'
   }
