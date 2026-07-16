@@ -14,7 +14,7 @@ export default function UdpConfigPanel({ tab }: Props): JSX.Element {
   const { connect, disconnect } = useIpc()
   const config = tab.config as UdpConfigType
   const [localPort, setLocalPort] = useState<number | null>(config.localPort || null)
-  const [targetHost, setTargetHost] = useState(config.targetHost || '')
+  const [targetHost, setTargetHost] = useState(config.targetHost || '127.0.0.1')
   const [targetPort, setTargetPort] = useState<number | null>(config.targetPort || null)
   const [loading, setLoading] = useState(false)
   const isBound = tab.status === 'connected'
@@ -42,7 +42,7 @@ export default function UdpConfigPanel({ tab }: Props): JSX.Element {
         <span style={{ fontSize: 13, color: '#666' }}>本地:</span>
         <InputNumber placeholder="本地端口" value={localPort} onChange={(v) => setLocalPort(v)} min={1} max={65535} disabled={isBound} style={{ width: 100 }} />
         <span style={{ fontSize: 13, color: '#666' }}>目标:</span>
-        <Input placeholder="目标 IP" value={targetHost} onChange={(e) => setTargetHost(e.target.value)} disabled={isBound} style={{ width: 140 }} />
+        <Input placeholder="127.0.0.1" value={targetHost} onChange={(e) => setTargetHost(e.target.value)} disabled={isBound} style={{ width: 140 }} />
         <InputNumber placeholder="目标端口" value={targetPort} onChange={(v) => setTargetPort(v)} min={1} max={65535} disabled={isBound} style={{ width: 100 }} />
         {isBound ? (
           <Button danger icon={<CloseOutlined />} onClick={handleClose} loading={loading}>关闭</Button>

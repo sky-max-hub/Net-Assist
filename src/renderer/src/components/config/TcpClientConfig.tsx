@@ -66,7 +66,7 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
     <div className="config-panel">
       <Space wrap>
         <Input
-          placeholder="目标 IP"
+          placeholder="127.0.0.1"
           value={host}
           onChange={(e) => setHost(e.target.value)}
           disabled={isConnected || isConnecting}

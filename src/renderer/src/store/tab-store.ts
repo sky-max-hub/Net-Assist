@@ -81,7 +81,7 @@ function defaultConfig(type: TabType): TabConfig {
     case 'tcp-server':
       return { port: 0 } as TcpServerConfig
     case 'udp':
-      return { localPort: 0, targetHost: '', targetPort: 0 } as UdpConfig
+      return { localPort: 0, targetHost: '127.0.0.1', targetPort: 0 } as UdpConfig
   }
 }
 
