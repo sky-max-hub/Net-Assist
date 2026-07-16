@@ -289,5 +289,17 @@ export const useTabStore = create<TabStore>((set, get) => ({
         t.id === tabId ? { ...t, messages: [] } : t
       )
     })
+  },
+
+  loadQuickSend: async (): Promise<void> => {
+    try {
+      if (!window.electronAPI?.quickSend) return
+      const data = await window.electronAPI.quickSend.load()
+      if (data && (data.items.length > 0 || data.groups.length > 0)) {
+        set({ quickSendItems: data.items, quickSendGroups: data.groups })
+      }
+    } catch (err) {
+      console.error('[tab-store] failed to load quick send:', err)
+    }
   }
 }))
