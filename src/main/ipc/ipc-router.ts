@@ -30,7 +30,7 @@ export function registerIpcHandlers(connectionManager: ConnectionManager): void 
   ipcMain.handle(
     IPC_CHANNELS.CONN_SEND,
     async (_event, payload: SendPayload) => {
-      connectionManager.send(payload.tabId, payload.data)
+      connectionManager.send(payload.tabId, payload.data, payload.encoding)
     }
   )
 

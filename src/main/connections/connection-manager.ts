@@ -45,7 +45,8 @@ export class ConnectionManager {
             direction: 'rx',
             remote,
             data: Array.from(data),
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            encoding: 'gbk'
           })
         },
         onError: (message: string) => {
@@ -71,7 +72,7 @@ export class ConnectionManager {
       tcpServer.start(srvConfig, {
         onStatus: (status) => this.emitStatus(tabId, status),
         onData: (data: Buffer, remote: string) => {
-          this.emitData(tabId, { direction: 'rx', remote, data: Array.from(data), timestamp: Date.now() })
+          this.emitData(tabId, { direction: 'rx', remote, data: Array.from(data), timestamp: Date.now(), encoding: 'gbk' })
         },
         onError: (message: string) => this.emitError(tabId, message),
         onClientJoined: (client: ClientInfo) => this.emitClientJoined(tabId, client),
@@ -94,7 +95,7 @@ export class ConnectionManager {
       udpConn.bind(udpConfig, {
         onStatus: (status) => this.emitStatus(tabId, status),
         onData: (data: Buffer, remote: string) => {
-          this.emitData(tabId, { direction: 'rx', remote, data: Array.from(data), timestamp: Date.now() })
+          this.emitData(tabId, { direction: 'rx', remote, data: Array.from(data), timestamp: Date.now(), encoding: 'gbk' })
         },
         onError: (message: string) => this.emitError(tabId, message)
       })
@@ -110,7 +111,7 @@ export class ConnectionManager {
     this.emitStatus(tabId, 'idle')
   }
 
-  send(tabId: string, data: number[]): void {
+  send(tabId: string, data: number[], encoding: string = 'utf-8'): void {
     const buffer = Buffer.from(data)
     const conn = this.connections.get(tabId)
     if (!conn) return
@@ -124,7 +125,8 @@ export class ConnectionManager {
           direction: 'tx',
           remote: `${tcpConfig.host}:${tcpConfig.port}`,
           data: data,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          encoding
         })
       }
     } else if (conn.type === 'tcp-server') {
@@ -136,7 +138,8 @@ export class ConnectionManager {
           direction: 'tx',
           remote: targetClientId || 'broadcast',
           data: data,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          encoding
         })
       }
     } else if (conn.type === 'udp') {
@@ -148,7 +151,8 @@ export class ConnectionManager {
           direction: 'tx',
           remote: `${udpConfig.targetHost}:${udpConfig.targetPort}`,
           data: data,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          encoding
         })
       }
     }
@@ -181,9 +185,11 @@ export class ConnectionManager {
 
   emitData(tabId: string, payload: Omit<DataPayload, 'tabId'>): void {
     const buf = Buffer.from(payload.data)
+    const enc = payload.encoding || 'utf-8'
     const fullPayload = {
       ...payload,
-      text: decodeText(buf, payload.direction === 'tx' ? 'utf-8' : 'gbk')
+      encoding: enc,
+      text: decodeText(buf, enc)
     }
     this.emit(tabId, 'conn:data', fullPayload as unknown as Record<string, unknown>)
   }

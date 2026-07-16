@@ -52,10 +52,11 @@ export function useIpc() {
   }, [])
 
   const send = useCallback(
-    async (tabId: string, data: Buffer | Uint8Array): Promise<void> => {
+    async (tabId: string, data: Buffer | Uint8Array, encoding: string): Promise<void> => {
       await window.electronAPI.send({
         tabId,
-        data: Array.from(data)
+        data: Array.from(data),
+        encoding
       })
     },
     []

@@ -44,7 +44,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
       } else {
         bytes = encoder.encode(finalText)
       }
-      await send(tabId, bytes)
+      await send(tabId, bytes, encoding)
       setHistory((prev) => [textToSend, ...prev])
       setHistoryIndex(-1)
       setDraftInput('')

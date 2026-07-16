@@ -39,6 +39,7 @@ export interface DisconnectPayload {
 export interface SendPayload {
   tabId: string
   data: number[] // raw bytes as number array (ArrayBuffer 无法直接序列化)
+  encoding: string // utf-8 | ascii | gbk
 }
 
 export interface ServerSetTargetPayload {
@@ -58,7 +59,8 @@ export interface DataPayload {
   remote: string
   data: number[] // raw bytes
   timestamp: number
-  text: string // pre-decoded text (GBK/UTF-8)
+  text: string // pre-decoded text
+  encoding: string // encoding used (utf-8 | ascii | gbk)
 }
 
 export interface ErrorPayload {
