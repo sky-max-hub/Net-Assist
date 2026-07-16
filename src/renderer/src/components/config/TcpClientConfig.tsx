@@ -24,8 +24,8 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
   const isConnecting = tab.status === 'connecting'
 
   const handleConnect = useCallback(async (): Promise<void> => {
-    if (!host.trim() || port === null || port <= 0) return
-    const config: TcpClientConfigType = { host: host.trim(), port }
+    if (port === null || port <= 0) return
+    const config: TcpClientConfigType = { host: host.trim() || '127.0.0.1', port }
     setTabConfig(tab.id, config)
     setLoading(true)
     try {
@@ -91,7 +91,7 @@ export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
             icon={<ApiOutlined />}
             onClick={handleConnect}
             loading={loading}
-            disabled={!host.trim() || port === null || port <= 0}
+            disabled={port === null || port <= 0}
           >
             连接
           </Button>
