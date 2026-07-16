@@ -7,30 +7,9 @@ import type {
 } from '../../shared/ipc-channels'
 import { useTabStore } from '../store/tab-store'
 
-export function useIpc() {
+export function useIpcListeners(): void {
   const updateTabStatus = useTabStore((s) => s.updateTabStatus)
   const addMessage = useTabStore((s) => s.addMessage)
-
-  const connect = useCallback(
-    async (tabId: string, type: TabType, config: TabConfig): Promise<void> => {
-      await window.electronAPI.connect({ tabId, type, config })
-    },
-    []
-  )
-
-  const disconnect = useCallback(async (tabId: string): Promise<void> => {
-    await window.electronAPI.disconnect({ tabId })
-  }, [])
-
-  const send = useCallback(
-    async (tabId: string, data: Buffer | Uint8Array): Promise<void> => {
-      await window.electronAPI.send({
-        tabId,
-        data: Array.from(data)
-      })
-    },
-    []
-  )
 
   useEffect(() => {
     const unsubStatus = window.electronAPI.onStatus((payload: StatusPayload) => {
@@ -57,6 +36,29 @@ export function useIpc() {
       unsubError()
     }
   }, [updateTabStatus, addMessage])
+}
+
+export function useIpc() {
+  const connect = useCallback(
+    async (tabId: string, type: TabType, config: TabConfig): Promise<void> => {
+      await window.electronAPI.connect({ tabId, type, config })
+    },
+    []
+  )
+
+  const disconnect = useCallback(async (tabId: string): Promise<void> => {
+    await window.electronAPI.disconnect({ tabId })
+  }, [])
+
+  const send = useCallback(
+    async (tabId: string, data: Buffer | Uint8Array): Promise<void> => {
+      await window.electronAPI.send({
+        tabId,
+        data: Array.from(data)
+      })
+    },
+    []
+  )
 
   return { connect, disconnect, send }
 }
