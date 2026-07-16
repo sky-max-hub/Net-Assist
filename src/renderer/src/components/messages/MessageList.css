@@ -27,7 +27,49 @@
 .message-item {
   white-space: pre-wrap;
   word-break: break-all;
-  padding: 1px 0;
+  padding: 3px 8px;
+  margin: 1px 0;
+  border-radius: 3px;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.message-item.message-tx {
+  background: rgba(106,153,85,0.06);
+  border-left-color: #6a9955;
+}
+
+.message-item.message-rx {
+  background: rgba(86,156,214,0.06);
+  border-left-color: #569cd6;
+}
+
+.message-copy-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0;
+  color: #888;
+  font-size: 13px;
+  padding: 2px;
+  border-radius: 3px;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.message-item:hover .message-copy-btn {
+  opacity: 1;
+}
+
+.message-copy-btn:hover {
+  color: #d4d4d4;
+  background: rgba(255,255,255,0.08);
+}
+
+.message-copy-btn.copied {
+  opacity: 1;
+  color: #52c41a;
 }
 
 .message-item.message-tx .message-direction { color: #6a9955; }

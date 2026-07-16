@@ -86,7 +86,7 @@ function defaultConfig(type: TabType): TabConfig {
 }
 
 function defaultSendOptions(): SendOptions {
-  return { encoding: 'utf-8', displayMode: 'text', lfToCr: true, splitView: true }
+  return { encoding: 'gbk', displayMode: 'text', lfToCr: true, splitView: true }
 }
 
 function defaultTitle(type: TabType): string {

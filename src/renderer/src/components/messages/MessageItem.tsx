@@ -1,3 +1,6 @@
+import { useState, useCallback } from 'react'
+import { Tooltip } from 'antd'
+import { CopyOutlined, CheckOutlined } from '@ant-design/icons'
 import type { Message, DisplayMode, EncodingMode } from '../../../shared/types'
 import { highlightAscii } from '../common/AsciiHighlighter'
 
@@ -42,9 +45,21 @@ function formatTime(ts: number): string {
 }
 
 export default function MessageItem({ message, displayMode, encoding }: Props): JSX.Element {
+  const [copied, setCopied] = useState(false)
   const directionSymbol = message.direction === 'tx' ? '→' : '←'
   const content =
     displayMode === 'hex' ? formatHex(message.raw) : highlightAscii(message.text || decodeText(message.raw, encoding))
+
+  const handleCopy = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(message.text || decodeText(message.raw, encoding))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1000)
+    } catch {
+      // fallback
+    }
+  }, [message.text, message.raw, encoding])
 
   return (
     <div className={`message-item message-${message.direction}`}>
@@ -53,6 +68,11 @@ export default function MessageItem({ message, displayMode, encoding }: Props): 
       <span className="message-remote">{message.remote}</span>
       <span className="message-length">({message.byteLength} bytes)</span>
       <span className="message-content">{content}</span>
+      <Tooltip title={copied ? '已复制' : '复制原文'} open={copied ? true : undefined}>
+        <span className={`message-copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+          {copied ? <CheckOutlined /> : <CopyOutlined />}
+        </span>
+      </Tooltip>
     </div>
   )
 }
