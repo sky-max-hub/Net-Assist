@@ -7,7 +7,7 @@ import { ConnectionManager } from './connections/connection-manager'
 let connectionManager: ConnectionManager
 
 function createWindow(): void {
-  const iconPath = join(__dirname, '../../resources/icon.svg')
+  const iconPath = join(__dirname, '../../resources/icon.ico')
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
