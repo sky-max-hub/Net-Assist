@@ -1,4 +1,5 @@
 import type { Message, DisplayMode, EncodingMode } from '../../../shared/types'
+import { highlightAscii } from '../common/AsciiHighlighter'
 
 interface Props {
   message: Message
@@ -40,7 +41,7 @@ function formatTime(ts: number): string {
 export default function MessageItem({ message, displayMode, encoding }: Props): JSX.Element {
   const directionSymbol = message.direction === 'tx' ? '→' : '←'
   const content =
-    displayMode === 'hex' ? formatHex(message.raw) : decodeText(message.raw, encoding)
+    displayMode === 'hex' ? formatHex(message.raw) : highlightAscii(decodeText(message.raw, encoding))
 
   return (
     <div className={`message-item message-${message.direction}`}>

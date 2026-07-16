@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "change": "connection-ux-enhance",
+  "change": "send-history-ascii-viz",
   "branch": "feature/20260715/net-assist"
 }

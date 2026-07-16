@@ -45,3 +45,11 @@
 .message-remote { color: #ce9178; margin-right: 6px; }
 .message-length { color: #858585; margin-right: 6px; }
 .message-content { color: #d4d4d4; }
+
+/* ASCII control character highlighting */
+.ascii-ctrl { font-weight: bold; border-radius: 2px; padding: 0 2px; margin: 0 1px; font-size: 11px; }
+.ascii-crlf { color: #4ec9b0; background: rgba(78,201,176,0.15); }
+.ascii-tab  { color: #6a9955; background: rgba(106,153,85,0.15); }
+.ascii-esc  { color: #ce9178; background: rgba(206,145,120,0.15); }
+.ascii-del  { color: #f44747; background: rgba(244,71,71,0.15); }
+.ascii-other { color: #858585; background: rgba(133,133,133,0.10); }

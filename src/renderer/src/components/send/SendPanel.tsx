@@ -4,6 +4,7 @@ import { SendOutlined, ClearOutlined } from '@ant-design/icons'
 import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
+import { countControlChars } from '../common/AsciiHighlighter'
 import EncodingSelector from '../encoding/EncodingSelector'
 import './SendPanel.css'
 
@@ -16,6 +17,9 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
   const [encoding, setEncoding] = useState<EncodingMode>('utf-8')
   const [displayMode, setDisplayMode] = useState<DisplayMode>('text')
   const [sending, setSending] = useState(false)
+  const [history, setHistory] = useState<string[]>([])
+  const [historyIndex, setHistoryIndex] = useState<number>(-1)
+  const [draftInput, setDraftInput] = useState<string>('')
   const { send } = useIpc()
   const tab = useTabStore((s) => s.tabs.find((t) => t.id === tabId))
   const isConnected = tab?.status === 'connected' || tab?.status === 'listening'
@@ -35,6 +39,9 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
         bytes = encoder.encode(textToSend)
       }
       await send(tabId, bytes)
+      setHistory((prev) => [textToSend, ...prev])
+      setHistoryIndex(-1)
+      setDraftInput('')
       setInput('')
     } catch (err) {
       console.error('send failed:', err)
@@ -45,13 +52,46 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>): void => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        if (history.length === 0) return
+        if (historyIndex === -1) {
+          setDraftInput(input)
+        }
+        const newIndex = Math.min(historyIndex + 1, history.length - 1)
+        setHistoryIndex(newIndex)
+        setInput(history[newIndex])
+        return
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        if (history.length === 0) return
+        if (historyIndex <= 0) {
+          setHistoryIndex(-1)
+          setInput(draftInput)
+          setDraftInput('')
+          return
+        }
+        const newIndex = historyIndex - 1
+        setHistoryIndex(newIndex)
+        setInput(history[newIndex])
+        return
+      }
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         doSend()
+        return
+      }
+      // Any other key: exit history mode
+      if (historyIndex !== -1) {
+        setHistoryIndex(-1)
+        setDraftInput('')
       }
     },
-    [doSend]
+    [history, historyIndex, input, draftInput, doSend]
   )
+
+  const ctrlChars = countControlChars(input)
 
   return (
     <div className="send-panel">
@@ -68,9 +108,9 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送)' : '请先建立连接'}
+          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送, ↑↓ 历史)' : '请先建立连接'}
           disabled={!isConnected || sending}
-          rows={3}
+          rows={6}
           style={{ resize: 'none' }}
         />
       </div>
@@ -83,7 +123,11 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
             清空
           </Button>
         </Space>
-        <span className="send-hint">Ctrl+Enter 发送</span>
+        <span className="send-hint">
+          {ctrlChars.length > 0
+            ? `ASCII: ${ctrlChars.join(', ')}`
+            : 'Ctrl+Enter 发送'}
+        </span>
       </div>
     </div>
   )
