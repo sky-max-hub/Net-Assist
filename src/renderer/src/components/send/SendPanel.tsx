@@ -14,15 +14,16 @@ interface Props {
 
 export default function SendPanel({ tabId }: Props): JSX.Element {
   const [input, setInput] = useState('')
-  const [encoding, setEncoding] = useState<EncodingMode>('utf-8')
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('text')
   const [sending, setSending] = useState(false)
   const [history, setHistory] = useState<string[]>([])
   const [historyIndex, setHistoryIndex] = useState<number>(-1)
   const [draftInput, setDraftInput] = useState<string>('')
-  const [lfToCr, setLfToCr] = useState<boolean>(true)
   const { send } = useIpc()
   const tab = useTabStore((s) => s.tabs.find((t) => t.id === tabId))
+  const updateSendOptions = useTabStore((s) => s.updateSendOptions)
+  const encoding = tab?.sendOptions.encoding ?? 'utf-8'
+  const displayMode = tab?.sendOptions.displayMode ?? 'text'
+  const lfToCr = tab?.sendOptions.lfToCr ?? true
   const isConnected = tab?.status === 'connected' || tab?.status === 'listening'
 
   const doSend = useCallback(async (): Promise<void> => {
@@ -50,7 +51,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
     } finally {
       setSending(false)
     }
-  }, [input, encoding, tabId, send])
+  }, [input, encoding, tabId, send, lfToCr])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -99,14 +100,14 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
     <div className="send-panel">
       <div className="send-toolbar">
         <Space wrap size="small">
-          <EncodingSelector value={encoding} onChange={setEncoding} />
-          <Button size="small" onClick={() => setDisplayMode(displayMode === 'text' ? 'hex' : 'text')}>
+          <EncodingSelector value={encoding} onChange={(v) => updateSendOptions(tabId, { encoding: v })} />
+          <Button size="small" onClick={() => updateSendOptions(tabId, { displayMode: displayMode === 'text' ? 'hex' : 'text' })}>
             {displayMode === 'text' ? 'TXT' : 'HEX'}
           </Button>
           <span className="send-option">
             <Switch
               checked={lfToCr}
-              onChange={setLfToCr}
+              onChange={(v) => updateSendOptions(tabId, { lfToCr: v })}
               size="small"
             />
             <span className="send-option-label">LF→CR</span>

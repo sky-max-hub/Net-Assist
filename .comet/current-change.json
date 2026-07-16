@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "change": "send-history-ascii-viz",
+  "change": "persist-send-options",
   "branch": "feature/20260715/net-assist"
 }

@@ -11,6 +11,7 @@ import type {
   UdpConfig,
   PersistedTab
 } from '../../shared/types'
+import type { SendOptions } from '../../shared/types'
 
 declare global {
   interface Window {
@@ -28,7 +29,8 @@ function persistTabs(tabs: TabState[]): void {
     id: t.id,
     title: t.title,
     type: t.type,
-    config: t.config
+    config: t.config,
+    sendOptions: t.sendOptions
   }))
   try {
     window.electronAPI?.store.saveTabs(toSave)
@@ -49,7 +51,8 @@ async function loadPersistedTabs(): Promise<TabState[]> {
       type: p.type,
       status: 'idle' as const,
       config: p.config,
-      messages: []
+      messages: [],
+      sendOptions: p.sendOptions || defaultSendOptions()
     }))
   } catch (err) {
     console.error('[tab-store] failed to load persisted tabs:', err)
@@ -82,6 +85,10 @@ function defaultConfig(type: TabType): TabConfig {
   }
 }
 
+function defaultSendOptions(): SendOptions {
+  return { encoding: 'utf-8', displayMode: 'text', lfToCr: true }
+}
+
 function defaultTitle(type: TabType): string {
   switch (type) {
     case 'tcp-client':
@@ -105,6 +112,7 @@ interface TabStore {
   addMessage: (tabId: string, message: Omit<Message, 'id'>) => void
   setTabConfig: (tabId: string, config: TabConfig) => void
   updateTabTitle: (tabId: string, title: string) => void
+  updateSendOptions: (tabId: string, options: Partial<SendOptions>) => void
   addQuickSendItem: (item: Omit<QuickSendItem, 'id'>) => void
   updateQuickSendItem: (id: string, item: Partial<Omit<QuickSendItem, 'id'>>) => void
   removeQuickSendItem: (id: string) => void
@@ -128,7 +136,8 @@ export const useTabStore = create<TabStore>((set, get) => ({
       type,
       status: 'idle',
       config: defaultConfig(type),
-      messages: []
+      messages: [],
+      sendOptions: defaultSendOptions()
     }
 
     const newTabs = [...tabs, newTab]
@@ -191,6 +200,14 @@ export const useTabStore = create<TabStore>((set, get) => ({
   updateTabTitle: (tabId: string, title: string): void => {
     if (!title.trim()) return
     const newTabs = get().tabs.map((t) => (t.id === tabId ? { ...t, title: title.trim() } : t))
+    set({ tabs: newTabs })
+    persistTabs(newTabs)
+  },
+
+  updateSendOptions: (tabId: string, options: Partial<SendOptions>): void => {
+    const newTabs = get().tabs.map((t) =>
+      t.id === tabId ? { ...t, sendOptions: { ...t.sendOptions, ...options } } : t
+    )
     set({ tabs: newTabs })
     persistTabs(newTabs)
   },

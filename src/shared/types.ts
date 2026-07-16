@@ -43,6 +43,13 @@ export interface TabState {
   status: TabStatus
   config: TabConfig
   messages: Message[]
+  sendOptions: SendOptions
+}
+
+export interface SendOptions {
+  encoding: EncodingMode
+  displayMode: DisplayMode
+  lfToCr: boolean
 }
 
 export interface QuickSendItem {
@@ -62,4 +69,5 @@ export interface PersistedTab {
   title: string
   type: TabType
   config: TabConfig
+  sendOptions: SendOptions
 }
