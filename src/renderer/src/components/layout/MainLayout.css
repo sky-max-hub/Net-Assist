@@ -24,6 +24,32 @@
   background: #d9d9d9;
 }
 
+/* message <-> send panel drag handle */
+.msg-send-resize-handle {
+  height: 4px;
+  cursor: row-resize;
+  background: transparent;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.msg-send-resize-handle:hover {
+  background: #d9d9d9;
+}
+
+/* TX <-> RX split drag handle */
+.split-resize-handle {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.split-resize-handle:hover {
+  background: #555;
+}
+
 .content-area {
   flex: 1;
   display: flex;
