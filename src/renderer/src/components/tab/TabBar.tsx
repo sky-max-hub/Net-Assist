@@ -22,9 +22,9 @@ const statusColors: Record<string, string> = {
 }
 
 const tabTypeConfig: Record<TabType, { label: string; color: string }> = {
-  'tcp-client': { label: 'TCP_CLIENT', color: '#52c41a' },
-  'tcp-server': { label: 'TCP_SERVER', color: '#1890ff' },
-  udp: { label: 'UDP', color: '#fa8c16' }
+  'tcp-client': { label: 'TC', color: '#52c41a' },
+  'tcp-server': { label: 'TS', color: '#1890ff' },
+  udp: { label: 'UD', color: '#fa8c16' }
 }
 
 export default function TabBar(): JSX.Element {
@@ -78,7 +78,7 @@ export default function TabBar(): JSX.Element {
               className="tab-status-dot"
               style={{ backgroundColor: statusColors[tab.status] || '#999' }}
             />
-            <span className="tab-type-tag" style={{
+            <span className="tab-type-tag" title={tabTypeLabels[tab.type]} style={{
               background: tabTypeConfig[tab.type].color,
               color: '#fff',
               fontSize: 10,
