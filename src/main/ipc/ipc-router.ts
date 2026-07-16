@@ -6,10 +6,12 @@ import type {
   SendPayload,
   ServerSetTargetPayload,
   SaveTabsPayload,
-  EncodeTextPayload
+  EncodeTextPayload,
+  SaveQuickSendPayload,
+  QuickSendData
 } from '../../shared/ipc-channels'
 import { ConnectionManager } from '../connections/connection-manager'
-import { getTabs, saveTabs } from '../store/tab-store'
+import { getTabs, saveTabs, getQuickSend, saveQuickSend } from '../store/tab-store'
 import { encodeText } from '../encoding/gbk-codec'
 
 export function registerIpcHandlers(connectionManager: ConnectionManager): void {
@@ -57,6 +59,15 @@ export function registerIpcHandlers(connectionManager: ConnectionManager): void 
       return Array.from(encodeText(payload.text, payload.encoding))
     }
   )
+
+  // QuickSend persistence
+  ipcMain.handle(IPC_CHANNELS.QS_LOAD, () => {
+    return getQuickSend()
+  })
+
+  ipcMain.on(IPC_CHANNELS.QS_SAVE, (_event, payload: SaveQuickSendPayload) => {
+    saveQuickSend(payload.data)
+  })
 }
 
 export function unregisterIpcHandlers(): void {
@@ -67,4 +78,6 @@ export function unregisterIpcHandlers(): void {
   ipcMain.removeHandler(IPC_CHANNELS.STORE_LOAD_TABS)
   ipcMain.removeAllListeners(IPC_CHANNELS.STORE_SAVE_TABS)
   ipcMain.removeHandler(IPC_CHANNELS.ENCODE_TEXT)
+  ipcMain.removeHandler(IPC_CHANNELS.QS_LOAD)
+  ipcMain.removeAllListeners(IPC_CHANNELS.QS_SAVE)
 }

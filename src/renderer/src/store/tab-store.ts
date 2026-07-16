@@ -40,6 +40,15 @@ function persistTabs(tabs: TabState[]): void {
   }
 }
 
+function persistQuickSend(): void {
+  const state = useTabStore.getState()
+  try {
+    window.electronAPI?.quickSend.save({ items: state.quickSendItems, groups: state.quickSendGroups })
+  } catch (err) {
+    console.error('[tab-store] failed to save quick send:', err)
+  }
+}
+
 async function loadPersistedTabs(): Promise<TabState[]> {
   try {
     if (!window.electronAPI?.store) return []
@@ -123,6 +132,7 @@ interface TabStore {
   removeQuickSendGroup: (id: string) => void
   loadPersistedTabs: () => Promise<void>
   clearMessages: (tabId: string) => void
+  loadQuickSend: () => Promise<void>
 }
 
 export const useTabStore = create<TabStore>((set, get) => ({
@@ -221,6 +231,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
   addQuickSendItem: (item: Omit<QuickSendItem, 'id'>): void => {
     const id = `qs-${Date.now()}`
     set({ quickSendItems: [...get().quickSendItems, { ...item, id }] })
+    persistQuickSend()
   },
 
   updateQuickSendItem: (id: string, updates: Partial<Omit<QuickSendItem, 'id'>>): void => {
@@ -229,15 +240,18 @@ export const useTabStore = create<TabStore>((set, get) => ({
         item.id === id ? { ...item, ...updates } : item
       )
     })
+    persistQuickSend()
   },
 
   removeQuickSendItem: (id: string): void => {
     set({ quickSendItems: get().quickSendItems.filter((item) => item.id !== id) })
+    persistQuickSend()
   },
 
   addQuickSendGroup: (name: string): void => {
     const id = `qsg-${Date.now()}`
     set({ quickSendGroups: [...get().quickSendGroups, { id, name: name.trim() }] })
+    persistQuickSend()
   },
 
   updateQuickSendGroup: (id: string, name: string): void => {
@@ -246,6 +260,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
         g.id === id ? { ...g, name: name.trim() } : g
       )
     })
+    persistQuickSend()
   },
 
   removeQuickSendGroup: (id: string): void => {
@@ -255,6 +270,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
         item.groupId === id ? { ...item, groupId: undefined } : item
       )
     })
+    persistQuickSend()
   },
 
   loadPersistedTabs: async (): Promise<void> => {

@@ -22,7 +22,13 @@ export const IPC_CHANNELS = {
   STORE_SAVE_TABS: 'store:save-tabs',
 
   // Renderer -> Main (invoke — encoding)
-  ENCODE_TEXT: 'encode:text'
+  ENCODE_TEXT: 'encode:text',
+
+  // Renderer -> Main (invoke — quick send persistence)
+  QS_LOAD: 'qs:load',
+
+  // Renderer -> Main (send — quick send persistence)
+  QS_SAVE: 'qs:save'
 } as const
 
 // ---- Renderer -> Main Payloads ----
@@ -87,4 +93,14 @@ export interface SaveTabsPayload {
 export interface EncodeTextPayload {
   text: string
   encoding: string
+}
+
+// ---- QuickSend Persistence ----
+export interface QuickSendData {
+  items: import('./types').QuickSendItem[]
+  groups: import('./types').QuickSendGroup[]
+}
+
+export interface SaveQuickSendPayload {
+  data: QuickSendData
 }

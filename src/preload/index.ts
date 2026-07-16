@@ -11,7 +11,9 @@ import type {
   ClientJoinedPayload,
   ClientLeftPayload,
   SaveTabsPayload,
-  EncodeTextPayload
+  EncodeTextPayload,
+  SaveQuickSendPayload,
+  QuickSendData
 } from '../shared/ipc-channels'
 import type { PersistedTab } from '../shared/types'
 
@@ -85,6 +87,15 @@ const electronAPI = {
   encoding: {
     encodeText: (text: string, encoding: string): Promise<number[]> => {
       return ipcRenderer.invoke(IPC_CHANNELS.ENCODE_TEXT, { text, encoding } as EncodeTextPayload)
+    }
+  },
+
+  quickSend: {
+    load: (): Promise<QuickSendData> => {
+      return ipcRenderer.invoke(IPC_CHANNELS.QS_LOAD)
+    },
+    save: (data: QuickSendData): void => {
+      ipcRenderer.send(IPC_CHANNELS.QS_SAVE, { data } as SaveQuickSendPayload)
     }
   }
 }

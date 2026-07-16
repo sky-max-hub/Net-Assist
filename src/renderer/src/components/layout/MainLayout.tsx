@@ -10,7 +10,7 @@ const SIDEBAR_MIN = 200
 const SIDEBAR_MAX = 450
 
 export default function MainLayout(): JSX.Element {
-  const { tabs, activeTabId, loadPersistedTabs } = useTabStore()
+  const { tabs, activeTabId, loadPersistedTabs, loadQuickSend } = useTabStore()
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null
   const { send } = useIpc()
   const [sidebarWidth, setSidebarWidth] = useState(240)
@@ -20,6 +20,7 @@ export default function MainLayout(): JSX.Element {
 
   useEffect(() => {
     loadPersistedTabs()
+    loadQuickSend()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
