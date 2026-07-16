@@ -156,6 +156,16 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
     })
   }
 
+  const handleDrop = (info: { node: { key: string }; dragNode: { key: string } }): void => {
+    const dragKey = info.dragNode.key as string
+    const dropKey = info.node.key as string
+    // Only allow dropping items onto groups
+    const isGroup = quickSendGroups.some((g) => g.id === dropKey) || dropKey === '__ungrouped__'
+    if (!isGroup) return
+    const newGroupId = dropKey === '__ungrouped__' ? undefined : dropKey
+    updateQuickSendItem(dragKey, { groupId: newGroupId })
+  }
+
   const isEmpty = quickSendGroups.length === 0 && quickSendItems.length === 0
 
   return (
@@ -176,6 +186,8 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
             defaultExpandAll
             blockNode
             showIcon={false}
+            draggable={{ icon: false }}
+            onDrop={handleDrop as never}
           />
         )}
       </div>

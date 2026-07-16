@@ -18,10 +18,21 @@ export default function MainLayout(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleQuickSend = useCallback((content: string) => {
+  const handleQuickSend = useCallback(async (content: string) => {
     if (!activeTab) return
-    const encoder = new TextEncoder()
-    send(activeTab.id, encoder.encode(content), activeTab.sendOptions.encoding)
+    const opts = activeTab.sendOptions
+    const finalText = opts.lfToCr ? content.replace(/\n/g, '\r') : content
+
+    let bytes: Uint8Array
+    if (opts.encoding === 'gbk') {
+      const encoded = await window.electronAPI.encoding.encodeText(finalText, 'gbk')
+      bytes = new Uint8Array(encoded)
+    } else if (opts.encoding === 'ascii') {
+      bytes = new Uint8Array(finalText.split('').map((c) => c.charCodeAt(0) & 0x7f))
+    } else {
+      bytes = new TextEncoder().encode(finalText)
+    }
+    send(activeTab.id, bytes, opts.encoding)
   }, [activeTab, send])
 
   return (
