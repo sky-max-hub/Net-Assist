@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { useTabStore } from '../../store/tab-store'
 import { useIpcListeners, useIpc } from '../../hooks/useIpc'
 import TabBar from '../tab/TabBar'
@@ -6,10 +6,15 @@ import TabContent from '../tab/TabContent'
 import QuickSendPanel from '../quick-send/QuickSendPanel'
 import './MainLayout.css'
 
+const SIDEBAR_MIN = 200
+const SIDEBAR_MAX = 450
+
 export default function MainLayout(): JSX.Element {
   const { tabs, activeTabId, loadPersistedTabs } = useTabStore()
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null
   const { send } = useIpc()
+  const [sidebarWidth, setSidebarWidth] = useState(240)
+  const resizing = useRef(false)
 
   useIpcListeners()
 
@@ -17,6 +22,30 @@ export default function MainLayout(): JSX.Element {
     loadPersistedTabs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    resizing.current = true
+    const startX = e.clientX
+    const startWidth = sidebarWidth
+
+    const onMove = (ev: MouseEvent) => {
+      const delta = ev.clientX - startX
+      const w = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, startWidth + delta))
+      setSidebarWidth(w)
+    }
+    const onUp = () => {
+      resizing.current = false
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [sidebarWidth])
 
   const handleQuickSend = useCallback(async (content: string) => {
     if (!activeTab) return
@@ -37,10 +66,11 @@ export default function MainLayout(): JSX.Element {
 
   return (
     <div className="main-layout">
-      <aside className="sidebar">
+      <aside className="sidebar" style={{ width: sidebarWidth, minWidth: sidebarWidth, maxWidth: sidebarWidth }}>
         <TabBar />
         <QuickSendPanel onSend={handleQuickSend} />
       </aside>
+      <div className="sidebar-resize-handle" onMouseDown={handleMouseDown} />
       <main className="content-area">
         {activeTab ? (
           <TabContent tab={activeTab} />
