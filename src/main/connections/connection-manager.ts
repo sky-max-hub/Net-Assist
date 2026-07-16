@@ -5,6 +5,7 @@ import { TcpClientConnection } from './tcp-client-connection'
 import { TcpServerConnection } from './tcp-server-connection'
 import { UdpConnection } from './udp-connection'
 import type { TcpClientConfig, TcpServerConfig, UdpConfig } from '../../shared/types'
+import { decodeText } from '../encoding/gbk-codec'
 
 export class ConnectionManager {
   private connections = new Map<
@@ -179,7 +180,12 @@ export class ConnectionManager {
   }
 
   emitData(tabId: string, payload: Omit<DataPayload, 'tabId'>): void {
-    this.emit(tabId, 'conn:data', payload as unknown as Record<string, unknown>)
+    const buf = Buffer.from(payload.data)
+    const fullPayload = {
+      ...payload,
+      text: decodeText(buf, payload.direction === 'tx' ? 'utf-8' : 'gbk')
+    }
+    this.emit(tabId, 'conn:data', fullPayload as unknown as Record<string, unknown>)
   }
 
   emitError(tabId: string, message: string): void {

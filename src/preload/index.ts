@@ -10,7 +10,8 @@ import type {
   ErrorPayload,
   ClientJoinedPayload,
   ClientLeftPayload,
-  SaveTabsPayload
+  SaveTabsPayload,
+  EncodeTextPayload
 } from '../shared/ipc-channels'
 import type { PersistedTab } from '../shared/types'
 
@@ -78,6 +79,12 @@ const electronAPI = {
     },
     saveTabs: (tabs: PersistedTab[]): void => {
       ipcRenderer.send(IPC_CHANNELS.STORE_SAVE_TABS, { tabs } as SaveTabsPayload)
+    }
+  },
+
+  encoding: {
+    encodeText: (text: string, encoding: string): Promise<number[]> => {
+      return ipcRenderer.invoke(IPC_CHANNELS.ENCODE_TEXT, { text, encoding } as EncodeTextPayload)
     }
   }
 }

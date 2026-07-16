@@ -19,7 +19,10 @@ export const IPC_CHANNELS = {
   STORE_LOAD_TABS: 'store:load-tabs',
 
   // Renderer -> Main (send — one-way notification)
-  STORE_SAVE_TABS: 'store:save-tabs'
+  STORE_SAVE_TABS: 'store:save-tabs',
+
+  // Renderer -> Main (invoke — encoding)
+  ENCODE_TEXT: 'encode:text'
 } as const
 
 // ---- Renderer -> Main Payloads ----
@@ -55,6 +58,7 @@ export interface DataPayload {
   remote: string
   data: number[] // raw bytes
   timestamp: number
+  text: string // pre-decoded text (GBK/UTF-8)
 }
 
 export interface ErrorPayload {
@@ -75,4 +79,10 @@ export interface ClientLeftPayload {
 // ---- Store Payloads ----
 export interface SaveTabsPayload {
   tabs: PersistedTab[]
+}
+
+// ---- Encoding Payloads ----
+export interface EncodeTextPayload {
+  text: string
+  encoding: string
 }

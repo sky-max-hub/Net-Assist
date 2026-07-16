@@ -17,6 +17,7 @@ export interface Message {
   remote: string // "192.168.1.1:502"
   byteLength: number
   raw: ArrayBuffer
+  text: string // pre-decoded text
 }
 
 export interface TcpClientConfig {

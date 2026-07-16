@@ -12,7 +12,10 @@ function decodeText(data: ArrayBuffer, encoding: EncodingMode): string {
   if (encoding === 'ascii') {
     return Array.from(arr).map((b) => String.fromCharCode(b & 0x7f)).join('')
   }
-  const decoder = new TextDecoder(encoding === 'gbk' ? 'gbk' : 'utf-8')
+  if (encoding === 'gbk') {
+    return '[GBK 解码不可用]'
+  }
+  const decoder = new TextDecoder('utf-8')
   try {
     return decoder.decode(arr)
   } catch {
@@ -41,7 +44,7 @@ function formatTime(ts: number): string {
 export default function MessageItem({ message, displayMode, encoding }: Props): JSX.Element {
   const directionSymbol = message.direction === 'tx' ? '→' : '←'
   const content =
-    displayMode === 'hex' ? formatHex(message.raw) : highlightAscii(decodeText(message.raw, encoding))
+    displayMode === 'hex' ? formatHex(message.raw) : highlightAscii(message.text || decodeText(message.raw, encoding))
 
   return (
     <div className={`message-item message-${message.direction}`}>

@@ -34,7 +34,10 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
       const encoder = new TextEncoder()
       let bytes: Uint8Array
       const finalText = lfToCr ? textToSend.replace(/\n/g, '\r') : textToSend
-      if (encoding === 'utf-8') {
+      if (encoding === 'gbk') {
+        const encoded = await window.electronAPI.encoding.encodeText(finalText, 'gbk')
+        bytes = new Uint8Array(encoded)
+      } else if (encoding === 'utf-8') {
         bytes = encoder.encode(finalText)
       } else if (encoding === 'ascii') {
         bytes = new Uint8Array(finalText.split('').map((c) => c.charCodeAt(0) & 0x7f))

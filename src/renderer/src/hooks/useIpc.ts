@@ -22,7 +22,8 @@ export function useIpcListeners(): void {
         direction: payload.direction,
         remote: payload.remote,
         byteLength: payload.data.length,
-        raw: new Uint8Array(payload.data).buffer
+        raw: new Uint8Array(payload.data).buffer,
+        text: payload.text
       })
     })
 

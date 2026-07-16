@@ -5,10 +5,12 @@ import type {
   DisconnectPayload,
   SendPayload,
   ServerSetTargetPayload,
-  SaveTabsPayload
+  SaveTabsPayload,
+  EncodeTextPayload
 } from '../../shared/ipc-channels'
 import { ConnectionManager } from '../connections/connection-manager'
 import { getTabs, saveTabs } from '../store/tab-store'
+import { encodeText } from '../encoding/gbk-codec'
 
 export function registerIpcHandlers(connectionManager: ConnectionManager): void {
   ipcMain.handle(
@@ -47,6 +49,14 @@ export function registerIpcHandlers(connectionManager: ConnectionManager): void 
   ipcMain.on(IPC_CHANNELS.STORE_SAVE_TABS, (_event, payload: SaveTabsPayload) => {
     saveTabs(payload.tabs)
   })
+
+  // Encoding
+  ipcMain.handle(
+    IPC_CHANNELS.ENCODE_TEXT,
+    async (_event, payload: EncodeTextPayload) => {
+      return Array.from(encodeText(payload.text, payload.encoding))
+    }
+  )
 }
 
 export function unregisterIpcHandlers(): void {
@@ -56,4 +66,5 @@ export function unregisterIpcHandlers(): void {
   ipcMain.removeHandler(IPC_CHANNELS.CONN_SERVER_SET_TARGET)
   ipcMain.removeHandler(IPC_CHANNELS.STORE_LOAD_TABS)
   ipcMain.removeAllListeners(IPC_CHANNELS.STORE_SAVE_TABS)
+  ipcMain.removeHandler(IPC_CHANNELS.ENCODE_TEXT)
 }
