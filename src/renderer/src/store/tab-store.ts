@@ -132,6 +132,7 @@ interface TabStore {
   removeQuickSendGroup: (id: string) => void
   loadPersistedTabs: () => Promise<void>
   clearMessages: (tabId: string) => void
+  clearDirectionMessages: (tabId: string, direction: 'tx' | 'rx') => void
   loadQuickSend: () => Promise<void>
 }
 
@@ -287,6 +288,16 @@ export const useTabStore = create<TabStore>((set, get) => ({
     set({
       tabs: get().tabs.map((t) =>
         t.id === tabId ? { ...t, messages: [] } : t
+      )
+    })
+  },
+
+  clearDirectionMessages: (tabId: string, direction: 'tx' | 'rx'): void => {
+    set({
+      tabs: get().tabs.map((t) =>
+        t.id === tabId
+          ? { ...t, messages: t.messages.filter((m) => m.direction !== direction) }
+          : t
       )
     })
   },

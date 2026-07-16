@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
-import { Button, Space } from 'antd'
+import { Button } from 'antd'
 import { ColumnWidthOutlined, MergeCellsOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { TabState } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
@@ -21,6 +21,7 @@ interface Props {
 export default function TabContent({ tab }: Props): JSX.Element {
   const updateSendOptions = useTabStore((s) => s.updateSendOptions)
   const clearMessages = useTabStore((s) => s.clearMessages)
+  const clearDirectionMessages = useTabStore((s) => s.clearDirectionMessages)
   const displayMode = tab.sendOptions.displayMode
   const encoding = tab.sendOptions.encoding
   const splitView = tab.sendOptions.splitView
@@ -75,27 +76,37 @@ export default function TabContent({ tab }: Props): JSX.Element {
     <div key={tab.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
       <div style={{ flexShrink: 0 }}>{renderConfigPanel()}</div>
       <div ref={containerRef} style={{ flex: 1, minHeight: 150, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 8px', flexShrink: 0, gap: 4 }}>
-          <Button type="text" danger size="small" icon={<DeleteOutlined />}
-            onClick={() => clearMessages(tab.id)} disabled={tab.messages.length === 0}>清空</Button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 8px', flexShrink: 0 }}>
           <Button type="text" size="small"
             icon={splitView ? <MergeCellsOutlined /> : <ColumnWidthOutlined />}
             onClick={() => updateSendOptions(tab.id, { splitView: !splitView })}>
             {splitView ? '合并' : '分开'}
           </Button>
+          {!splitView && (
+            <Button type="text" danger size="small" icon={<DeleteOutlined />}
+              onClick={() => clearMessages(tab.id)} disabled={tab.messages.length === 0}>清空</Button>
+          )}
         </div>
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
           {splitView ? (
             <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
               <div style={{ width: `${splitPct}%`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div style={{ fontSize: 11, color: '#6a9955', padding: '2px 8px', flexShrink: 0, fontWeight: 'bold' }}>TX 发送</div>
+                <div style={{ fontSize: 11, color: '#6a9955', padding: '2px 8px', flexShrink: 0, fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>TX 发送</span>
+                  <Button type="text" danger size="small" style={{ fontSize: 11 }}
+                    onClick={() => clearDirectionMessages(tab.id, 'tx')} disabled={txMessages.length === 0}>清空</Button>
+                </div>
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
                   <MessageList tabId={tab.id} messages={txMessages} displayMode={displayMode} encoding={encoding} />
                 </div>
               </div>
               <div className="split-resize-handle" onMouseDown={startDrag('split')} />
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div style={{ fontSize: 11, color: '#569cd6', padding: '2px 8px', flexShrink: 0, fontWeight: 'bold' }}>RX 接收</div>
+                <div style={{ fontSize: 11, color: '#569cd6', padding: '2px 8px', flexShrink: 0, fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>RX 接收</span>
+                  <Button type="text" danger size="small" style={{ fontSize: 11 }}
+                    onClick={() => clearDirectionMessages(tab.id, 'rx')} disabled={rxMessages.length === 0}>清空</Button>
+                </div>
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
                   <MessageList tabId={tab.id} messages={rxMessages} displayMode={displayMode} encoding={encoding} />
                 </div>

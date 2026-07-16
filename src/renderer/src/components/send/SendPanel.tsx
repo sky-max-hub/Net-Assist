@@ -113,7 +113,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
               onChange={(v) => updateSendOptions(tabId, { lfToCr: v })}
               size="small"
             />
-            <span className="send-option-label">LF→CR</span>
+            <span className="send-option-label">LF转CR</span>
           </span>
         </Space>
       </div>
