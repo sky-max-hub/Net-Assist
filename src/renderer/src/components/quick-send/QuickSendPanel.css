@@ -29,3 +29,47 @@
 .quick-send-item {
   padding: 4px 8px !important;
 }
+
+.qs-group-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: 600;
+  font-size: 12px;
+  color: #555;
+}
+
+.qs-group-actions {
+  display: none;
+}
+
+.ant-tree-treenode:hover .qs-group-actions {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.qs-item-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.qs-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.qs-item-actions {
+  display: none;
+  flex-shrink: 0;
+}
+
+.ant-tree-treenode:hover .qs-item-actions {
+  display: inline-flex;
+  gap: 2px;
+}

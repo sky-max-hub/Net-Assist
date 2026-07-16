@@ -58,6 +58,12 @@ export interface QuickSendItem {
   id: string
   name: string
   content: string
+  groupId?: string
+}
+
+export interface QuickSendGroup {
+  id: string
+  name: string
 }
 
 export interface ClientInfo {

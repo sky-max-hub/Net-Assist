@@ -1,0 +1,13 @@
+{
+  "change": "resizable-sidebar-qs-groups",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "266448d7ffa0ee030383d44eaa6a1e14702483d0c13baa429b3e04b443f34268",
+  "files": [
+    { "path": "openspec/changes/resizable-sidebar-qs-groups/proposal.md", "sha256": "f708a297d495116b1e210d8b4a65993a44bcac6c02b6dd25eae097ae0d7944c3" },
+    { "path": "openspec/changes/resizable-sidebar-qs-groups/design.md", "sha256": "421daf8713f7a4a4d5c06fbc0aad34b3b002617c4ec05990a1a14603f687bca1" },
+    { "path": "openspec/changes/resizable-sidebar-qs-groups/tasks.md", "sha256": "7b1ab026bbf83fb6fda9fef79456371dd7b27bd23612494beb589401279f3f60" }
+  ]
+}

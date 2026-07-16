@@ -6,6 +6,7 @@ import type {
   TabConfig,
   Message,
   QuickSendItem,
+  QuickSendGroup,
   TcpClientConfig,
   TcpServerConfig,
   UdpConfig,
@@ -104,6 +105,7 @@ interface TabStore {
   tabs: TabState[]
   activeTabId: string | null
   quickSendItems: QuickSendItem[]
+  quickSendGroups: QuickSendGroup[]
 
   createTab: (type: TabType) => string | null
   closeTab: (tabId: string) => void
@@ -116,6 +118,9 @@ interface TabStore {
   addQuickSendItem: (item: Omit<QuickSendItem, 'id'>) => void
   updateQuickSendItem: (id: string, item: Partial<Omit<QuickSendItem, 'id'>>) => void
   removeQuickSendItem: (id: string) => void
+  addQuickSendGroup: (name: string) => void
+  updateQuickSendGroup: (id: string, name: string) => void
+  removeQuickSendGroup: (id: string) => void
   loadPersistedTabs: () => Promise<void>
   clearMessages: (tabId: string) => void
 }
@@ -124,6 +129,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
   tabs: [],
   activeTabId: null,
   quickSendItems: [],
+  quickSendGroups: [],
 
   createTab: (type: TabType): string | null => {
     const { tabs } = get()
@@ -227,6 +233,28 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
   removeQuickSendItem: (id: string): void => {
     set({ quickSendItems: get().quickSendItems.filter((item) => item.id !== id) })
+  },
+
+  addQuickSendGroup: (name: string): void => {
+    const id = `qsg-${Date.now()}`
+    set({ quickSendGroups: [...get().quickSendGroups, { id, name: name.trim() }] })
+  },
+
+  updateQuickSendGroup: (id: string, name: string): void => {
+    set({
+      quickSendGroups: get().quickSendGroups.map((g) =>
+        g.id === id ? { ...g, name: name.trim() } : g
+      )
+    })
+  },
+
+  removeQuickSendGroup: (id: string): void => {
+    set({
+      quickSendGroups: get().quickSendGroups.filter((g) => g.id !== id),
+      quickSendItems: get().quickSendItems.map((item) =>
+        item.groupId === id ? { ...item, groupId: undefined } : item
+      )
+    })
   },
 
   loadPersistedTabs: async (): Promise<void> => {
