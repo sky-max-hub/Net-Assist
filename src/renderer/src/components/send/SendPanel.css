@@ -3,3 +3,5 @@
 .send-input-area { padding: 8px 16px; flex: 1; }
 .send-actions { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; }
 .send-hint { font-size: 12px; color: #999; }
+.send-option { display: inline-flex; align-items: center; gap: 4px; }
+.send-option-label { font-size: 11px; color: #888; }

@@ -20,17 +20,46 @@ function getAsciiClass(code: number): string {
   return 'other'
 }
 
+function asciiTag(code: number, key: number): React.ReactNode {
+  const name = ASCII_NAMES[code] || `0x${code.toString(16).toUpperCase()}`
+  return (
+    <span key={key} className={`ascii-ctrl ascii-${getAsciiClass(code)}`}>
+      {'<'}{name}{'>'}
+    </span>
+  )
+}
+
 export function highlightAscii(text: string): React.ReactNode[] {
   const result: React.ReactNode[] = []
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i)
+
+    // CRLF pair: one line break + both tags
+    if (code === 0x0D && i + 1 < text.length && text.charCodeAt(i + 1) === 0x0A) {
+      result.push(<br key={`br-${i}`} />)
+      result.push(asciiTag(0x0D, i))
+      result.push(asciiTag(0x0A, i + 0.5))
+      i++ // skip LF
+      continue
+    }
+
+    // CR alone: line break + CR tag
+    if (code === 0x0D) {
+      result.push(<br key={`br-${i}`} />)
+      result.push(asciiTag(code, i))
+      continue
+    }
+
+    // LF alone: line break + LF tag
+    if (code === 0x0A) {
+      result.push(<br key={`br-${i}`} />)
+      result.push(asciiTag(code, i))
+      continue
+    }
+
+    // Other control chars: inline tag
     if (code <= 0x1F || code === 0x7F) {
-      const name = ASCII_NAMES[code] || `0x${code.toString(16).toUpperCase()}`
-      result.push(
-        <span key={i} className={`ascii-ctrl ascii-${getAsciiClass(code)}`}>
-          {'<'}{name}{'>'}
-        </span>
-      )
+      result.push(asciiTag(code, i))
     } else {
       result.push(text[i])
     }

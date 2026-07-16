@@ -1,5 +1,5 @@
 import { useState, useCallback, KeyboardEvent } from 'react'
-import { Input, Button, Space } from 'antd'
+import { Input, Button, Space, Switch } from 'antd'
 import { SendOutlined, ClearOutlined } from '@ant-design/icons'
 import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
@@ -20,6 +20,7 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
   const [history, setHistory] = useState<string[]>([])
   const [historyIndex, setHistoryIndex] = useState<number>(-1)
   const [draftInput, setDraftInput] = useState<string>('')
+  const [lfToCr, setLfToCr] = useState<boolean>(true)
   const { send } = useIpc()
   const tab = useTabStore((s) => s.tabs.find((t) => t.id === tabId))
   const isConnected = tab?.status === 'connected' || tab?.status === 'listening'
@@ -31,12 +32,13 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
     try {
       const encoder = new TextEncoder()
       let bytes: Uint8Array
+      const finalText = lfToCr ? textToSend.replace(/\n/g, '\r') : textToSend
       if (encoding === 'utf-8') {
-        bytes = encoder.encode(textToSend)
+        bytes = encoder.encode(finalText)
       } else if (encoding === 'ascii') {
-        bytes = new Uint8Array(textToSend.split('').map((c) => c.charCodeAt(0) & 0x7f))
+        bytes = new Uint8Array(finalText.split('').map((c) => c.charCodeAt(0) & 0x7f))
       } else {
-        bytes = encoder.encode(textToSend)
+        bytes = encoder.encode(finalText)
       }
       await send(tabId, bytes)
       setHistory((prev) => [textToSend, ...prev])
@@ -101,6 +103,14 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
           <Button size="small" onClick={() => setDisplayMode(displayMode === 'text' ? 'hex' : 'text')}>
             {displayMode === 'text' ? 'TXT' : 'HEX'}
           </Button>
+          <span className="send-option">
+            <Switch
+              checked={lfToCr}
+              onChange={setLfToCr}
+              size="small"
+            />
+            <span className="send-option-label">LF→CR</span>
+          </span>
         </Space>
       </div>
       <div className="send-input-area">
