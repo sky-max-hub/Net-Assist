@@ -1,5 +1,5 @@
-import { Button } from 'antd'
-import { ColumnWidthOutlined, MergeCellsOutlined } from '@ant-design/icons'
+import { Button, Space } from 'antd'
+import { ColumnWidthOutlined, MergeCellsOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { TabState } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import TcpClientConfigPanel from '../config/TcpClientConfig'
@@ -14,6 +14,7 @@ interface Props {
 
 export default function TabContent({ tab }: Props): JSX.Element {
   const updateSendOptions = useTabStore((s) => s.updateSendOptions)
+  const clearMessages = useTabStore((s) => s.clearMessages)
   const displayMode = tab.sendOptions.displayMode
   const encoding = tab.sendOptions.encoding
   const splitView = tab.sendOptions.splitView
@@ -35,14 +36,26 @@ export default function TabContent({ tab }: Props): JSX.Element {
       <div style={{ flexShrink: 0 }}>{renderConfigPanel()}</div>
       <div style={{ flex: 1, minHeight: 150, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 8px', flexShrink: 0 }}>
-          <Button
-            type="text"
-            size="small"
-            icon={splitView ? <MergeCellsOutlined /> : <ColumnWidthOutlined />}
-            onClick={() => updateSendOptions(tab.id, { splitView: !splitView })}
-          >
-            {splitView ? '合并' : '分开'}
-          </Button>
+          <Space size="small">
+            <Button
+              type="text"
+              danger
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={() => clearMessages(tab.id)}
+              disabled={tab.messages.length === 0}
+            >
+              清空
+            </Button>
+            <Button
+              type="text"
+              size="small"
+              icon={splitView ? <MergeCellsOutlined /> : <ColumnWidthOutlined />}
+              onClick={() => updateSendOptions(tab.id, { splitView: !splitView })}
+            >
+              {splitView ? '合并' : '分开'}
+            </Button>
+          </Space>
         </div>
         {splitView ? (
           <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>

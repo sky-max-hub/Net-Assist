@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Button } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
 import type { Message, DisplayMode, EncodingMode } from '../../../shared/types'
-import { useTabStore } from '../../store/tab-store'
 import MessageItem from './MessageItem'
 import './MessageList.css'
 
@@ -13,9 +10,8 @@ interface Props {
   encoding: EncodingMode
 }
 
-export default function MessageList({ tabId, messages, displayMode, encoding }: Props): JSX.Element {
+export default function MessageList({ tabId: _tabId, messages, displayMode, encoding }: Props): JSX.Element {
   const bottomRef = useRef<HTMLDivElement>(null)
-  const clearMessages = useTabStore((s) => s.clearMessages)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -23,18 +19,6 @@ export default function MessageList({ tabId, messages, displayMode, encoding }: 
 
   return (
     <div className="message-list">
-      <div className="message-list-toolbar">
-        <Button
-          type="text"
-          danger
-          size="small"
-          icon={<DeleteOutlined />}
-          onClick={() => clearMessages(tabId)}
-          disabled={messages.length === 0}
-        >
-          清空消息
-        </Button>
-      </div>
       <div className="message-list-scroll">
         {messages.length === 0 ? (
           <div className="message-list-empty">暂无消息</div>

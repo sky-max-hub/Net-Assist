@@ -5,14 +5,6 @@
   background: #1e1e1e;
 }
 
-.message-list-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  flex-shrink: 0;
-  padding: 4px 16px;
-  border-bottom: 1px solid #333;
-}
-
 .message-list-scroll {
   flex: 1;
   overflow-y: auto;
