@@ -86,15 +86,15 @@ function defaultConfig(type: TabType): TabConfig {
 }
 
 function defaultSendOptions(): SendOptions {
-  return { encoding: 'utf-8', displayMode: 'text', lfToCr: true }
+  return { encoding: 'utf-8', displayMode: 'text', lfToCr: true, splitView: true }
 }
 
 function defaultTitle(type: TabType): string {
   switch (type) {
     case 'tcp-client':
-      return 'TCP Client'
+      return 'TCP_CLIENT'
     case 'tcp-server':
-      return 'TCP Server'
+      return 'TCP_SERVER'
     case 'udp':
       return 'UDP'
   }

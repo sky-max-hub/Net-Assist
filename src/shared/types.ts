@@ -51,6 +51,7 @@ export interface SendOptions {
   encoding: EncodingMode
   displayMode: DisplayMode
   lfToCr: boolean
+  splitView: boolean
 }
 
 export interface QuickSendItem {
