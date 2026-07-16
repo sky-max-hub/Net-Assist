@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { Button } from 'antd'
-import { ColumnWidthOutlined, MergeCellsOutlined, DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined } from '@ant-design/icons'
 import type { TabState } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import TcpClientConfigPanel from '../config/TcpClientConfig'
@@ -77,11 +77,6 @@ export default function TabContent({ tab }: Props): JSX.Element {
       <div style={{ flexShrink: 0 }}>{renderConfigPanel()}</div>
       <div ref={containerRef} style={{ flex: 1, minHeight: 150, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 8px', flexShrink: 0 }}>
-          <Button type="text" size="small"
-            icon={splitView ? <MergeCellsOutlined /> : <ColumnWidthOutlined />}
-            onClick={() => updateSendOptions(tab.id, { splitView: !splitView })}>
-            {splitView ? '合并' : '分开'}
-          </Button>
           {!splitView && (
             <Button type="text" danger size="small" icon={<DeleteOutlined />}
               onClick={() => clearMessages(tab.id)} disabled={tab.messages.length === 0}>清空</Button>
@@ -121,7 +116,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
       </div>
       <div className="msg-send-resize-handle" onMouseDown={startDrag('msg')} />
       <div style={{ flexShrink: 0, height: `${100 - msgPct}%`, maxHeight: `${100 - MSG_MIN_PCT}%` }}>
-        <SendPanel tabId={tab.id} />
+        <SendPanel tabId={tab.id} splitView={splitView} onToggleSplit={() => updateSendOptions(tab.id, { splitView: !splitView })} />
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { useState, useCallback, KeyboardEvent } from 'react'
 import { Input, Button, Space, Switch } from 'antd'
-import { SendOutlined, ClearOutlined } from '@ant-design/icons'
+import { SendOutlined, ClearOutlined, ColumnWidthOutlined, MergeCellsOutlined } from '@ant-design/icons'
 import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
@@ -10,9 +10,11 @@ import './SendPanel.css'
 
 interface Props {
   tabId: string
+  splitView?: boolean
+  onToggleSplit?: () => void
 }
 
-export default function SendPanel({ tabId }: Props): JSX.Element {
+export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): JSX.Element {
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [history, setHistory] = useState<string[]>([])
@@ -116,6 +118,13 @@ export default function SendPanel({ tabId }: Props): JSX.Element {
             <span className="send-option-label">LF转CR</span>
           </span>
         </Space>
+        {onToggleSplit && (
+          <Button type="text" size="small"
+            icon={splitView ? <MergeCellsOutlined /> : <ColumnWidthOutlined />}
+            onClick={onToggleSplit}>
+            {splitView ? '合并' : '分开'}
+          </Button>
+        )}
       </div>
       <div className="send-input-area">
         <Input.TextArea
