@@ -1,6 +1,6 @@
 workflow: hotfix
 language: zh-CN
-phase: verify
+phase: build
 context_compression: off
 build_mode: direct
 build_pause: null
@@ -10,7 +10,7 @@ review_mode: off
 isolation: branch
 verify_mode: light
 auto_transition: true
-base_ref: 6266fbe3eae4e3f89d7951d61f14e1d3bf080ce7
+base_ref: 8a11a213406e771ea8b3be30094f5f52d4d365bb
 design_doc: null
 plan: null
 verify_result: pending
@@ -25,4 +25,4 @@ handoff_context: null
 handoff_hash: null
 classic_profile: hotfix
 classic_migration: 1
-run_id: 910bf5db-757f-4c4b-910b-02b8eb7a92d9
+run_id: c0569200-e79e-4e7e-bb1b-3c16a2872da6

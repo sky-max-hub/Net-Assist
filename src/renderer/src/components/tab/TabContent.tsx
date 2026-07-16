@@ -29,7 +29,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+    <div key={tab.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
       <div style={{ flexShrink: 0 }}>
         {renderConfigPanel()}
       </div>

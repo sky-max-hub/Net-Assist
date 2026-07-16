@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "change": "persist-send-options",
+  "change": "fix-tab-switch-stale-state",
   "branch": "feature/20260715/net-assist"
 }
