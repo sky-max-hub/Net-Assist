@@ -1,0 +1,13 @@
+{
+  "change": "auto-reconnect-stats-bar",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "753ac644ddcb43b3493c04fead3c280e5f68d81f857a4cb6601c16a46aac4b40",
+  "files": [
+    { "path": "openspec/changes/auto-reconnect-stats-bar/proposal.md", "sha256": "b9ffd5a7c17f1de0668e96362df3913203cf59d59e1d095dd0e3f6c4ec20ec87" },
+    { "path": "openspec/changes/auto-reconnect-stats-bar/design.md", "sha256": "e361e32f4231ebcc3f007ddb008022eb09757411e17f6af137819bac82a65abb" },
+    { "path": "openspec/changes/auto-reconnect-stats-bar/tasks.md", "sha256": "684c15d5c936eaf4c3bf20536e7ef43f1d0673e96a8b7d98318ccf625c1ec072" }
+  ]
+}
