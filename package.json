@@ -51,15 +51,18 @@
     },
     "win": {
       "icon": "resources/icon.ico",
-      "target": [
-        "portable"
-      ]
+      "target": ["nsis", "portable"]
     },
-    "mac": {
-      "icon": "resources/icon.ico"
+    "_mac": {
+      "icon": "resources/icon.ico",
+      "target": ["dmg", "zip"]
     },
-    "linux": {
-      "icon": "resources/icon.ico"
+    "_linux": {
+      "icon": "resources/icon.ico",
+      "target": ["deb", "AppImage"]
+    },
+    "publish": {
+      "provider": "github"
     }
   }
 }
