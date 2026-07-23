@@ -61,7 +61,7 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>): void => {
-      if (e.key === 'ArrowUp') {
+      if (e.key === 'ArrowUp' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         if (history.length === 0) return
         if (historyIndex === -1) {
@@ -72,7 +72,7 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
         setInput(history[newIndex])
         return
       }
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         if (history.length === 0) return
         if (historyIndex <= 0) {
@@ -146,7 +146,7 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送, ↑↓ 历史)' : '请先建立连接'}
+          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送, Ctrl+↑↓ 历史)' : '请先建立连接'}
           disabled={!isConnected || sending}
           rows={6}
           style={{ resize: 'none' }}
