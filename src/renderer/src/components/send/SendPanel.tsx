@@ -1,5 +1,5 @@
 import { useState, useCallback, KeyboardEvent } from 'react'
-import { Input, Button, Space, Switch } from 'antd'
+import { Input, Button, Space, Switch, Select } from 'antd'
 import { SendOutlined, ClearOutlined, ColumnWidthOutlined, MergeCellsOutlined } from '@ant-design/icons'
 import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
@@ -18,8 +18,6 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [history, setHistory] = useState<string[]>([])
-  const [historyIndex, setHistoryIndex] = useState<number>(-1)
-  const [draftInput, setDraftInput] = useState<string>('')
   const { send } = useIpc()
   const tab = useTabStore((s) => s.tabs.find((t) => t.id === tabId))
   const quickSendItems = useTabStore((s) => s.quickSendItems)
@@ -48,9 +46,10 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
         bytes = encoder.encode(finalText)
       }
       await send(tabId, bytes, encoding)
-      setHistory((prev) => [textToSend, ...prev])
-      setHistoryIndex(-1)
-      setDraftInput('')
+      setHistory((prev) => {
+        const filtered = prev.filter((item) => item !== textToSend)
+        return [textToSend, ...filtered]
+      })
       setInput('')
     } catch (err) {
       console.error('send failed:', err)
@@ -61,43 +60,12 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>): void => {
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        if (history.length === 0) return
-        if (historyIndex === -1) {
-          setDraftInput(input)
-        }
-        const newIndex = Math.min(historyIndex + 1, history.length - 1)
-        setHistoryIndex(newIndex)
-        setInput(history[newIndex])
-        return
-      }
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        if (history.length === 0) return
-        if (historyIndex <= 0) {
-          setHistoryIndex(-1)
-          setInput(draftInput)
-          setDraftInput('')
-          return
-        }
-        const newIndex = historyIndex - 1
-        setHistoryIndex(newIndex)
-        setInput(history[newIndex])
-        return
-      }
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         doSend()
-        return
-      }
-      // Any other key: exit history mode
-      if (historyIndex !== -1) {
-        setHistoryIndex(-1)
-        setDraftInput('')
       }
     },
-    [history, historyIndex, input, draftInput, doSend]
+    [doSend]
   )
 
   const ctrlChars = countControlChars(input)
@@ -105,6 +73,15 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
   const handleQuickTag = useCallback((content: string) => {
     setInput(content)
   }, [])
+
+  const handleHistorySelect = useCallback((value: string) => {
+    setInput(value)
+  }, [])
+
+  const historyOptions = history.map((text) => ({
+    value: text,
+    label: text.length > 30 ? text.slice(0, 30) + '...' : text
+  }))
 
   return (
     <div className="send-panel">
@@ -122,6 +99,16 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
             />
             <span className="send-option-label">LF转CR</span>
           </span>
+          <Select
+            size="small"
+            placeholder="发送历史"
+            value={undefined}
+            onChange={handleHistorySelect}
+            options={historyOptions}
+            disabled={history.length === 0}
+            style={{ minWidth: 120 }}
+            allowClear={false}
+          />
         </Space>
         {onToggleSplit && (
           <Button type="text" size="small"
@@ -146,7 +133,7 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送, ↑↓ 历史)' : '请先建立连接'}
+          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送)' : '请先建立连接'}
           disabled={!isConnected || sending}
           rows={6}
           style={{ resize: 'none' }}
