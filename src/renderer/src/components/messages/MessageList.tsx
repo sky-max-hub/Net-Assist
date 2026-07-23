@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import type { Message, DisplayMode, EncodingMode } from '../../../shared/types'
+import type { Message, DisplayMode, EncodingMode, MessageDirection } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import MessageItem from './MessageItem'
 import './MessageList.css'
@@ -9,11 +9,13 @@ interface Props {
   messages: Message[]
   displayMode: DisplayMode
   encoding: EncodingMode
+  direction?: MessageDirection
 }
 
-export default function MessageList({ tabId, messages, displayMode, encoding }: Props): JSX.Element {
+export default function MessageList({ tabId, messages, displayMode, encoding, direction }: Props): JSX.Element {
   const bottomRef = useRef<HTMLDivElement>(null)
   const clearMessages = useTabStore((s) => s.clearMessages)
+  const clearDirectionMessages = useTabStore((s) => s.clearDirectionMessages)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -21,7 +23,11 @@ export default function MessageList({ tabId, messages, displayMode, encoding }: 
 
   const handleDoubleClick = (): void => {
     if (messages.length > 0) {
-      clearMessages(tabId)
+      if (direction) {
+        clearDirectionMessages(tabId, direction)
+      } else {
+        clearMessages(tabId)
+      }
     }
   }
 

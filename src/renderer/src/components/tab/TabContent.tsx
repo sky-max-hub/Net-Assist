@@ -92,7 +92,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
                     onClick={() => clearDirectionMessages(tab.id, 'tx')} disabled={txMessages.length === 0}>清空</Button>
                 </div>
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                  <MessageList tabId={tab.id} messages={txMessages} displayMode={displayMode} encoding={encoding} />
+                  <MessageList tabId={tab.id} messages={txMessages} displayMode={displayMode} encoding={encoding} direction="tx" />
                 </div>
               </div>
               <div className="split-resize-handle" onMouseDown={startDrag('split')} />
@@ -103,7 +103,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
                     onClick={() => clearDirectionMessages(tab.id, 'rx')} disabled={rxMessages.length === 0}>清空</Button>
                 </div>
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                  <MessageList tabId={tab.id} messages={rxMessages} displayMode={displayMode} encoding={encoding} />
+                  <MessageList tabId={tab.id} messages={rxMessages} displayMode={displayMode} encoding={encoding} direction="rx" />
                 </div>
               </div>
             </div>
