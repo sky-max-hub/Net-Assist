@@ -63,10 +63,12 @@ export default function MessageItem({ message, displayMode, encoding }: Props): 
 
   return (
     <div className={`message-item message-${message.direction}`}>
-      <span className="message-time">[{formatTime(message.timestamp)}]</span>
-      <span className="message-direction">{directionSymbol}</span>
-      <span className="message-remote">{message.remote}</span>
-      <span className="message-length">({message.byteLength} bytes)</span>
+      <span className="message-header">
+        <span className="message-time">[{formatTime(message.timestamp)}]</span>
+        <span className="message-direction">{directionSymbol}</span>
+        <span className="message-remote">{message.remote}</span>
+        <span className="message-length">({message.byteLength} bytes)</span>
+      </span>
       <span className="message-content">{content}</span>
       <Tooltip title={copied ? '已复制' : '复制原文'} open={copied ? true : undefined}>
         <span className={`message-copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>

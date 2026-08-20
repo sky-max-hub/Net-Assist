@@ -74,11 +74,12 @@
 
 .message-item.message-tx .message-direction { color: #6a9955; }
 .message-item.message-rx .message-direction { color: #569cd6; }
+.message-header { display: block; }
 .message-time { color: #858585; margin-right: 6px; }
 .message-direction { margin-right: 6px; font-weight: bold; }
 .message-remote { color: #ce9178; margin-right: 6px; }
 .message-length { color: #858585; margin-right: 6px; }
-.message-content { color: #d4d4d4; }
+.message-content { display: block; color: #d4d4d4; margin-top: 2px; padding-left: 12px; white-space: pre-wrap; word-break: break-all; }
 
 /* ASCII control character highlighting */
 .ascii-ctrl { font-weight: bold; border-radius: 2px; padding: 0 2px; margin: 0 1px; font-size: 11px; }
