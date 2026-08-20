@@ -1,6 +1,6 @@
 workflow: hotfix
 language: zh-CN
-phase: build
+phase: archive
 context_compression: off
 build_mode: direct
 build_pause: null
@@ -13,13 +13,13 @@ auto_transition: true
 base_ref: 363a828e078fa098a9793dfdec81e5dab43e0fac
 design_doc: null
 plan: null
-verify_result: fail
+verify_result: pass
 verification_report: docs/superpowers/reports/2026-08-20-preserve-cr-history-quick-send-verify.md
 branch_status: handled
 created_at: 2026-08-20
-verified_at: null
-archive_confirmation: null
-archived: false
+verified_at: 2026-08-20
+archive_confirmation: confirmed
+archived: true
 direct_override: null
 handoff_context: null
 handoff_hash: null
