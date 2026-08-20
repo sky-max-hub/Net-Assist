@@ -96,7 +96,7 @@ function defaultConfig(type: TabType): TabConfig {
 }
 
 function defaultSendOptions(): SendOptions {
-  return { encoding: 'gbk', displayMode: 'text', lfToCr: true, splitView: true }
+  return { encoding: 'gbk', displayMode: 'text', lfToCr: false, splitView: true }
 }
 
 function defaultTitle(type: TabType): string {
@@ -118,6 +118,7 @@ interface TabStore {
 
   createTab: (type: TabType) => string | null
   closeTab: (tabId: string) => void
+  reorderTabs: (fromIndex: number, toIndex: number) => void
   setActiveTab: (tabId: string) => void
   updateTabStatus: (tabId: string, status: TabStatus) => void
   addMessage: (tabId: string, message: Omit<Message, 'id'>) => void
@@ -183,6 +184,16 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
     set({ tabs: newTabs, activeTabId: newActiveId })
     persistTabs(newTabs)
+  },
+
+  reorderTabs: (fromIndex: number, toIndex: number): void => {
+    const tabs = [...get().tabs]
+    if (fromIndex < 0 || fromIndex >= tabs.length || toIndex < 0 || toIndex >= tabs.length) return
+    if (fromIndex === toIndex) return
+    const [moved] = tabs.splice(fromIndex, 1)
+    tabs.splice(toIndex, 0, moved)
+    set({ tabs })
+    persistTabs(tabs)
   },
 
   setActiveTab: (tabId: string): void => {

@@ -44,6 +44,11 @@
   border-left: 3px solid #1890ff;
 }
 
+.tab-item.drag-over {
+  outline: 2px dashed #1890ff;
+  outline-offset: -2px;
+}
+
 .tab-status-dot {
   width: 8px;
   height: 8px;

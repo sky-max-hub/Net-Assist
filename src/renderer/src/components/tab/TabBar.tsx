@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Button, Dropdown, Input } from 'antd'
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
@@ -28,10 +28,13 @@ const tabTypeConfig: Record<TabType, { label: string; color: string }> = {
 }
 
 export default function TabBar(): JSX.Element {
-  const { tabs, activeTabId, createTab, closeTab, setActiveTab } = useTabStore()
+  const { tabs, activeTabId, createTab, closeTab, reorderTabs, setActiveTab } = useTabStore()
   const { disconnect } = useIpc()
   const [editTabId, setEditTabId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const draggedRef = useRef(false)
 
   const handleCloseTab = async (tabId: string): Promise<void> => {
     try { await disconnect(tabId) } catch { /* force close */ }
@@ -59,6 +62,44 @@ export default function TabBar(): JSX.Element {
     setEditTitle('')
   }
 
+  const handleDragStart = (e: React.DragEvent, index: number): void => {
+    setDragIndex(index)
+    draggedRef.current = false
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(index))
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number): void => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverIndex(index)
+  }
+
+  const handleDrop = (e: React.DragEvent, index: number): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (dragIndex !== null && dragIndex !== index) {
+      reorderTabs(dragIndex, index)
+      draggedRef.current = true
+    }
+    setDragIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const handleDragEnd = (): void => {
+    setDragIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const handleItemClick = (tabId: string): void => {
+    // 拖拽结束后抑制 click，避免切换标签
+    if (draggedRef.current) {
+      draggedRef.current = false
+      return
+    }
+    setActiveTab(tabId)
+  }
+
   return (
     <div className="tab-bar">
       <div className="tab-bar-header">
@@ -68,11 +109,16 @@ export default function TabBar(): JSX.Element {
         </Dropdown>
       </div>
       <div className="tab-list">
-        {tabs.map((tab) => (
+        {tabs.map((tab, index) => (
           <div
             key={tab.id}
-            className={`tab-item ${tab.id === activeTabId ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            className={`tab-item ${tab.id === activeTabId ? 'active' : ''} ${dragOverIndex === index && dragIndex !== index ? 'drag-over' : ''}`}
+            onClick={() => handleItemClick(tab.id)}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+            onDragEnd={handleDragEnd}
           >
             <span
               className="tab-status-dot"
