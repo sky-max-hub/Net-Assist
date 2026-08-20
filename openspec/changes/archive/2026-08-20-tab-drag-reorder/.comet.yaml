@@ -1,6 +1,6 @@
 workflow: tweak
 language: zh-CN
-phase: build
+phase: archive
 context_compression: off
 build_mode: direct
 build_pause: null
@@ -13,13 +13,13 @@ auto_transition: true
 base_ref: 8715d11373dc3b47345154e4c6fa4bc8eb649170
 design_doc: null
 plan: null
-verify_result: pending
-verification_report: null
-branch_status: pending
+verify_result: pass
+verification_report: docs/superpowers/reports/2026-08-20-tab-drag-reorder-verify.md
+branch_status: handled
 created_at: 2026-08-20
-verified_at: null
-archive_confirmation: null
-archived: false
+verified_at: 2026-08-20
+archive_confirmation: confirmed
+archived: true
 direct_override: null
 handoff_context: null
 handoff_hash: null
