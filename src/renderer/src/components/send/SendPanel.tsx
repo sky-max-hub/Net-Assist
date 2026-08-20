@@ -1,9 +1,10 @@
-import { useState, useCallback, KeyboardEvent, ClipboardEvent } from 'react'
+import { useState, useCallback, KeyboardEvent } from 'react'
 import { Input, Button, Space, Switch } from 'antd'
 import { SendOutlined, ClearOutlined, ColumnWidthOutlined, MergeCellsOutlined } from '@ant-design/icons'
 import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
+import { usePreservePaste } from '../../hooks/usePreservePaste'
 import { countControlChars } from '../common/AsciiHighlighter'
 import EncodingSelector from '../encoding/EncodingSelector'
 import './SendPanel.css'
@@ -102,23 +103,7 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
 
   const ctrlChars = countControlChars(input)
 
-  const handlePaste = useCallback(
-    (e: ClipboardEvent<HTMLTextAreaElement>): void => {
-      const pastedText = e.clipboardData.getData('text')
-      if (!pastedText) return
-      e.preventDefault()
-      const el = e.currentTarget
-      const start = el.selectionStart ?? input.length
-      const end = el.selectionEnd ?? input.length
-      const next = input.slice(0, start) + pastedText + input.slice(end)
-      setInput(next)
-      requestAnimationFrame(() => {
-        const pos = start + pastedText.length
-        el.setSelectionRange(pos, pos)
-      })
-    },
-    [input]
-  )
+  const handlePaste = usePreservePaste(setInput)
 
   const handleQuickTag = useCallback((content: string) => {
     setInput(content)

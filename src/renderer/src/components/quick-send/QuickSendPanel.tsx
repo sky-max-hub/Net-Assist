@@ -9,6 +9,7 @@ import {
   FolderAddOutlined
 } from '@ant-design/icons'
 import { useTabStore } from '../../store/tab-store'
+import { usePreservePaste } from '../../hooks/usePreservePaste'
 import './QuickSendPanel.css'
 
 interface Props {
@@ -35,6 +36,7 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
   const [groupModalOpen, setGroupModalOpen] = useState(false)
   const [editGroupId2, setEditGroupId2] = useState<string | null>(null)
   const [editGroupName, setEditGroupName] = useState('')
+  const handleContentPaste = usePreservePaste(setEditContent)
 
   const openAdd = (groupId?: string): void => {
     setEditId(null)
@@ -196,7 +198,7 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
         okButtonProps={{ disabled: !editName.trim() || !editContent.trim() }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
           <Input placeholder="指令名称" value={editName} onChange={(e) => setEditName(e.target.value)} />
-          <Input.TextArea placeholder="指令内容" value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={3} />
+          <Input.TextArea placeholder="指令内容" value={editContent} onChange={(e) => setEditContent(e.target.value)} onPaste={handleContentPaste} rows={3} />
         </div>
       </Modal>
 
