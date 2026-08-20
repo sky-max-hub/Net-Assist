@@ -13,9 +13,9 @@ auto_transition: true
 base_ref: 363a828e078fa098a9793dfdec81e5dab43e0fac
 design_doc: null
 plan: null
-verify_result: pending
-verification_report: null
-branch_status: pending
+verify_result: fail
+verification_report: docs/superpowers/reports/2026-08-20-preserve-cr-history-quick-send-verify.md
+branch_status: handled
 created_at: 2026-08-20
 verified_at: null
 archive_confirmation: null

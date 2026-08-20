@@ -1,11 +1,13 @@
-import { useState, useCallback, KeyboardEvent } from 'react'
-import { Input, Button, Space, Switch } from 'antd'
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import type { KeyBinding } from '@codemirror/view'
+import { Button, Space, Switch } from 'antd'
 import { SendOutlined, ClearOutlined, ColumnWidthOutlined, MergeCellsOutlined } from '@ant-design/icons'
 import type { EncodingMode, DisplayMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
-import { usePreservePaste } from '../../hooks/usePreservePaste'
+import { normalizeToLf } from '../../hooks/lineEnding'
 import { countControlChars } from '../common/AsciiHighlighter'
+import CrPreservingEditor, { type CrPreservingEditorHandle } from '../common/CrPreservingEditor'
 import EncodingSelector from '../encoding/EncodingSelector'
 import './SendPanel.css'
 
@@ -37,7 +39,8 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
     try {
       const encoder = new TextEncoder()
       let bytes: Uint8Array
-      const finalText = lfToCr ? textToSend.replace(/\n/g, '\r') : textToSend
+      // lfToCr 时先归一化再转换，避免 CRLF 双重转换；否则按原样发送（保留粘贴/编辑的 CR/CRLF）
+      const finalText = lfToCr ? normalizeToLf(textToSend).replace(/\n/g, '\r') : textToSend
       if (encoding === 'gbk') {
         const encoded = await window.electronAPI.encoding.encodeText(finalText, 'gbk')
         bytes = new Uint8Array(encoded)
@@ -60,50 +63,47 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
     }
   }, [input, encoding, tabId, send, lfToCr])
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLTextAreaElement>): void => {
-      if (e.key === 'ArrowUp' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        if (history.length === 0) return
-        if (historyIndex === -1) {
-          setDraftInput(input)
-        }
-        const newIndex = Math.min(historyIndex + 1, history.length - 1)
-        setHistoryIndex(newIndex)
-        setInput(history[newIndex])
-        return
-      }
-      if (e.key === 'ArrowDown' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        if (history.length === 0) return
-        if (historyIndex <= 0) {
-          setHistoryIndex(-1)
-          setInput(draftInput)
-          setDraftInput('')
-          return
-        }
-        const newIndex = historyIndex - 1
-        setHistoryIndex(newIndex)
-        setInput(history[newIndex])
-        return
-      }
-      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        doSend()
-        return
-      }
-      // Any other key: exit history mode
-      if (historyIndex !== -1) {
-        setHistoryIndex(-1)
-        setDraftInput('')
-      }
-    },
-    [history, historyIndex, input, draftInput, doSend]
-  )
+  const historyUp = useCallback((): void => {
+    if (history.length === 0) return
+    if (historyIndex === -1) {
+      setDraftInput(input)
+    }
+    const newIndex = Math.min(historyIndex + 1, history.length - 1)
+    setHistoryIndex(newIndex)
+    setInput(history[newIndex])
+  }, [history, historyIndex, input])
+
+  const historyDown = useCallback((): void => {
+    if (history.length === 0) return
+    if (historyIndex <= 0) {
+      setHistoryIndex(-1)
+      setInput(draftInput)
+      setDraftInput('')
+      return
+    }
+    const newIndex = historyIndex - 1
+    setHistoryIndex(newIndex)
+    setInput(history[newIndex])
+  }, [history, historyIndex, draftInput])
+
+  // CodeMirror keymap 只在首次挂载时创建，闭包固定。
+  // 用 ref 转发最新 handler，避免 keymap 捕获过期闭包导致快捷键无响应。
+  const handlersRef = useRef({ doSend, historyUp, historyDown })
+  handlersRef.current = { doSend, historyUp, historyDown }
+
+  const sendKeymap = useMemo<KeyBinding[]>(() => [
+    { key: 'Mod-Enter', run: () => { handlersRef.current.doSend(); return true } },
+    { key: 'Mod-ArrowUp', run: () => { handlersRef.current.historyUp(); return true } },
+    { key: 'Mod-ArrowDown', run: () => { handlersRef.current.historyDown(); return true } }
+  ], [])
+
+  // 编辑器实例：外部设置内容（历史切换/清空/快捷填充）时同步
+  const editorRef = useRef<CrPreservingEditorHandle>(null)
+  useEffect(() => {
+    editorRef.current?.setValue(input)
+  }, [input])
 
   const ctrlChars = countControlChars(input)
-
-  const handlePaste = usePreservePaste(setInput)
 
   const handleQuickTag = useCallback((content: string) => {
     setInput(content)
@@ -144,16 +144,14 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
           ))}
         </div>
       )}
-      <div className="send-input-area">
-        <Input.TextArea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onPaste={handlePaste}
+      <div className="send-input-area" onClick={() => editorRef.current?.focus()}>
+        <CrPreservingEditor
+          ref={editorRef}
+          initialValue={input}
+          onChange={setInput}
+          extraKeymap={sendKeymap}
           placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送, Ctrl+↑↓ 历史)' : '请先建立连接'}
           disabled={!isConnected || sending}
-          rows={6}
-          style={{ resize: 'none' }}
         />
       </div>
       <div className="send-actions">

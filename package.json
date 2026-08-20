@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@codemirror/commands": "^6.11.0",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.9",
     "@electron-toolkit/utils": "^3.0.0",
     "antd": "^5.12.0",
     "conf": "^10.2.0",
@@ -57,15 +60,24 @@
     ],
     "win": {
       "icon": "resources/icon.ico",
-      "target": ["nsis", "portable"]
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
     "mac": {
       "icon": "resources/icon.ico",
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "linux": {
       "icon": "resources/icon.ico",
-      "target": ["deb", "AppImage"]
+      "target": [
+        "deb",
+        "AppImage"
+      ]
     }
   }
 }

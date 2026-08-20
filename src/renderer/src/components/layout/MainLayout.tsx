@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react'
 import { useTabStore } from '../../store/tab-store'
 import { useIpcListeners, useIpc } from '../../hooks/useIpc'
+import { normalizeToLf } from '../../hooks/lineEnding'
 import TabBar from '../tab/TabBar'
 import TabContent from '../tab/TabContent'
 import QuickSendPanel from '../quick-send/QuickSendPanel'
@@ -51,7 +52,8 @@ export default function MainLayout(): JSX.Element {
   const handleQuickSend = useCallback(async (content: string) => {
     if (!activeTab) return
     const opts = activeTab.sendOptions
-    const finalText = opts.lfToCr ? content.replace(/\n/g, '\r') : content
+    // lfToCr 时先归一化再转换，避免 CRLF 双重转换；否则原样发送（保留 CR/CRLF）
+    const finalText = opts.lfToCr ? normalizeToLf(content).replace(/\n/g, '\r') : content
 
     let bytes: Uint8Array
     if (opts.encoding === 'gbk') {

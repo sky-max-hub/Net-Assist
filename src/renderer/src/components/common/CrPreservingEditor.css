@@ -1,0 +1,45 @@
+.cr-editor {
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  min-height: 132px;
+}
+
+.cr-editor .cm-editor {
+  height: 100%;
+  background: #fff;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: #333;
+}
+
+.cr-editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+.cr-editor .cm-scroller {
+  overflow: auto;
+  line-height: 1.6;
+}
+
+.cr-editor .cm-content {
+  padding: 6px 8px;
+}
+
+.cr-editor .cm-placeholder {
+  color: #bbb;
+}
+
+/* 明显的光标：加粗 + 高对比色 */
+.cr-editor .cm-cursor {
+  border-left-width: 2px;
+  border-left-color: #1890ff;
+}
+
+.cr-editor .cm-selectionBackground,
+.cr-editor .cm-focused .cm-selectionBackground {
+  background: rgba(24, 144, 255, 0.15);
+}
