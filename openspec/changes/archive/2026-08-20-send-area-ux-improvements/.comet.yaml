@@ -1,4 +1,4 @@
-workflow: hotfix
+workflow: tweak
 language: zh-CN
 phase: archive
 context_compression: off
@@ -10,19 +10,22 @@ review_mode: off
 isolation: branch
 verify_mode: light
 auto_transition: true
-base_ref: 3ae522d95d6b314fd950898b7ea9a98d7e0db2dc
 design_doc: null
 plan: null
 verify_result: pass
-verification_report: docs/superpowers/reports/2026-07-23-preserve-paste-line-endings-verify.md
+verification_report: docs/superpowers/reports/2026-08-20-send-area-ux-improvements-verify.md
 branch_status: handled
-created_at: 2026-08-19
-verified_at: 2026-08-19
+created_at: 2026-07-23
+verified_at: 2026-08-20
 archive_confirmation: confirmed
 archived: true
 direct_override: null
 handoff_context: null
 handoff_hash: null
-classic_profile: hotfix
+classic_profile: tweak
 classic_migration: 1
-run_id: 092e83ac-428f-4734-b708-e52809084f1e
+run_id: merged-send-area-ux-improvements
+merged_from:
+  - history-select-inline
+  - dblclick-clear-messages
+  - preserve-paste-line-endings
