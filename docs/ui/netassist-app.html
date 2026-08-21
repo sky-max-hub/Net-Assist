@@ -1,0 +1,1489 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetAssist · 网络调试助手</title>
+<style>/* ════════════════════════════════════════════════════════════════
+   NetAssist — 精密工作台 (Apple 设计系统绑定)
+   视觉:单一蓝色强调 / SF Pro 字体 / 白×浅灰二元节奏 / 克制动效
+   ════════════════════════════════════════════════════════════════ */
+:root { --bg: #ffffff; --surface: #f5f5f7; --surface-warm: #fbfbfd; --fg: #1d1d1f; --fg-2: #424245; --muted: #6e6e73; --meta: #86868b; --border: #d2d2d7; --border-soft: #e8e8ed; --accent: #0071e3; --accent-on: #ffffff; --accent-hover: #0077ed; --accent-active: #0066cc; --success: #16a34a; --warn: #eab308; --danger: #dc2626; --font-display: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif; --font-body: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif; --font-mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, Monaco, Consolas, monospace; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 18px; --radius-pill: 980px; --elev-flat: none; --elev-ring: 0 0 0 1px var(--border); --elev-raised: 0 12px 32px rgba(0, 0, 0, 0.08); --focus-ring: 0 0 0 4px color-mix(in oklab, var(--accent), transparent 65%); --motion-fast: 150ms; --motion-base: 220ms; --ease-standard: cubic-bezier(0.28, 0, 0.22, 1); }
+/* CJK-availability extension —— 保持中文渲染质量,色板不变 */
+:root { --font-body: "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; --font-display: "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; --font-mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* 桌面窗口装饰与投影 —— 非品牌色板,仅供桌面原型外观 */
+--tl-red: #ff5f57;
+--tl-yellow: #febc2e;
+--tl-green: #28c840;
+--shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.12);
+--shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.22);
+--scrim: rgba(0, 0, 0, 0.34);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+svg { display: block; }
+button { font: inherit; cursor: pointer; }
+input, select, textarea { font: inherit; }
+::selection { background: color-mix(in oklab, var(--accent) 22%, transparent); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--meta); border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+:focus { outline: none; }
+:focus-visible { box-shadow: var(--focus-ring); }
+#app { display: flex; flex-direction: column; height: 100%; min-height: 100vh; }
+/* ── 图标 ────────────────────────────────────────────────────────── */
+.ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+/* ── 标题栏 ──────────────────────────────────────────────────────── */
+.titlebar { height: 46px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 14px; background: color-mix(in oklab, var(--bg) 84%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); position: relative; z-index: 30; }
+.traffic { display: flex; gap: 8px; padding-right: 4px; }
+.traffic i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.traffic .tl-red { background: var(--tl-red); }
+.traffic .tl-yellow { background: var(--tl-yellow); }
+.traffic .tl-green { background: var(--tl-green); }
+.app-title { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; }
+.app-title .ic { width: 19px; height: 19px; stroke-width: 1.5; }
+.app-title .at-sub { color: var(--muted); font-weight: 400; font-size: 12px; }
+.title-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.global-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); padding: 4px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-warm); }
+.global-status .dot { width: 7px; height: 7px; border-radius: 50%; }
+/* ── 主区域 ──────────────────────────────────────────────────────── */
+.app-body { flex: 1; display: flex; min-height: 0; }
+/* ── 侧边栏 ──────────────────────────────────────────────────────── */
+.sidebar { width: 292px; flex: none; min-width: 224px; max-width: 440px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.sb-resize { position: absolute; right: -3px; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 20; }
+.sb-resize:hover { background: color-mix(in oklab, var(--accent) 25%, transparent); }
+.sb-search { display: flex; gap: 6px; align-items: center; padding: 10px 12px 4px; }
+.search-box { position: relative; display: flex; align-items: center; flex: 1; min-width: 0; }
+.search-box .ic { position: absolute; left: 9px; width: 14px; height: 14px; color: var(--meta); pointer-events: none; }
+.search-box input { width: 100%; height: 30px; padding: 0 10px 0 30px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); font-size: 12.5px; transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.search-box input::placeholder { color: var(--muted); }
+.search-box input:hover { border-color: var(--meta); }
+.search-box input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.sb-body { flex: 1; overflow-y: auto; padding: 6px 10px 10px; }
+.sb-toggle-btn { flex: none; }
+.sb-toggle-btn .ic { transition: transform var(--motion-base) var(--ease-standard); }
+.sidebar { transition: width var(--motion-base) var(--ease-standard); }
+.sidebar.no-trans { transition: none; }
+#sidebar.collapsed { width: 52px !important; min-width: 52px; max-width: 52px; }
+#sidebar.collapsed .search-box { display: none; }
+#sidebar.collapsed .sb-search { justify-content: center; padding: 10px 0; }
+#sidebar.collapsed .sb-body, #sidebar.collapsed .sb-foot, #sidebar.collapsed .sb-resize { display: none; }
+#sidebar.collapsed .sb-toggle-btn .ic { transform: rotate(180deg); }
+.sb-rail { display: none; }
+#sidebar.collapsed .sb-rail { display: flex; flex: 1; flex-direction: column; gap: 3px; padding: 10px 8px; overflow-y: auto; }
+.rail-conn { position: relative; flex: none; width: 36px; height: 36px; margin: 0 auto; display: grid; place-items: center; border: 0; background: transparent; border-radius: 10px; color: var(--fg-2); cursor: pointer; transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.rail-conn:hover { background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
+.rail-conn.active { background: var(--bg); box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(0,0,0,.05); color: var(--fg); }
+.rail-conn .ic { width: 17px; height: 17px; }
+.rail-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--surface); }
+.rail-empty { color: var(--meta); font-size: 18px; text-align: center; padding-top: 8px; }
+.rail-tip { position: fixed; z-index: 200; display: none; transform: translateY(-50%); background: var(--fg); color: var(--surface); border-radius: 10px; padding: 8px 12px; box-shadow: 0 12px 32px rgba(0,0,0,.25); min-width: 160px; pointer-events: none; }
+.rail-tip .rt-name { font-size: 12.5px; font-weight: 600; }
+.rail-tip .rt-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; opacity: .85; margin-top: 3px; font-family: var(--font-mono); }
+.rail-tip .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.sb-section + .sb-section { margin-top: 18px; }
+.sb-head { display: flex; align-items: center; gap: 8px; padding: 2px 6px 8px; }
+.sb-head h2 { margin: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+.sb-head .sb-actions { margin-left: auto; display: flex; gap: 2px; }
+.icon-btn { width: 26px; height: 26px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 7px; transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard); }
+.icon-btn:hover { background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
+.icon-btn:disabled { opacity: .45; cursor: default; }
+.icon-btn:disabled:hover { background: transparent; color: var(--muted); }
+.icon-btn .ic { width: 15px; height: 15px; }
+/* 连接行 */
+.conn-list { display: flex; flex-direction: column; gap: 1px; }
+.conn-row { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 9px; cursor: pointer; transition: background var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); position: relative; }
+.conn-row:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
+.conn-row.active { background: var(--bg); box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(0,0,0,.05); }
+.conn-row:focus-visible, .cmd-row:focus-visible, .cmd-group-head:focus-visible, .rail-conn:focus-visible { box-shadow: var(--focus-ring); }
+.conn-row.drag-over::before { content: ""; position: absolute; left: 8px; right: 8px; top: -2px; height: 2px; border-radius: 2px; background: var(--accent); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.status-dot.pulse { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--warn) 45%, transparent); } 60% { box-shadow: 0 0 0 5px transparent; } }
+.st-idle { background: var(--meta); }
+.st-connecting { background: var(--warn); }
+.st-connected, .st-listening, .st-bound { background: var(--success); }
+.st-error { background: var(--danger); }
+.type-pill { font-family: var(--font-mono); font-size: 10px; font-weight: 600; flex: none; padding: 1px 5px; border-radius: 5px; letter-spacing: .02em; }
+.tp-tc { background: color-mix(in oklab, var(--success) 12%, transparent); color: color-mix(in oklab, var(--success) 62%, var(--fg)); }
+.tp-ts { background: color-mix(in oklab, var(--accent-active) 12%, transparent); color: color-mix(in oklab, var(--accent-active) 62%, var(--fg)); }
+.tp-ud { background: color-mix(in oklab, var(--warn) 16%, transparent); color: color-mix(in oklab, var(--warn) 52%, var(--fg)); }
+.conn-type-icon { width: 15px; height: 15px; flex: none; }
+.ws-type-icon { display: inline-flex; }
+.ws-type-icon .ic { width: 16px; height: 16px; }
+.ct-tc { color: color-mix(in oklab, var(--success) 62%, var(--fg)); }
+.ct-ts { color: color-mix(in oklab, var(--accent-active) 62%, var(--fg)); }
+.ct-ud { color: color-mix(in oklab, var(--warn) 52%, var(--fg)); }
+.conn-name { flex: 1; font-size: 13px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conn-row .conn-name.renaming { padding: 2px 6px; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); font-size: 13px; }
+.conn-close { opacity: 0; width: 24px; height: 24px; }
+.conn-row:hover .conn-close { opacity: 1; }
+.conn-close:hover { background: color-mix(in oklab, var(--danger) 12%, transparent); color: var(--danger); }
+/* 快捷指令 */
+.cmd-groups { display: flex; flex-direction: column; gap: 2px; }
+.cmd-group-head { display: flex; align-items: center; gap: 7px; padding: 5px 7px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--fg-2); }
+.cmd-group-head:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.cmd-group-head .chev { transition: transform var(--motion-fast) var(--ease-standard); }
+.cmd-group-head .chev.rot { transform: rotate(-90deg); }
+.cmd-group-head .count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+.cmd-list { display: flex; flex-direction: column; gap: 1px; margin-top: 1px; }
+.cmd-row { display: flex; align-items: center; gap: 7px; padding: 4px 7px 4px 27px; border-radius: 8px; cursor: pointer; font-size: 12.5px; color: var(--fg-2); }
+.cmd-row:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.cmd-row .cmd-preview { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: none; }
+.cmd-row .cmd-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd-row .cmd-actions { display: none; gap: 1px; flex: none; }
+.cmd-row:hover .cmd-actions { display: flex; }
+.cmd-row .icon-btn { width: 22px; height: 22px; }
+.cmd-row .icon-btn .ic { width: 13px; height: 13px; }
+.cmd-row .play-btn { color: var(--success); }
+.cmd-row .play-btn:hover { background: color-mix(in oklab, var(--success) 13%, transparent); }
+.sb-foot { flex: none; padding: 8px 16px; border-top: 1px solid var(--border-soft); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+.sb-none { padding: 14px 10px; font-size: 12px; color: var(--muted); text-align: center; }
+/* ── 工作区 ──────────────────────────────────────────────────────── */
+.workspace { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+#work { flex-direction: column; overflow: hidden; }
+.ws-header { flex: none; display: flex; align-items: center; gap: 10px; row-gap: 6px; padding: 7px 16px; min-height: 46px; flex-wrap: wrap; border-bottom: 1px solid var(--border-soft); }
+.ws-title { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; min-width: 0; }
+.ws-title .conn-name-ws { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-config { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.ws-header .spacer { flex: 1; }
+.ws-actions { display: flex; align-items: center; gap: 8px; }
+/* 按钮 */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 14px; border-radius: var(--radius-sm); border: 1px solid transparent; font-size: 13px; font-weight: 500; transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), transform .05s ease; white-space: nowrap; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--accent-on); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { background: var(--accent-active); }
+.btn-primary:disabled { background: color-mix(in oklab, var(--accent) 38%, transparent); color: color-mix(in oklab, var(--accent-on) 90%, transparent); cursor: default; }
+.btn-dark { background: var(--fg); color: var(--surface); }
+.btn-dark:hover { background: var(--fg-2); }
+.btn-dark:disabled { background: color-mix(in oklab, var(--fg) 38%, transparent); color: color-mix(in oklab, var(--accent-on) 90%, transparent); cursor: default; }
+.btn-danger { background: var(--surface-warm); color: color-mix(in oklab, var(--danger) 70%, var(--fg)); border-color: color-mix(in oklab, var(--danger) 34%, var(--border)); }
+.btn-danger:hover { background: color-mix(in oklab, var(--danger) 9%, transparent); border-color: var(--danger); }
+.btn-secondary { background: var(--surface-warm); color: var(--fg); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--meta); }
+.btn-ghost { background: transparent; color: var(--fg-2); }
+.btn-ghost:hover { background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
+.btn-sm { height: 26px; padding: 0 10px; font-size: 12px; border-radius: 7px; }
+.btn .ic { width: 14px; height: 14px; }
+/* 配置条 */
+.cfg-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.cfg-field { display: flex; align-items: center; gap: 6px; }
+.cfg-label { font-size: 12px; color: var(--muted); flex: none; }
+.cfg-input { width: 112px; height: 28px; padding: 0 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--fg); font-family: var(--font-mono); font-size: 12.5px; transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.cfg-input:hover { border-color: var(--meta); }
+.cfg-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.cfg-input:disabled { background: var(--surface); color: var(--meta); cursor: not-allowed; }
+.cfg-input.w-70 { width: 72px; }
+.cfg-input.w-60 { width: 62px; }
+.cfg-select { height: 28px; padding: 0 24px 0 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; color: var(--fg); font-size: 12.5px; appearance: none; -webkit-appearance: none; cursor: pointer; }
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); padding: 3px 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); white-space: nowrap; }
+.status-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+.status-pill.sp-success { color: color-mix(in oklab, var(--success) 62%, var(--fg)); border-color: color-mix(in oklab, var(--success) 30%, var(--border)); }
+.status-pill.sp-warn { color: color-mix(in oklab, var(--warn) 55%, var(--fg)); border-color: color-mix(in oklab, var(--warn) 34%, var(--border)); }
+.status-pill.sp-error { color: color-mix(in oklab, var(--danger) 70%, var(--fg)); border-color: color-mix(in oklab, var(--danger) 30%, var(--border)); }
+/* 消息区 */
+.ws-count { flex: none; font-family: var(--font-mono); font-size: 11px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.msg-area { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; background: var(--bg); }
+.msg-area.split { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+.msg-col { min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+.msg-col + .msg-col { border-left: 1px solid var(--border-soft); }
+.msg-col-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 5px 14px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border-soft); background: var(--surface-warm); }
+.msg-col-head .mch-label { display: flex; align-items: center; gap: 6px; }
+.msg-col-head .mch-count { font-family: var(--font-mono); font-weight: 400; }
+.msg-col-head .spacer { flex: 1; }
+.msg-col.tx-col .mch-label { color: color-mix(in oklab, var(--success) 62%, var(--fg)); }
+.msg-col.rx-col .mch-label { color: var(--accent-active); }
+.msg-list { padding: 4px 0 8px; }
+.msg-row { padding: 6px 14px 6px 15px; border-left: 3px solid transparent; transition: background var(--motion-fast) var(--ease-standard); animation: fadeIn .18s var(--ease-standard); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }
+.msg-row.tx { border-left-color: var(--success); background: color-mix(in oklab, var(--success) 4.5%, var(--bg)); }
+.msg-row.rx { border-left-color: var(--accent-active); background: color-mix(in oklab, var(--accent-active) 4%, var(--bg)); }
+.msg-row.sys { border-left-color: var(--meta); background: var(--surface-warm); }
+.msg-row:hover { background: color-mix(in oklab, var(--fg) 4%, var(--bg)); }
+.msg-meta { display: flex; align-items: baseline; gap: 8px; font-size: 11.5px; min-width: 0; }
+.msg-time { font-family: var(--font-mono); color: var(--muted); flex: none; }
+.msg-dir { font-family: var(--font-mono); font-weight: 700; flex: none; }
+.msg-row.tx .msg-dir { color: color-mix(in oklab, var(--success) 62%, var(--fg)); }
+.msg-row.rx .msg-dir { color: var(--accent-active); }
+.msg-row.sys .msg-dir { color: var(--meta); }
+.msg-peer { font-family: var(--font-mono); color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.msg-bytes { font-family: var(--font-mono); color: var(--muted); flex: none; }
+.msg-copy { margin-left: auto; opacity: 0; width: 24px; height: 24px; }
+.msg-row:hover .msg-copy { opacity: 1; }
+.msg-copy.copied { opacity: 1; color: var(--success); }
+.msg-body { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65; margin-top: 3px; padding-left: 12px; color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.ctrl { display: inline-block; font-family: var(--font-mono); font-size: 10px; color: var(--fg-2); background: color-mix(in oklab, var(--fg) 8%, transparent); border-radius: 4px; padding: 0 4px; margin: 0 1px; }
+.empty-msg { display: grid; place-items: center; height: 100%; min-height: 140px; color: var(--muted); font-size: 12.5px; text-align: center; padding: 20px; }
+.empty-msg .em-kbd { display: block; margin-top: 6px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+/* 统计条 */
+.stats { flex: none; display: flex; align-items: center; gap: 20px; padding: 5px 16px; border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); background: var(--surface-warm); font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); overflow-x: auto; }
+.stats .st { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.stats .st-label { font-family: var(--font-body); }
+.stats .st-val { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stats .st-val.tx { color: color-mix(in oklab, var(--success) 62%, var(--fg)); }
+.stats .st-val.rx { color: var(--accent-active); }
+.stats .spacer { flex: 1; }
+.stats .dur { margin-left: auto; }
+/* 发送区 */
+.composer { flex: none; border-top: 1px solid var(--border-soft); background: var(--surface); padding: 10px 16px 11px; }
+.cmp-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.seg { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 2px; gap: 2px; }
+.seg button { border: 0; background: transparent; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; color: var(--fg-2); transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard); }
+.seg button:hover { color: var(--fg); }
+.seg button.active { background: var(--fg); color: var(--surface); }
+.switch { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--fg-2); cursor: pointer; }
+.switch input { display: none; }
+.switch .track { width: 30px; height: 18px; border-radius: 999px; background: var(--border); position: relative; transition: background var(--motion-base) var(--ease-standard); }
+.switch .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-on); box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform var(--motion-base) var(--ease-standard); }
+.switch input:checked + .track { background: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(12px); }
+.toolbar-sep { width: 1px; height: 18px; background: var(--border); }
+.cmp-toolbar .spacer { flex: 1; }
+.cmp-history-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--fg-2); padding: 4px 9px; border-radius: 7px; background: transparent; border: 0; }
+.cmp-history-btn:hover { background: color-mix(in oklab, var(--fg) 7%, transparent); }
+.cmp-history-btn .ic { width: 13px; height: 13px; }
+.tb-send { flex: none; border-color: color-mix(in oklab, var(--accent) 38%, var(--border)); color: var(--accent-active); }
+.tb-send:hover { border-color: var(--accent); color: var(--accent-active); background: color-mix(in oklab, var(--accent) 6%, var(--surface-warm)); }
+.tb-send:disabled { opacity: .5; cursor: default; }
+.cmp-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-warm); color: var(--fg-2); cursor: pointer; max-width: 200px; transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard); }
+.chip .chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip:hover { border-color: var(--meta); color: var(--fg); }
+.chip .chip-send { color: var(--success); width: 12px; height: 12px; flex: none; }
+.cmp-row { display: flex; gap: 10px; align-items: stretch; }
+.cmp-input { flex: 1; min-height: 72px; max-height: 150px; resize: none; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--fg); transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.cmp-input:hover { border-color: var(--meta); }
+.cmp-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.cmp-input:disabled { background: var(--surface); color: var(--meta); cursor: not-allowed; }
+.cmp-send-col { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
+.btn-send { height: 46px; min-width: 108px; padding: 0 22px; border-radius: 11px; background: var(--accent); color: var(--accent-on); font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; transition: background var(--motion-fast) var(--ease-standard), transform .05s ease, box-shadow var(--motion-base) var(--ease-standard); }
+.btn-send:hover { background: var(--accent-hover); box-shadow: var(--elev-raised); }
+.btn-send:active { background: var(--accent-active); transform: translateY(1px); }
+.btn-send:disabled { background: color-mix(in oklab, var(--accent) 36%, transparent); color: color-mix(in oklab, var(--accent-on) 90%, transparent); box-shadow: none; cursor: default; }
+.btn-send .ic { width: 16px; height: 16px; }
+.cmp-hint { display: flex; align-items: center; gap: 14px; margin-top: 8px; font-size: 11.5px; color: var(--muted); flex-wrap: wrap; }
+.cmp-hint kbd { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; background: var(--bg); color: var(--fg-2); }
+.cmp-hint .spacer { flex: 1; }
+.cmp-hint .ascii-hint { font-family: var(--font-mono); color: var(--muted); }
+/* 弹层 / 菜单 */
+.menu { position: absolute; z-index: 60; min-width: 216px; max-width: 320px; max-height: 320px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-pop); padding: 6px; animation: fadeIn .14s var(--ease-standard); }
+.menu-title { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 5px 10px 4px; }
+.menu-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.menu-item:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.menu-item .mi-icon { width: 26px; height: 26px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); display: grid; place-items: center; color: var(--fg-2); flex: none; }
+.menu-item .mi-icon .ic { width: 14px; height: 14px; }
+.menu-item .mi-text { min-width: 0; }
+.menu-item .mi-title { font-size: 13px; font-weight: 500; color: var(--fg); }
+.menu-item .mi-desc { font-size: 11px; color: var(--meta); }
+.menu-item.history-item { padding: 7px 10px; font-family: var(--font-mono); font-size: 12px; color: var(--fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.menu-empty { padding: 10px; font-size: 12px; color: var(--muted); text-align: center; }
+/* 弹窗 */
+.modal-backdrop { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 90; animation: fadeIn .14s var(--ease-standard); }
+.modal { width: 560px; max-width: calc(100vw - 40px); background: var(--bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); padding: 20px; animation: fadeIn .16s var(--ease-standard); }
+.modal h3 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+.modal .modal-sub { font-size: 12px; color: var(--muted); margin: 0 0 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.field label { font-size: 12.5px; color: var(--muted); }
+.input, .textarea, .modal-select { width: 100%; padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-warm); color: var(--fg); font-size: 13px; transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.input:hover, .textarea:hover, .modal-select:hover { border-color: var(--meta); }
+.input:focus, .textarea:focus, .modal-select:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.textarea { min-height: 120px; resize: vertical; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+
+/* 设置面板 */
+.settings-modal { width: 720px; max-width: calc(100vw - 48px); height: 560px; max-height: calc(100vh - 88px); display: flex; flex-direction: column; background: var(--bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); overflow: hidden; animation: fadeIn .16s var(--ease-standard); }
+.settings-head { flex: none; display: flex; align-items: center; gap: 10px; padding: 16px 22px 14px; border-bottom: 1px solid var(--border-soft); }
+.settings-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.settings-head .sub { font-size: 12px; color: var(--muted); }
+.settings-head .close { margin-left: auto; }
+.settings-body { flex: 1; display: flex; min-height: 0; }
+.settings-rail { flex: none; width: 168px; border-right: 1px solid var(--border-soft); padding: 12px 8px; overflow-y: auto; }
+.settings-cat { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; border-radius: 9px; cursor: pointer; font-size: 13px; color: var(--fg-2); background: transparent; border: 0; text-align: left; transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard); }
+.settings-cat:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.settings-cat.active { background: var(--fg); color: var(--surface); }
+.settings-cat .ic { width: 15px; height: 15px; flex: none; }
+.settings-panel { flex: 1; overflow-y: auto; padding: 4px 26px 22px; }
+.set-group-title { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 18px 0 2px; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 11px 0; border-bottom: 1px solid var(--border-soft); }
+.set-row:last-of-type { border-bottom: 0; }
+.set-info { min-width: 0; }
+.set-label { font-size: 13px; color: var(--fg); }
+.set-desc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.set-control { flex: none; display: flex; align-items: center; gap: 10px; }
+.set-control .cfg-select, .set-control .cfg-input { width: auto; }
+.set-control .cfg-input.w-number { width: 76px; text-align: right; }
+.set-control .switch { margin: 0; }
+.set-row.disabled .set-label, .set-row.disabled .set-desc { color: var(--meta); }
+.set-row.disabled .cfg-select, .set-row.disabled .cfg-input { opacity: .55; cursor: not-allowed; }
+.set-row.disabled .seg { opacity: .55; }
+.settings-foot { flex: none; display: flex; align-items: center; gap: 8px; padding: 13px 22px; border-top: 1px solid var(--border-soft); }
+.settings-foot .spacer { flex: 1; }
+/* 空状态 / 引导页 */
+.welcome { flex: 1; min-height: 0; overflow-y: auto; display: grid; place-items: center; padding: 40px 28px; }
+.welcome-inner { max-width: 760px; width: 100%; text-align: center; }
+.welcome .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.welcome h1 { font-family: var(--font-display); font-size: 32px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 10px; text-wrap: balance; }
+.welcome .lead { color: var(--muted); font-size: 14px; line-height: 1.65; max-width: 54ch; margin: 0 auto 30px; text-wrap: pretty; }
+.mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: left; }
+.mode-card { background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; cursor: pointer; transition: border-color var(--motion-base) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), transform var(--motion-base) var(--ease-standard); }
+.mode-card:hover { border-color: var(--meta); box-shadow: var(--elev-raised); transform: translateY(-1px); }
+.mode-card:active { transform: none; }
+.mc-icon { width: 38px; height: 38px; border-radius: 11px; background: color-mix(in oklab, var(--fg) 6%, transparent); border: 1px solid var(--border); display: grid; place-items: center; color: var(--fg-2); margin-bottom: 13px; }
+.mc-icon .ic { width: 19px; height: 19px; }
+.mode-card h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+.mode-card p { font-size: 12px; color: var(--muted); line-height: 1.55; margin: 0 0 12px; min-height: 37px; }
+.mc-action { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 500; color: var(--fg); }
+.mc-action .ic { width: 13px; height: 13px; transition: transform var(--motion-fast) var(--ease-standard); }
+.mode-card:hover .mc-action .ic { transform: translateX(3px); }
+.welcome .kbd-hint { margin-top: 30px; font-size: 12px; color: var(--muted); display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+.welcome .kbd-hint kbd { font-family: var(--font-mono); font-size: 10.5px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; background: var(--bg); color: var(--fg-2); }
+/* Toast */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--fg); color: var(--surface); font-size: 12.5px; padding: 8px 16px; border-radius: 999px; opacity: 0; pointer-events: none; z-index: 120; transition: opacity var(--motion-base) var(--ease-standard), transform var(--motion-base) var(--ease-standard); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* 响应式 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
+  .status-dot.pulse { animation: none !important; }
+}
+@media (max-width: 920px) { body { overflow: auto; } #app { height: auto; min-height: 100vh; } .app-body { flex-direction: column; } .sidebar { width: 100% !important; max-width: none; min-width: 0; max-height: 42vh; border-right: 0; border-bottom: 1px solid var(--border); } .sb-resize { display: none; } #sidebar.collapsed { width: 100% !important; max-width: none; } #sidebar.collapsed .sb-rail { display: none; } #sidebar.collapsed .search-box { display: block; } #sidebar.collapsed .sb-search { justify-content: flex-start; padding: 10px 12px 4px; } .workspace { min-height: 58vh; } .mode-grid { grid-template-columns: 1fr; } .msg-area.split { grid-template-columns: 1fr; } .msg-area.split .msg-col + .msg-col { border-left: 0; border-top: 1px solid var(--border-soft); } }</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.2"></circle><circle cx="18" cy="6" r="2.2"></circle><circle cx="12" cy="18" r="2.2"></circle><path d="M6 6h12M6 6l6 12M18 6l-6 12"></path></symbol>
+    <symbol id="i-client" viewBox="0 0 24 24"><rect x="2.5" y="8" width="8" height="8" rx="2"></rect><rect x="13.5" y="8" width="8" height="8" rx="2"></rect><path d="M10.5 12h3"></path></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="2"></rect><rect x="4" y="14" width="16" height="6" rx="2"></rect><path d="M8 7h.01M8 17h.01"></path></symbol>
+    <symbol id="i-udp" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M7.5 7.5a7 7 0 0 0 0 9M16.5 7.5a7 7 0 0 1 0 9M4.5 4.5a11 11 0 0 0 0 15M19.5 4.5a11 11 0 0 1 0 15"></path></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l11 7-11 7z"></path></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l4-1L19 7l-3-3L5 16z"></path><path d="M13 6l3 3"></path></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"></path></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a1 1 0 0 1 1-1h10"></path></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"></path></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L11 13M21 3l-7 20-4-9-9-4z"></path></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"></rect><path d="M12 4v16"></path></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"></rect><path d="M12 4v0"></path></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 8h10M18 8h2M4 16h4M12 16h8"></path><circle cx="16" cy="8" r="2"></circle><circle cx="10" cy="16" r="2"></circle></symbol>
+    <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"></path></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"></path></symbol>
+  </defs>
+</svg>
+
+<div id="app">
+  <!-- 标题栏 -->
+  <header class="titlebar" data-od-id="titlebar">
+    <div class="traffic" aria-hidden="true"><i class="tl-red"></i><i class="tl-yellow"></i><i class="tl-green"></i></div>
+    <div class="app-title">
+      <svg class="ic"><use href="#i-network"></use></svg>
+      NetAssist <span class="at-sub">网络调试助手</span>
+    </div>
+    <div class="title-right">
+      <div class="global-status" id="global-status" data-od-id="global-status"><span class="dot st-idle"></span><span id="global-status-text">空闲</span></div>
+      <button class="icon-btn" data-action="settings" title="设置" aria-label="设置"><svg class="ic"><use href="#i-sliders"></use></svg></button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar" data-od-id="sidebar">
+      <div class="sb-resize" id="sb-resize" title="拖拽调整宽度"></div>
+      <div class="sb-search">
+        <div class="search-box">
+          <svg class="ic"><use href="#i-search"></use></svg>
+          <input id="sb-filter" type="text" placeholder="筛选连接或指令" autocomplete="off">
+        </div>
+        <button class="icon-btn sb-toggle-btn" id="sb-toggle" data-action="toggle-sb" title="收起侧栏" aria-label="收起/展开侧栏" aria-expanded="true"><svg class="ic"><use href="#i-chevron-left"></use></svg></button>
+      </div>
+      <div class="sb-rail" id="sb-rail"></div>
+      <div class="sb-body">
+        <section class="sb-section" data-od-id="sidebar-connections">
+          <div class="sb-head">
+            <h2>连接列表</h2>
+            <div class="sb-actions">
+              <button class="icon-btn" data-action="open-new-menu" title="新建连接" aria-label="新建连接"><svg class="ic"><use href="#i-plus"></use></svg></button>
+            </div>
+          </div>
+          <div class="conn-list" id="conn-list"></div>
+        </section>
+        <section class="sb-section" data-od-id="sidebar-commands">
+          <div class="sb-head">
+            <h2>快捷指令</h2>
+            <div class="sb-actions">
+              <button class="icon-btn" data-action="add-group" title="新建分组" aria-label="新建分组"><svg class="ic"><use href="#i-folder"></use></svg></button>
+              <button class="icon-btn" data-action="add-cmd" title="新增指令" aria-label="新增指令"><svg class="ic"><use href="#i-plus"></use></svg></button>
+            </div>
+          </div>
+          <div class="cmd-groups" id="cmd-groups"></div>
+        </section>
+      </div>
+      <div class="sb-foot">
+        <span>NetAssist v2.0</span>
+      </div>
+    </aside>
+
+    <!-- 工作区 -->
+    <main class="workspace" data-od-id="workspace">
+      <!-- 空状态引导 -->
+      <section class="welcome" id="welcome" data-od-id="welcome-screen" style="display:none;">
+        <div class="welcome-inner">
+          <p class="eyebrow">NETASSIST · TCP/UDP 调试</p>
+          <h1>从一个连接开始调试</h1>
+          <p class="lead">支持 TCP Client / TCP Server / UDP 三种模式;多标签、多编码、HEX 查看与快捷指令,让协议调试更顺手。</p>
+          <div class="mode-grid">
+            <div class="mode-card" data-action="new-tab" data-type="tcp-client" tabindex="0" role="button">
+              <div class="mc-icon"><svg class="ic"><use href="#i-client"></use></svg></div>
+              <h3>TCP Client</h3>
+              <p>连接远程主机,收发文本与十六进制数据。</p>
+              <span class="mc-action">新建连接 <svg class="ic"><use href="#i-arrow-right"></use></svg></span>
+            </div>
+            <div class="mode-card" data-action="new-tab" data-type="tcp-server" tabindex="0" role="button">
+              <div class="mc-icon"><svg class="ic"><use href="#i-server"></use></svg></div>
+              <h3>TCP Server</h3>
+              <p>本地监听,管理多个客户端并支持单播与广播。</p>
+              <span class="mc-action">新建连接 <svg class="ic"><use href="#i-arrow-right"></use></svg></span>
+            </div>
+            <div class="mode-card" data-action="new-tab" data-type="udp" tabindex="0" role="button">
+              <div class="mc-icon"><svg class="ic"><use href="#i-udp"></use></svg></div>
+              <h3>UDP</h3>
+              <p>绑定本地端口,向指定目标定向收发。</p>
+              <span class="mc-action">新建连接 <svg class="ic"><use href="#i-arrow-right"></use></svg></span>
+            </div>
+          </div>
+          <div class="kbd-hint">
+            <span><kbd>Ctrl</kbd> + <kbd>Enter</kbd> 发送</span>
+            <span><kbd>Ctrl</kbd> + <kbd>↑↓</kbd> 发送历史</span>
+            <span>双击消息面板清空</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 活跃工作区 -->
+      <section id="work" data-od-id="work" style="display:none; flex:1; min-height:0; flex-direction:column;">
+        <div class="ws-header" data-od-id="ws-header">
+          <div class="ws-title">
+            <span class="ws-type-icon" id="ws-type"></span>
+            <span class="conn-name-ws" id="ws-name" data-od-id="ws-name"></span>
+            <span class="ws-count num" id="ws-msg-count" data-od-id="ws-message-count"></span>
+          </div>
+          <div class="ws-config" id="ws-config" data-od-id="workspace-config"></div>
+          <span class="status-pill" id="ws-status" data-od-id="workspace-status"></span>
+          <div class="spacer"></div>
+          <div class="ws-actions">
+            <button class="btn btn-sm" id="ws-connect" data-action="connect"></button>
+            <button class="btn btn-secondary btn-sm" data-action="toggle-split" data-od-id="split-toggle"><svg class="ic"><use href="#i-split"></use></svg><span class="lbl">分屏</span></button>
+          </div>
+        </div>
+
+        <div class="msg-area" id="msg-area" data-od-id="message-stream"></div>
+
+        <div class="stats" id="stats" data-od-id="stats-bar"></div>
+
+        <div class="composer" data-od-id="composer">
+          <div class="cmp-toolbar" id="cmp-toolbar">
+            <div class="seg" id="enc-seg" role="group" aria-label="编码"></div>
+            <div class="toolbar-sep"></div>
+            <div class="seg" id="hex-seg" role="group" aria-label="显示格式">
+              <button data-enc-mode="txt" data-action="set-mode" title="文本">TXT</button>
+              <button data-enc-mode="hex" data-action="set-mode" title="十六进制">HEX</button>
+            </div>
+            
+            <div class="toolbar-sep"></div>
+            <button class="cmp-history-btn" data-action="open-history" title="发送历史 (Ctrl+↑↓)"><svg class="ic"><use href="#i-history"></use></svg>发送历史</button>
+            
+            <div class="spacer"></div>
+            <span class="ascii-hint" id="ascii-hint"></span>
+            <button class="btn btn-secondary btn-sm tb-send" id="tb-send" data-od-id="toolbar-send" data-action="send" title="发送 (Ctrl+Enter)" style="transform: translate(8px, 0px);"><svg class="ic"><use href="#i-send"></use></svg>发送</button>
+          </div>
+          <div class="cmp-chips" id="cmp-chips"></div>
+          <div class="cmp-row" style="width: 763.702px;">
+            <textarea class="cmp-input" id="cmp-input" rows="4" placeholder="请先建立连接" spellcheck="false"></textarea>
+            <div class="cmp-send-col">
+              
+            </div>
+          </div>
+          <div class="cmp-hint">
+            <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 发送</span>
+            <span><kbd>Ctrl</kbd>+<kbd>↑↓</kbd> 历史</span>
+            <span>双击消息面板清空</span>
+            <span class="spacer"></span>
+            <span id="enc-hint">UTF-8</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="settings-root" class="modal-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-label="设置">
+  <div class="settings-modal" data-stop="1">
+    <div class="settings-head">
+      <h3>设置</h3><span class="sub">NetAssist · 偏好与行为</span>
+      <button class="icon-btn close" data-action="close-settings" title="关闭" aria-label="关闭"><svg class="ic"><use href="#i-x"></use></svg></button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-rail" id="settings-rail"></div>
+      <div class="settings-panel" id="settings-panel"></div>
+    </div>
+    <div class="settings-foot">
+      <button class="btn btn-ghost btn-sm" data-action="reset-settings">恢复默认</button>
+      <span class="spacer"></span>
+      <button class="btn btn-secondary" data-action="cancel-settings">取消</button>
+      <button class="btn btn-primary" data-action="save-settings">保存</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div id="overlay"></div>
+
+<script>
+"use strict";
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtBytes = n => n >= 1024 ? (n / 1024).toFixed(n >= 1048576 ? 1 : 2) + " KB" : n + " B";
+
+/* ── 数据 ─────────────────────────────────────────────────────── */
+let state = {
+  activeId: "t1",
+  filter: "",
+  sbCollapsed: false,
+  history: [], histIdx: -1, histDraft: "",
+  settings: {},
+  stats: { tx: 0, rx: 0, txWin: [], rxWin: [], dur: 198, count: 0 },
+};
+
+const tabs = [
+  { id: "t1", type: "tcp-client", title: "TCP Client 1", status: "connected",
+    host: "127.0.0.1", port: 2001, enc: "UTF-8", hex: false, lfcr: false, split: false,
+    msgs: [
+      { dir: "tx", time: "10:24:08.132", peer: "127.0.0.1:2001", bytes: 16, mode: "hex", text: "01 03 00 00 00 0A C5 CD" },
+      { dir: "rx", time: "10:24:08.133", peer: "127.0.0.1:2001", bytes: 23, mode: "hex", text: "01 03 14 02 2B 00 00 00 64 00 00 00 C8 00 00 02 00 00 03 00 00 10 00 00 00 80 8B 9F" },
+      { dir: "tx", time: "10:24:08.156", peer: "127.0.0.1:2001", bytes: 45, mode: "txt", text: '{"cmd":"read_register","addr":0x0010,"count":6}' },
+      { dir: "rx", time: "10:24:08.157", peer: "127.0.0.1:2001", bytes: 52, mode: "txt", text: '{"status":"ok","values":[1024,2048,512,768,4096,128]}' },
+      { dir: "tx", time: "10:24:09.001", peer: "127.0.0.1:2001", bytes: 12, mode: "txt", text: "AT+QUERY\r\n" },
+      { dir: "rx", time: "10:24:09.004", peer: "127.0.0.1:2001", bytes: 36, mode: "txt", text: "+STATUS:OK,CH=1,TEMP=25.6\r\n" },
+    ] },
+  { id: "t2", type: "tcp-server", title: "TCP Server 1", status: "listening",
+    port: 2001, target: "broadcast", enc: "UTF-8", hex: false, lfcr: false, split: true,
+    clients: ["192.168.1.87:50014", "192.168.1.92:51102"],
+    msgs: [
+      { dir: "rx", time: "10:25:11.312", peer: "192.168.1.87:50014", bytes: 16, mode: "txt", text: "hello from client\r\n" },
+      { dir: "tx", time: "10:25:11.356", peer: "广播 → 2 客户端", bytes: 21, mode: "txt", text: "hello from server\r\n" },
+    ] },
+  { id: "t3", type: "udp", title: "UDP 1", status: "idle",
+    localPort: 9000, host: "127.0.0.1", port: 2001, enc: "UTF-8", hex: false, lfcr: false, split: false, msgs: [] },
+];
+
+let groups = [
+  { id: "g1", name: "Modbus 指令", open: true, items: [
+    { name: "读取保持寄存器", content: "01 03 00 00 00 0A C5 CD" },
+    { name: "写单寄存器", content: "01 06 00 01 00 03 98 0B" },
+  ] },
+  { id: "g2", name: "自定义指令", open: false, items: [
+    { name: "查询状态", content: "AT+STATUS\r\n" },
+    { name: "心跳", content: '{"type":"ping","t":0}' },
+  ] },
+];
+
+const TYPE_META = {
+  "tcp-client": { label: "TCP Client", pill: "tp-tc", tag: "TC", icon: "i-client" },
+  "tcp-server": { label: "TCP Server", pill: "tp-ts", tag: "TS", icon: "i-server" },
+  "udp": { label: "UDP", pill: "tp-ud", tag: "UD", icon: "i-udp" },
+};
+const STATUS_META = {
+  idle: { cls: "st-idle", label: "未连接" },
+  connecting: { cls: "st-connecting", label: "连接中…", pulse: true },
+  connected: { cls: "st-connected", label: "已连接" },
+  listening: { cls: "st-listening", label: "监听中" },
+  bound: { cls: "st-bound", label: "已绑定" },
+  error: { cls: "st-error", label: "错误" },
+};
+const active = () => tabs.find(t => t.id === state.activeId);
+const isLive = t => ["connected", "listening", "bound"].includes(t.status);
+const typeMeta = t => TYPE_META[t.type];
+const statusMeta = t => STATUS_META[t.status] || STATUS_META.idle;
+
+/* ── 渲染:侧边栏 ─────────────────────────────────────────────── */
+function renderSidebar() {
+  const q = state.filter.toLowerCase();
+  const list = $("#conn-list");
+  list.innerHTML = tabs.filter(t => !q || t.title.toLowerCase().includes(q) || TYPE_META[t.type].label.toLowerCase().includes(q))
+    .map(t => {
+      const sm = statusMeta(t);
+      return `<div class="conn-row ${t.id === state.activeId ? "active" : ""}" draggable="true"
+        data-action="switch-tab" data-id="${t.id}" data-drag="conn" data-od-id="conn-row-${t.id}" tabindex="0" title="${esc(TYPE_META[t.type].label)} · ${esc(sm.label)}">
+        <span class="status-dot ${sm.cls} ${sm.pulse ? "pulse" : ""}"></span>
+        <svg class="ic conn-type-icon ct-${TYPE_META[t.type].tag.toLowerCase()}"><use href="#${TYPE_META[t.type].icon}"/></svg>
+        <span class="conn-name" data-role="name">${esc(t.title)}</span>
+        <button class="icon-btn conn-close" data-action="close-tab" data-id="${t.id}" title="关闭并断开" aria-label="关闭"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>`;
+    }).join("") || `<div class="sb-none">没有匹配的连接</div>`;
+
+  const rail = $("#sb-rail");
+  if (rail) rail.innerHTML = tabs.map(t => {
+    const sm = statusMeta(t), tm = TYPE_META[t.type];
+    return `<button class="rail-conn ${t.id === state.activeId ? "active" : ""}" data-action="switch-tab" data-id="${t.id}" data-od-id="rail-conn-${t.id}" aria-label="${esc(t.title)}">
+      <svg class="ic ct-${tm.tag.toLowerCase()}"><use href="#${tm.icon}"/></svg>
+      <span class="rail-dot ${sm.cls} ${sm.pulse ? "pulse" : ""}"></span>
+    </button>`;
+  }).join("") || `<div class="rail-empty">+</div>`;
+
+  const groupsEl = $("#cmd-groups");
+  groupsEl.innerHTML = groups.map(g => {
+    const items = g.items.filter(c => !q || c.name.toLowerCase().includes(q) || c.content.toLowerCase().includes(q));
+    return `<div class="cmd-group" data-group="${g.id}">
+      <div class="cmd-group-head" data-action="toggle-group" data-id="${g.id}" data-od-id="cmd-group-${g.id}" tabindex="0" title="${esc(g.name)}">
+        <svg class="ic chev ${g.open ? "" : "rot"}" style="width:12px;height:12px"><use href="#i-chevron"/></svg>
+        <svg class="ic" style="width:13px;height:13px;color:var(--meta)"><use href="#i-folder"/></svg>
+        <span>${esc(g.name)}</span><span class="count">${g.items.length}</span>
+      </div>
+      ${g.open && items.length ? `<div class="cmd-list">` + items.map((c, i) => `
+        <div class="cmd-row" data-action="send-cmd" data-g="${g.id}" data-i="${i}" data-od-id="cmd-row-${g.id}-${i}" tabindex="0" title="点击发送">
+          <span class="cmd-name">${esc(c.name)}</span>
+          <span class="cmd-preview">${esc(c.content.replace(/[\r\n]/g, " "))}</span>
+          <span class="cmd-actions">
+            <button class="icon-btn play-btn" data-action="send-cmd" data-g="${g.id}" data-i="${i}" title="发送" aria-label="发送"><svg class="ic"><use href="#i-play"/></svg></button>
+            <button class="icon-btn" data-action="edit-cmd" data-g="${g.id}" data-i="${i}" title="编辑" aria-label="编辑"><svg class="ic"><use href="#i-pencil"/></svg></button>
+            <button class="icon-btn" data-action="del-cmd" data-g="${g.id}" data-i="${i}" title="删除" aria-label="删除"><svg class="ic"><use href="#i-trash"/></svg></button>
+          </span>
+        </div>`).join("") + `</div>` : (g.open ? `<div class="sb-none" style="padding:6px 0 6px 24px;">暂无指令</div>` : "")}
+    </div>`;
+  }).join("") || `<div class="sb-none">没有匹配的指令</div>`;
+}
+
+/* ── 渲染:工作区头部 / 配置 ─────────────────────────────────── */
+function renderWorkHeader() {
+  const t = active();
+  if (!t) return;
+  const tm = typeMeta(t), sm = statusMeta(t);
+  $("#ws-type").className = "ws-type-icon";
+  $("#ws-type").innerHTML = `<svg class="ic ct-${tm.tag.toLowerCase()}"><use href="#${tm.icon}"/></svg>`;
+  $("#ws-name").textContent = t.title;
+  const wc = $("#ws-msg-count");
+  if (wc) wc.textContent = t.msgs.length + " 条";
+  const sb = $('[data-action="toggle-split"] .lbl');
+  sb.textContent = t.split ? "合并" : "分屏";
+  const use = $('[data-action="toggle-split"] .ic use');
+  if (use) use.setAttribute("href", "#" + (t.split ? "i-merge" : "i-split"));
+}
+
+function renderWsConfig() {
+  const t = active();
+  const cfg = $("#ws-config");
+  const status = $("#ws-status");
+  const btn = $("#ws-connect");
+  if (!t || !cfg || !status || !btn) return;
+  const sm = statusMeta(t);
+  const live = isLive(t);
+
+  let statusLabel = sm.label;
+  if (t.type === "tcp-server" && live) statusLabel = "监听中 · " + t.clients.length + " 客户端";
+  if (t.type === "udp" && live) statusLabel = "已绑定 · " + t.localPort;
+  status.className = "status-pill " + (live ? "sp-success" : t.status === "connecting" ? "sp-warn" : t.status === "error" ? "sp-error" : "");
+  status.innerHTML = `<span class="dot ${sm.cls} ${sm.pulse ? "pulse" : ""}"></span>${statusLabel}`;
+
+  const actionLabel = live ? (t.type === "tcp-server" ? "停止监听" : t.type === "udp" ? "关闭" : "断开")
+    : t.status === "connecting" ? "连接中…" : (t.type === "tcp-server" ? "开始监听" : t.type === "udp" ? "绑定" : "连接");
+  btn.className = "btn btn-sm " + (live ? "btn-danger" : "btn-dark");
+  btn.innerHTML = actionLabel;
+  btn.disabled = t.status === "connecting";
+
+  let html = "";
+  if (t.type === "tcp-client") {
+    html = `<span class="cfg-field"><span class="cfg-label">主机</span><input class="cfg-input w-70" id="cfg-host" value="${esc(t.host)}" ${live ? "disabled" : ""} spellcheck="false"></span>
+      <span class="cfg-field"><span class="cfg-label">端口</span><input class="cfg-input w-70" id="cfg-port" type="number" min="1" max="65535" value="${t.port}" ${live ? "disabled" : ""}></span>`;
+  } else if (t.type === "tcp-server") {
+    html = `<span class="cfg-field"><span class="cfg-label">监听端口</span><input class="cfg-input w-70" id="cfg-port" type="number" min="1" max="65535" value="${t.port}" ${live ? "disabled" : ""}></span>
+      <span class="cfg-field"><span class="cfg-label">发送目标</span><select class="cfg-select" id="cfg-target" ${live ? "" : "disabled"}>
+        <option value="broadcast" ${t.target === "broadcast" ? "selected" : ""}>广播所有客户端</option>
+        ${t.clients.map(c => `<option value="${esc(c)}" ${t.target === c ? "selected" : ""}>${esc(c)}</option>`).join("")}
+      </select></span>`;
+  } else {
+    html = `<span class="cfg-field"><span class="cfg-label">本地</span><input class="cfg-input w-60" id="cfg-local" type="number" min="1" max="65535" value="${t.localPort}" ${live ? "disabled" : ""}></span>
+      <span class="cfg-field"><span class="cfg-label">目标</span><input class="cfg-input w-70" id="cfg-host" value="${esc(t.host)}" ${live ? "disabled" : ""} spellcheck="false"><span class="cfg-sep"></span><input class="cfg-input w-70" id="cfg-port" type="number" min="1" max="65535" value="${t.port}" ${live ? "disabled" : ""}></span>`;
+  }
+  cfg.innerHTML = html;
+}
+
+/* ── 渲染:消息 ──────────────────────────────────────────────── */
+function fmtBody(txt, mode) {
+  if (mode === "hex") return esc(txt);
+  let s = esc(txt);
+  s = s.replace(/\r\n/g, '<span class="ctrl">&lt;CR&gt;</span><span class="ctrl">&lt;LF&gt;</span><br>');
+  s = s.replace(/\r/g, '<span class="ctrl">&lt;CR&gt;</span><br>');
+  s = s.replace(/\n/g, '<span class="ctrl">&lt;LF&gt;</span><br>');
+  s = s.replace(/\t/g, '<span class="ctrl">&lt;TAB&gt;</span>');
+  return s;
+}
+
+function msgRowHtml(m) {
+  const dirIcon = m.dir === "tx" ? "→" : m.dir === "rx" ? "←" : "·";
+  return `<div class="msg-row ${m.dir}" data-msg-id="${m.id}">
+    <div class="msg-meta">
+      <span class="msg-time">[${m.time}]</span>
+      <span class="msg-dir">${dirIcon}</span>
+      <span class="msg-peer">${esc(m.peer)}</span>
+      <span class="msg-bytes">(${m.bytes} bytes)</span>
+      <button class="icon-btn msg-copy" data-action="copy-msg" data-id="${m.id}" title="复制原文" aria-label="复制"><svg class="ic"><use href="#i-copy"/></svg></button>
+    </div>
+    <div class="msg-body">${fmtBody(m.text, m.mode)}</div>
+  </div>`;
+}
+
+function renderMessages() {
+  const t = active();
+  const area = $("#msg-area");
+  if (!t) return;
+
+  if (t.split) {
+    area.classList.add("split");
+    const tx = t.msgs.filter(m => m.dir === "tx");
+    const rx = t.msgs.filter(m => m.dir === "rx");
+    const col = (label, cls, list) => `<div class="msg-col ${cls}"><div class="msg-col-head">
+        <span class="mch-label">${label}</span><span class="mch-count">${list.length} 条</span>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost btn-sm" data-action="clear-col" data-col="${cls === "tx-col" ? "tx" : "rx"}">清空</button>
+      </div><div class="msg-list">${list.map(msgRowHtml).join("") || emptyHint("暂无数据")}</div></div>`;
+    area.innerHTML = col("TX 发送", "tx-col", tx) + col("RX 接收", "rx-col", rx);
+    if (state.settings.autoScroll !== false) $$(".msg-col").forEach(el => el.scrollTop = el.scrollHeight);
+  } else {
+    area.classList.remove("split");
+    area.innerHTML = `<div class="msg-list">${t.msgs.map(msgRowHtml).join("") || emptyHint("暂无消息")}</div>`;
+    if (state.settings.autoScroll !== false) area.scrollTop = area.scrollHeight;
+  }
+}
+
+const emptyHint = text => `<div class="empty-msg">${text}<span class="em-kbd">连接后收发数据将显示在这里</span></div>`;
+
+/* ── 渲染:统计条 / 发送区 ──────────────────────────────────── */
+function renderStats() {
+  const st = state.stats;
+  $("#stats").innerHTML = `
+    <span class="st"><span class="st-label">发送</span><span class="st-val tx">${fmtBytes(st.tx)}</span></span>
+    <span class="st"><span class="st-label">接收</span><span class="st-val rx">${fmtBytes(st.rx)}</span></span>
+    <span class="st"><span class="st-label">发送速率</span><span class="st-val">${fmtBytes(lastWin(st.txWin))}/s</span></span>
+    <span class="st"><span class="st-label">接收速率</span><span class="st-val">${fmtBytes(lastWin(st.rxWin))}/s</span></span>
+    <span class="st"><span class="st-label">消息</span><span class="st-val">${st.count}</span></span>
+    <span class="spacer"></span>
+    <span class="dur">会话时长 <span class="st-val">${fmtDur(st.dur)}</span></span>`;
+}
+const lastWin = win => win.reduce((a, b) => a + b, 0);
+function fmtDur(s) {
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+  return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(sec).padStart(2, "0");
+}
+
+function renderComposer() {
+  const t = active();
+  if (!t) return;
+  const live = isLive(t);
+  const input = $("#cmp-input");
+  input.placeholder = live ? "输入要发送的内容 (Ctrl+Enter 发送 · Ctrl+↑↓ 历史)" : "请先建立连接";
+  input.disabled = !live;
+  const sendBtn = $("#btn-send");
+  if (sendBtn) sendBtn.disabled = !live || !input.value.trim();
+  const tbSend = $("#tb-send");
+  if (tbSend) tbSend.disabled = !live || !input.value.trim();
+  const tbClear = $("#tb-clear");
+  if (tbClear) tbClear.disabled = !input.value.trim();
+
+  const encSeg = $("#enc-seg");
+  encSeg.innerHTML = ["ASCII", "UTF-8", "GBK"].map(e =>
+    `<button class="${t.enc === e ? "active" : ""}" data-action="set-enc" data-enc="${e}">${e}</button>`).join("");
+
+  const hexBtns = $$("#hex-seg button");
+  hexBtns.forEach(b => b.classList.toggle("active", b.dataset.encMode === (t.hex ? "hex" : "txt")));
+  $("#lfcr").checked = t.lfcr;
+
+  const chips = $("#cmp-chips");
+  const all = groups.flatMap(g => g.items);
+  chips.innerHTML = all.slice(0, state.settings.quickTagsCount || 5).map((c, i) => {
+    const globalIdx = all.indexOf(c);
+    return `<span class="chip" data-action="fill-cmd" data-i="${globalIdx}" title="点击填入发送框">
+      <span class="chip-name">${esc(c.name)}</span>
+      <svg class="ic chip-send" data-action="chip-send" data-i="${globalIdx}" title="立即发送"><use href="#i-play"/></svg></span>`;
+  }).join("") || `<span class="chip" data-action="add-cmd">+ 添加快捷指令</span>`;
+
+  $("#enc-hint").textContent = t.enc + (t.lfcr ? " · LF→CR" : "") + (t.hex ? " · HEX" : "");
+  updateAsciiHint();
+}
+
+function updateAsciiHint() {
+  const v = $("#cmp-input").value;
+  const hits = [];
+  if (v.includes("\r") || v.includes("\n")) hits.push("CR", "LF");
+  if (v.includes("\t")) hits.push("TAB");
+  if (v.includes("\x00")) hits.push("NUL");
+  $("#ascii-hint").textContent = hits.length ? "ASCII: " + hits.join(", ") : "";
+}
+
+/* ── 渲染:标题栏 ───────────────────────────────────────────── */
+function renderTitle() {
+  const live = tabs.filter(t => isLive(t)).length;
+  const err = tabs.filter(t => t.status === "error").length;
+  const gs = $("#global-status");
+  const dot = gs.querySelector(".dot");
+  const txt = $("#global-status-text");
+  if (err) { dot.className = "dot st-error"; txt.textContent = err + " 个连接异常"; }
+  else if (live) { dot.className = "dot st-connected"; txt.textContent = live + " 个连接活跃"; }
+  else { dot.className = "dot st-idle"; txt.textContent = "空闲"; }
+}
+
+function renderAll() { renderTitle(); renderSidebar(); renderWorkHeader(); renderWsConfig(); renderMessages(); renderComposer(); renderStats(); }
+function renderLive() {
+  const t = active();
+  if (!t) return;
+  renderSidebar(); renderWorkHeader(); renderWsConfig(); renderMessages(); renderComposer(); renderStats();
+}
+
+/* ── 消息 ───────────────────────────────────────────────────── */
+let msgSeq = 100;
+function pushMsg(tabId, m) {
+  const t = tabs.find(x => x.id === tabId);
+  if (!t) return;
+  if (t.msgs.length >= (state.settings.msgLimit || 5000)) t.msgs.shift();
+  t.msgs.push(Object.assign({ id: "m" + (msgSeq++) }, m));
+}
+const nowTime = () => {
+  const d = new Date();
+  const base = [d.getHours(), d.getMinutes(), d.getSeconds()].map(x => String(x).padStart(2, "0")).join(":");
+  return state.settings.timeFormat === "s" ? base : base + "." + String(d.getMilliseconds()).padStart(3, "0");
+};
+const peerOfMsg = t => {
+  if (t.type === "tcp-client") return t.host + ":" + t.port;
+  if (t.type === "udp") return t.host + ":" + t.port;
+  if (t.target && t.target !== "broadcast") return t.target;
+  return "广播 → " + t.clients.length + " 客户端";
+};
+
+/* ── 动作 ───────────────────────────────────────────────────── */
+function addTab(type) {
+  if (tabs.length >= (state.settings.maxTabs || 20)) { toast("最多支持 " + (state.settings.maxTabs || 20) + " 个连接"); return; }
+  const n = tabs.filter(t => t.type === type).length + 1;
+  const base = { enc: state.settings.defaultEnc || "UTF-8", hex: false, lfcr: !!state.settings.lfcrDefault, split: false, msgs: [] };
+  const t = Object.assign({
+    id: "t" + Date.now(),
+    type,
+    title: TYPE_META[type].label + " " + n,
+    status: "idle",
+    host: "127.0.0.1", port: 2001, localPort: 9000,
+    clients: [], target: "broadcast",
+  }, base);
+  tabs.push(t);
+  state.activeId = t.id;
+  renderAll();
+  toast("已创建 " + TYPE_META[type].label);
+}
+
+function closeTab(id) {
+  const i = tabs.findIndex(t => t.id === id);
+  if (i < 0) return;
+  tabs.splice(i, 1);
+  if (state.activeId === id) state.activeId = tabs.length ? tabs[Math.max(0, i - 1)].id : null;
+  if (tabs.length) renderLive(); else { renderTitle(); renderSidebar(); showWelcome(); }
+}
+
+function toggleConnect() {
+  const t = active();
+  if (!t) return;
+  if (isLive(t)) {
+    t.status = "idle";
+    pushMsg(t.id, { dir: "sys", time: nowTime(), peer: "系统", bytes: 0, mode: "txt", text: "连接已断开\r\n" });
+    toast("已断开");
+  } else {
+    t.status = "connecting";
+    renderLive();
+    setTimeout(() => {
+      const cur = active();
+      if (!cur || cur.id !== t.id) return;
+      t.status = t.type === "tcp-server" ? "listening" : t.type === "udp" ? "bound" : "connected";
+      const peer = peerOfMsg(t);
+      pushMsg(t.id, { dir: "sys", time: nowTime(), peer: "系统", bytes: 0, mode: "txt", text: (t.type === "tcp-server" ? "开始监听 " : t.type === "udp" ? "已绑定本地端口 " : "已连接 ") + peer + "\r\n" });
+      renderLive();
+      toast(t.type === "tcp-server" ? "监听中" : t.type === "udp" ? "已绑定" : "已连接");
+    }, 650);
+  }
+  renderLive();
+}
+
+function sendNow() {
+  const t = active();
+  const input = $("#cmp-input");
+  if (!t || !isLive(t)) { toast("请先建立连接"); return; }
+  const raw = input.value;
+  if (!raw.trim()) return;
+  let content = raw, bytes;
+  if (t.hex) {
+    const clean = raw.replace(/\s+/g, "");
+    if (!/^[0-9a-fA-F]*$/.test(clean)) { toast("HEX 模式下请输入十六进制"); return; }
+    content = (state.settings.hexUppercase === false ? clean.toLowerCase() : clean.toUpperCase()).match(/.{1,2}/g).join(" ") || "";
+    bytes = clean.length / 2;
+  } else {
+    content = t.lfcr ? raw.replace(/\n/g, "\r") : raw;
+    bytes = new TextEncoder().encode(content).length;
+  }
+  pushMsg(t.id, { dir: "tx", time: nowTime(), peer: peerOfMsg(t), bytes, mode: t.hex ? "hex" : "txt", text: content });
+  addHistory(raw);
+  if (state.settings.sendAfterClear !== false) input.value = "";
+  state.stats.tx += bytes; state.stats.count++;
+  state.stats.txWin.push(bytes);
+  if (state.stats.txWin.length > 4) state.stats.txWin.shift();
+  renderMessages(); renderStats(); renderComposer();
+  scheduleEcho(t, raw);
+}
+
+function scheduleEcho(t, raw) {
+  const delay = 420 + Math.random() * 460;
+  setTimeout(() => {
+    const still = tabs.find(x => x.id === t.id);
+    if (!still || !isLive(still)) return;
+    const resp = echoFor(raw, still);
+    const bytes = new TextEncoder().encode(resp).length;
+    pushMsg(t.id, { dir: "rx", time: nowTime(), peer: peerOfMsg(t), bytes, mode: "txt", text: resp });
+    state.stats.rx += bytes;
+    state.stats.rxWin.push(bytes);
+    if (state.stats.rxWin.length > 4) state.stats.rxWin.shift();
+    renderMessages(); renderStats();
+  }, delay);
+}
+
+function echoFor(raw, t) {
+  const trim = raw.trim();
+  if (t.hex && /^[0-9a-fA-F\s]+$/.test(trim) && trim.replace(/\s/g, "").length >= 6)
+    return "01 03 14 02 2B 00 00 00 64 00 00 00 C8 00 00 02 00 00 03 00 00 10 00 00 00 80 8B 9F";
+  if (/^AT/i.test(trim)) return "+OK,CMD=" + trim.split(/\r?\n/)[0].trim() + "\r\n";
+  if (/^[\{\[]/.test(trim)) return '{"status":"ok","echo":"' + trim.slice(0, 20).replace(/"/g, '\\"') + '..."}\r\n';
+  return "[Echo] " + raw + "\r\n";
+}
+
+function addHistory(v) {
+  const i = state.history.indexOf(v);
+  if (i > -1) state.history.splice(i, 1);
+  state.history.unshift(v);
+  if (state.history.length > (state.settings.historyLimit || 50)) state.history.pop();
+  state.histIdx = -1;
+  if (state.settings.historyPersist) saveHistory();
+}
+function navHistory(dir) {
+  const input = $("#cmp-input");
+  if (!state.history.length) return;
+  if (state.histIdx === -1) state.histDraft = input.value;
+  let idx = state.histIdx + dir;
+  if (idx < 0) { input.value = state.histDraft; state.histIdx = -1; updateAsciiHint(); return; }
+  if (idx > state.history.length - 1) idx = state.history.length - 1;
+  state.histIdx = idx;
+  input.value = state.history[idx];
+  updateAsciiHint();
+  renderComposer();
+}
+
+function clearMsgs(col) {
+  const t = active();
+  if (!t) return;
+  t.msgs = t.split && col ? t.msgs.filter(m => m.dir !== col) : [];
+  renderMessages();
+}
+function copyMsg(id) {
+  const t = active();
+  const m = t.msgs.find(x => x.id === id);
+  if (!m) return;
+  const btn = document.querySelector(`[data-msg-id="${id}"] .msg-copy`);
+  const done = () => {
+    if (btn) { btn.classList.add("copied"); btn.innerHTML = '<svg class="ic"><use href="#i-check"/></svg>'; setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = '<svg class="ic"><use href="#i-copy"/></svg>'; }, 900); }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(m.text).then(done).catch(done);
+  else { const ta = document.createElement("textarea"); ta.value = m.text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); }
+}
+
+/* ── 指令 ───────────────────────────────────────────────────── */
+function findCmd(gid, i) { const g = groups.find(x => x.id === gid); return g ? g.items[i] : null; }
+function sendCommand(gid, i) {
+  const c = findCmd(gid, i);
+  const t = active();
+  if (!c || !t) { toast("请先选择连接"); return; }
+  if (!isLive(t)) { toast("请先建立连接"); return; }
+  const input = $("#cmp-input");
+  input.value = c.content;
+  updateAsciiHint();
+  sendNow();
+}
+function fillCommand(gid, i) {
+  const c = gid ? findCmd(gid, i) : groups.flatMap(g => g.items)[i];
+  const input = $("#cmp-input");
+  if (!c) return;
+  input.value = c.content;
+  input.focus();
+  updateAsciiHint();
+  renderComposer();
+}
+function chipSend(i) { fillCommand(null, i); if (!$("#cmp-input").disabled) sendNow(); }
+
+let editTarget = null;
+function openCmdModal(gid, i) {
+  editTarget = gid ? { gid, i } : null;
+  const c = gid ? findCmd(gid, i) : null;
+  const ov = $("#overlay");
+  ov.innerHTML = `<div class="modal-backdrop" data-action="close-modal">
+    <div class="modal" data-stop="1">
+      <h3>${c ? "编辑指令" : "新增指令"}</h3>
+      <p class="modal-sub">将常用指令保存到快捷发送,点击即可发送。</p>
+      <div class="field"><label for="mdl-name">指令名称</label><input class="input" id="mdl-name" value="${c ? esc(c.name) : ""}" placeholder="例如:读取保持寄存器" /></div>
+      <div class="field"><label for="mdl-content">指令内容</label><textarea class="textarea" id="mdl-content" placeholder="支持文本与 HEX,如:01 03 00 00 00 0A C5 CD">${c ? esc(c.content) : ""}</textarea></div>
+      <div class="field"><label for="mdl-group">所属分组</label>
+        <select class="modal-select" id="mdl-group">${groups.map(g => `<option value="${g.id}" ${c && c.gid === g.id ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-action="close-modal">取消</button>
+        <button class="btn btn-dark" data-action="save-cmd">保存</button>
+      </div>
+    </div></div>`;
+  ov.style.display = "block";
+  $("#mdl-name").focus();
+}
+function saveCmd() {
+  const name = $("#mdl-name").value.trim();
+  const content = $("#mdl-content").value;
+  const gid = $("#mdl-group").value;
+  if (!name || !content) { toast("名称与内容不能为空"); return; }
+  if (editTarget) {
+    const c = findCmd(editTarget.gid, editTarget.i);
+    if (c) { c.name = name; c.content = content; }
+  } else {
+    const g = groups.find(x => x.id === gid) || groups[0];
+    g.items.push({ name, content });
+  }
+  closeModal(); renderSidebar(); toast("已保存");
+}
+function delCmd(gid, i) {
+  const g = groups.find(x => x.id === gid);
+  if (!g) return;
+  g.items.splice(i, 1);
+  renderSidebar();
+  toast("已删除");
+}
+function addGroup() {
+  const name = prompt("分组名称", "新分组");
+  if (!name || !name.trim()) return;
+  groups.push({ id: "g" + Date.now(), name: name.trim(), open: true, items: [] });
+  renderSidebar();
+  toast("已创建分组");
+}
+
+/* ── 弹层 / 弹窗 ───────────────────────────────────────────── */
+function closeModal() {
+  $("#overlay").style.display = "none";
+  $("#overlay").innerHTML = "";
+  editTarget = null;
+}
+
+let openMenuEl = null;
+function closeMenu() { if (openMenuEl) { openMenuEl.remove(); openMenuEl = null; } }
+function openNewMenu(anchor) {
+  closeMenu();
+  const m = document.createElement("div");
+  m.className = "menu";
+  m.innerHTML = `<div class="menu-title">新建连接</div>
+    ${[["tcp-client", "i-client", "TCP Client", "连接远程主机"], ["tcp-server", "i-server", "TCP Server", "本地监听服务"], ["udp", "i-udp", "UDP", "无连接定向收发"]].map(x => `
+    <div class="menu-item" data-action="new-tab" data-type="${x[0]}">
+      <span class="mi-icon"><svg class="ic"><use href="#${x[1]}"/></svg></span>
+      <span class="mi-text"><span class="mi-title">${x[2]}</span><br><span class="mi-desc">${x[3]}</span></span>
+    </div>`).join("")}`;
+  document.body.appendChild(m);
+  const r = anchor.getBoundingClientRect();
+  m.style.top = (r.bottom + 6) + "px";
+  m.style.left = Math.max(8, r.right - m.offsetWidth) + "px";
+  openMenuEl = m;
+}
+function openHistoryMenu(anchor) {
+  closeMenu();
+  const m = document.createElement("div");
+  m.className = "menu";
+  m.innerHTML = `<div class="menu-title">发送历史</div>` + (state.history.length
+    ? state.history.slice(0, 8).map(h => `<div class="menu-item history-item" data-action="pick-history" data-v="${esc(h)}">${esc(h)}</div>`).join("")
+    : `<div class="menu-empty">暂无历史 · Ctrl+↑↓ 回溯</div>`);
+  document.body.appendChild(m);
+  const r = anchor.getBoundingClientRect();
+  m.style.top = (r.bottom + 6) + "px";
+  m.style.left = Math.max(8, r.right - m.offsetWidth) + "px";
+  openMenuEl = m;
+}
+
+/* ── 事件委托 ──────────────────────────────────────────────── */
+document.addEventListener("click", e => {
+  const insideModal = !!e.target.closest("[data-stop]");
+  const actionEl = e.target.closest("[data-action]");
+  if (actionEl) {
+    const a = actionEl.dataset.action;
+    const t = active();
+    switch (a) {
+      case "switch-tab": state.activeId = actionEl.dataset.id; renderLive(); break;
+      case "close-tab": closeTab(actionEl.dataset.id); break;
+      case "new-tab": addTab(actionEl.dataset.type); closeMenu(); break;
+      case "open-new-menu": openNewMenu(actionEl); break;
+      case "open-history": openHistoryMenu(actionEl); break;
+      case "pick-history": {
+        const v = actionEl.dataset.v;
+        const input = $("#cmp-input");
+        if (input.disabled) { toast("请先建立连接"); } else { input.value = v; input.focus(); updateAsciiHint(); renderComposer(); }
+        closeMenu(); break;
+      }
+      case "connect": toggleConnect(); break;
+      case "send": sendNow(); break;
+      case "clear-input": $("#cmp-input").value = ""; updateAsciiHint(); renderComposer(); break;
+      case "clear-all": clearMsgs(null); break;
+      case "clear-col": clearMsgs(actionEl.dataset.col); break;
+      case "copy-msg": copyMsg(actionEl.dataset.id); break;
+      case "set-enc": if (t) { t.enc = actionEl.dataset.enc; renderComposer(); } break;
+      case "set-mode": if (t) { t.hex = actionEl.dataset.encMode === "hex"; renderComposer(); renderMessages(); } break;
+      case "toggle-lfcr": if (t) { t.lfcr = !t.lfcr; renderComposer(); } break;
+      case "toggle-split": if (t) { t.split = !t.split; renderLive(); } break;
+      case "toggle-sb": toggleSb(); break;
+      case "toggle-group": { const g = groups.find(x => x.id === actionEl.dataset.id); if (g) g.open = !g.open; renderSidebar(); break; }
+      case "send-cmd": sendCommand(actionEl.dataset.g, +actionEl.dataset.i); break;
+      case "fill-cmd": fillCommand(null, +actionEl.dataset.i); break;
+      case "chip-send": chipSend(+actionEl.dataset.i); break;
+      case "add-cmd": openCmdModal(null, null); break;
+      case "edit-cmd": openCmdModal(actionEl.dataset.g, +actionEl.dataset.i); break;
+      case "del-cmd": delCmd(actionEl.dataset.g, +actionEl.dataset.i); break;
+      case "add-group": addGroup(); break;
+      case "save-cmd": saveCmd(); break;
+      case "close-modal": if (!insideModal) closeModal(); break;
+      case "settings": openSettings(); break;
+      case "close-settings": closeSettings(); break;
+      case "save-settings": saveSettings(); break;
+      case "cancel-settings": cancelSettings(); break;
+      case "reset-settings": resetSettings(); break;
+    }
+  } else if (!insideModal && openMenuEl && !openMenuEl.contains(e.target)) closeMenu();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeMenu(); closeModal(); return; }
+  if ((e.key === "Enter" || e.key === " ") && !e.target.closest("button, input, textarea")) {
+    const card = e.target.closest(".mode-card");
+    if (card) { addTab(card.dataset.type); return; }
+    const row = e.target.closest("[data-action='switch-tab'][tabindex]");
+    if (row) { state.activeId = row.dataset.id; renderLive(); return; }
+    const cmd = e.target.closest("[data-action='send-cmd'][tabindex]");
+    if (cmd) { sendCommand(cmd.dataset.g, +cmd.dataset.i); return; }
+    const grp = e.target.closest("[data-action='toggle-group'][tabindex]");
+    if (grp) { const g = groups.find(x => x.id === grp.dataset.id); if (g) g.open = !g.open; renderSidebar(); return; }
+  }
+  if (e.key === "Enter" && e.ctrlKey) { const t = active(); if (t && isLive(t)) { sendNow(); } return; }
+  if (e.key === "ArrowUp" && e.ctrlKey && document.activeElement.id === "cmp-input") { e.preventDefault(); navHistory(1); }
+  if (e.key === "ArrowDown" && e.ctrlKey && document.activeElement.id === "cmp-input") { e.preventDefault(); navHistory(-1); }
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "sb-filter") { state.filter = e.target.value; renderSidebar(); }
+  if (e.target.id === "cmp-input") { renderComposer(); updateAsciiHint(); }
+});
+document.addEventListener("dblclick", e => {
+  const nameEl = e.target.closest("[data-role='name']");
+  if (nameEl) { startRename(nameEl); return; }
+  if (e.target.closest("#msg-area")) {
+    const t = active();
+    const col = e.target.closest(".msg-col");
+    if (t && t.split && col) clearMsgs(col.classList.contains("tx-col") ? "tx" : "rx");
+    else clearMsgs(null);
+  }
+});
+document.addEventListener("change", e => {
+  const t = active();
+  if (!t) return;
+  if (e.target.id === "cfg-host") t.host = e.target.value;
+  if (e.target.id === "cfg-port") { const v = +e.target.value; if (v >= 1 && v <= 65535) t.port = v; renderWsConfig(); }
+  if (e.target.id === "cfg-local") { const v = +e.target.value; if (v >= 1 && v <= 65535) t.localPort = v; }
+  if (e.target.id === "cfg-target") { t.target = e.target.value; renderWorkHeader(); }
+});
+document.addEventListener("change", e => {
+  if (!e.target.closest("#settings-root")) return;
+  const el = e.target, key = el.dataset.skey;
+  if (!key || el.disabled) return;
+  if (el.type === "checkbox") state.settings[key] = el.checked;
+  else if (el.type === "number") state.settings[key] = Math.max(+el.min || 0, Math.min(+el.max || 9999, +el.value || 0));
+  else state.settings[key] = el.value;
+  renderSettings();
+});
+document.addEventListener("click", e => {
+  const catBtn = e.target.closest(".settings-cat");
+  if (catBtn) { settingsCat = catBtn.dataset.cat; renderSettings(); return; }
+  if (e.target.id === "settings-root") { closeSettings(); return; }
+  const segBtn = e.target.closest("#settings-root .seg button");
+  if (segBtn && !segBtn.disabled) { state.settings[segBtn.dataset.skey] = segBtn.dataset.val; renderSettings(); }
+});
+
+/* 重命名 */
+function startRename(el) {
+  const t = active();
+  if (!t) return;
+  const input = document.createElement("input");
+  input.className = "conn-name renaming";
+  input.value = t.title;
+  el.replaceWith(input);
+  input.focus(); input.select();
+  const commit = () => {
+    const v = input.value.trim();
+    if (v) t.title = v;
+    renderSidebar();
+  };
+  input.addEventListener("blur", commit);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") input.blur(); if (e.key === "Escape") { input.value = t.title; input.blur(); } });
+  e.stopPropagation();
+}
+
+/* 拖拽排序 */
+let dragId = null;
+document.addEventListener("dragstart", e => {
+  const row = e.target.closest("[data-drag='conn']");
+  if (!row) return;
+  dragId = row.dataset.id;
+  row.style.opacity = "0.45";
+});
+document.addEventListener("dragend", e => { const row = e.target.closest("[data-drag='conn']"); if (row) row.style.opacity = ""; $$(".conn-row").forEach(r => r.classList.remove("drag-over")); dragId = null; });
+document.addEventListener("dragover", e => {
+  const row = e.target.closest("[data-drag='conn']");
+  if (!row || !dragId || row.dataset.id === dragId) return;
+  e.preventDefault();
+  $$(".conn-row").forEach(r => r.classList.remove("drag-over"));
+  row.classList.add("drag-over");
+});
+document.addEventListener("drop", e => {
+  const row = e.target.closest("[data-drag='conn']");
+  if (!row || !dragId) return;
+  e.preventDefault();
+  const from = tabs.findIndex(t => t.id === dragId);
+  const to = tabs.findIndex(t => t.id === row.dataset.id);
+  if (from > -1 && to > -1 && from !== to) { const [m] = tabs.splice(from, 1); tabs.splice(to, 0, m); renderSidebar(); }
+});
+
+/* 侧边栏宽度拖拽 */
+(function initResize() {
+  const sb = $("#sidebar"), handle = $("#sb-resize");
+  let dragging = false;
+  handle.addEventListener("mousedown", e => { dragging = true; sb.classList.add("no-trans"); e.preventDefault(); });
+  document.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    const w = Math.max(224, Math.min(440, e.clientX));
+    sb.style.width = w + "px";
+  });
+  document.addEventListener("mouseup", () => { dragging = false; sb.classList.remove("no-trans"); });
+})();
+
+/* 侧边栏折叠(小屏自动折叠) */
+function applySbCollapse() {
+  $("#sidebar").classList.toggle("collapsed", state.sbCollapsed);
+  const btn = $("#sb-toggle");
+  if (btn) {
+    btn.title = state.sbCollapsed ? "展开侧栏" : "收起侧栏";
+    btn.setAttribute("aria-expanded", String(!state.sbCollapsed));
+  }
+}
+function toggleSb() { state.sbCollapsed = !state.sbCollapsed; applySbCollapse(); }
+
+/* 折叠轨道连接悬浮提示 */
+const railTip = document.createElement("div");
+railTip.className = "rail-tip";
+railTip.id = "rail-tip";
+document.body.appendChild(railTip);
+document.addEventListener("mouseover", e => {
+  const rc = e.target.closest(".rail-conn");
+  if (rc) {
+    const t = tabs.find(x => x.id === rc.dataset.id);
+    if (t) {
+      const sm = statusMeta(t);
+      const peer = peerOfMsg(t);
+      railTip.innerHTML = `<div class="rt-name">${esc(t.title)}</div><div class="rt-meta"><span class="dot ${sm.cls}"></span>${sm.label}${peer ? " · " + esc(peer) : ""}</div>`;
+      const r = rc.getBoundingClientRect();
+      railTip.style.left = (r.right + 12) + "px";
+      railTip.style.top = (r.top + r.height / 2) + "px";
+      railTip.style.display = "block";
+    }
+  } else if (!e.target.closest("#rail-tip")) {
+    railTip.style.display = "none";
+  }
+});
+(function initCollapse() {
+  const mq = window.matchMedia("(max-width: 920px)");
+  state.sbCollapsed = mq.matches; /* 小屏默认折叠 */
+  applySbCollapse();
+  mq.addEventListener("change", e => { state.sbCollapsed = e.matches; applySbCollapse(); });
+})();
+
+/* 时钟与速率窗口 */
+(function startClock() {
+  setInterval(() => {
+    const t = active();
+    if (t && isLive(t)) { state.stats.dur++; }
+    state.stats.txWin = []; state.stats.rxWin = [];
+    renderStats();
+  }, 1000);
+})();
+
+/* Toast */
+let toastTimer = null;
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+/* ── 设置 ───────────────────────────────────────────────────── */
+const SETTINGS_DEFAULTS = {
+  restoreTabs: true, autoConnect: false, closeConfirm: true, maxTabs: 20, uiLang: "zh-CN",
+  msgLimit: 5000, timeFormat: "ms", autoScroll: true, wrapLines: true, hexUppercase: true, hexCols: 16,
+  defaultEnc: "UTF-8", lfcrDefault: false, sendAfterClear: true, historyLimit: 50, historyPersist: false, quickTagsCount: 5,
+  autoReconnect: false, reconnectDelay: 3, reconnectMax: 5, connTimeout: 3000, keepalive: false, udpRetry: false,
+  exportFormat: "TXT", autoLog: false, logRetention: 30, logLevel: "info",
+};
+const SETTINGS_SCHEMA = [
+  { key: "general", label: "通用", icon: "i-sliders", groups: [
+    { title: "会话", items: [
+      { type: "switch", key: "restoreTabs", label: "启动时恢复上次会话", desc: "重启后保留标签与连接配置" },
+      { type: "switch", key: "autoConnect", label: "启动时自动连接", desc: "对上次会话中的活动连接自动重连" },
+      { type: "switch", key: "closeConfirm", label: "关闭标签时确认", desc: "关闭已连接的标签前弹出确认" },
+      { type: "number", key: "maxTabs", label: "标签数量上限", min: 1, max: 50 },
+      { type: "select", key: "uiLang", label: "界面语言", options: [["zh-CN", "简体中文"], ["en", "English"]] },
+    ] },
+  ] },
+  { key: "messages", label: "消息", icon: "i-copy", groups: [
+    { title: "消息流", items: [
+      { type: "select", key: "msgLimit", label: "单标签消息上限", options: [[1000, "1000 条"], [5000, "5000 条"], [10000, "10000 条"]] },
+      { type: "select", key: "timeFormat", label: "时间戳格式", options: [["ms", "HH:mm:ss.mmm"], ["s", "HH:mm:ss"]] },
+      { type: "switch", key: "autoScroll", label: "自动滚动到底部", desc: "新消息到达时跟随滚动" },
+      { type: "switch", key: "wrapLines", label: "长消息自动换行" },
+    ] },
+    { title: "HEX 显示", items: [
+      { type: "switch", key: "hexUppercase", label: "HEX 大写显示", desc: "十六进制字节使用大写字母" },
+      { type: "select", key: "hexCols", label: "每行字节数", options: [[8, "8 字节"], [16, "16 字节"], [32, "32 字节"]] },
+    ] },
+  ] },
+  { key: "send", label: "发送", icon: "i-send", groups: [
+    { title: "发送", items: [
+      { type: "seg", key: "defaultEnc", label: "默认发送编码", options: ["ASCII", "UTF-8", "GBK"] },
+      { type: "switch", key: "lfcrDefault", label: "新建连接 LF→CR 默认开启" },
+      { type: "switch", key: "sendAfterClear", label: "发送后清空输入框" },
+    ] },
+    { title: "发送历史", items: [
+      { type: "select", key: "historyLimit", label: "历史保留条数", options: [[20, "20 条"], [50, "50 条"], [100, "100 条"]] },
+      { type: "switch", key: "historyPersist", label: "跨会话保留", desc: "重启后仍可 Ctrl+↑↓ 回溯" },
+      { type: "select", key: "quickTagsCount", label: "快捷指令标签数量", options: [[3, "3 个"], [5, "5 个"], [8, "8 个"]] },
+    ] },
+  ] },
+  { key: "connection", label: "连接", icon: "i-network", groups: [
+    { title: "TCP", items: [
+      { type: "switch", key: "autoReconnect", label: "自动重连", desc: "连接意外断开后自动重试" },
+      { type: "number", key: "reconnectDelay", label: "重连间隔（秒）", min: 1, max: 60, depends: "autoReconnect" },
+      { type: "number", key: "reconnectMax", label: "最大重试次数", min: 0, max: 99, depends: "autoReconnect" },
+      { type: "select", key: "connTimeout", label: "连接超时", options: [[1000, "1 秒"], [3000, "3 秒"], [5000, "5 秒"], [10000, "10 秒"]] },
+      { type: "switch", key: "keepalive", label: "TCP Keepalive", desc: "定期发送探测包保持连接" },
+    ] },
+    { title: "UDP", items: [
+      { type: "switch", key: "udpRetry", label: "绑定失败自动重试" },
+    ] },
+  ] },
+  { key: "log", label: "日志与导出", icon: "i-history", groups: [
+    { title: "导出", items: [
+      { type: "seg", key: "exportFormat", label: "消息导出格式", options: ["TXT", "JSON", "CSV"] },
+      { type: "switch", key: "autoLog", label: "自动保存会话日志" },
+    ] },
+    { title: "日志", items: [
+      { type: "select", key: "logRetention", label: "日志保留时长", options: [[7, "7 天"], [30, "30 天"], [90, "90 天"]] },
+      { type: "select", key: "logLevel", label: "日志级别", options: [["error", "错误"], ["warn", "警告"], ["info", "信息"], ["debug", "调试"]] },
+    ] },
+  ] },
+];
+
+let settingsCat = "general";
+let settingsBackup = null;
+
+function setControlHtml(item) {
+  const s = state.settings, val = s[item.key];
+  const dis = item.depends ? !s[item.depends] : false;
+  if (item.type === "switch")
+    return `<label class="switch"><input type="checkbox" data-skey="${item.key}" ${val ? "checked" : ""} ${dis ? "disabled" : ""}><span class="track"></span></label>`;
+  if (item.type === "seg")
+    return `<div class="seg">${item.options.map(o => `<button type="button" class="${val === o ? "active" : ""}" data-skey="${item.key}" data-val="${o}" ${dis ? "disabled" : ""}>${o}</button>`).join("")}</div>`;
+  if (item.type === "select")
+    return `<select class="cfg-select" data-skey="${item.key}" ${dis ? "disabled" : ""}>${item.options.map(([v, l]) => `<option value="${v}" ${val === v ? "selected" : ""}>${l}</option>`).join("")}</select>`;
+  if (item.type === "number")
+    return `<input class="cfg-input w-number" type="number" data-skey="${item.key}" min="${item.min}" max="${item.max}" value="${val}" ${dis ? "disabled" : ""}>`;
+  return "";
+}
+
+function renderSettings() {
+  const cat = SETTINGS_SCHEMA.find(c => c.key === settingsCat) || SETTINGS_SCHEMA[0];
+  $("#settings-rail").innerHTML = SETTINGS_SCHEMA.map(c =>
+    `<button class="settings-cat ${c.key === settingsCat ? "active" : ""}" data-cat="${c.key}"><svg class="ic"><use href="#${c.icon}"/></svg>${c.label}</button>`).join("");
+  $("#settings-panel").innerHTML = cat.groups.map(g =>
+    `<div class="set-group-title">${g.title}</div>` + g.items.map(item =>
+      `<div class="set-row ${item.depends && !state.settings[item.depends] ? "disabled" : ""}">
+        <div class="set-info"><div class="set-label">${item.label}</div>${item.desc ? `<div class="set-desc">${item.desc}</div>` : ""}</div>
+        <div class="set-control">${setControlHtml(item)}</div>
+      </div>`).join("")).join("");
+}
+
+function openSettings() {
+  settingsBackup = JSON.stringify(state.settings);
+  settingsCat = "general";
+  $("#settings-root").style.display = "grid";
+  renderSettings();
+}
+function closeSettings() { $("#settings-root").style.display = "none"; }
+function resetSettings() { state.settings = Object.assign({}, SETTINGS_DEFAULTS); renderSettings(); }
+function cancelSettings() { state.settings = JSON.parse(settingsBackup); closeSettings(); }
+function saveSettings() {
+  try { localStorage.setItem("netassist.settings", JSON.stringify(state.settings)); } catch (e) {}
+  if (state.settings.historyPersist) saveHistory(); else { try { localStorage.removeItem("netassist.history"); } catch (e) {} }
+  closeSettings();
+  renderLive();
+  toast("设置已保存");
+}
+function loadSettings() {
+  const d = Object.assign({}, SETTINGS_DEFAULTS);
+  try { const s = JSON.parse(localStorage.getItem("netassist.settings")); if (s) Object.assign(d, s); } catch (e) {}
+  state.settings = d;
+  if (d.historyPersist) { try { state.history = JSON.parse(localStorage.getItem("netassist.history")) || []; } catch (e) {} }
+}
+function saveHistory() {
+  try { localStorage.setItem("netassist.history", JSON.stringify(state.history.slice(0, state.settings.historyLimit))); } catch (e) {}
+}
+
+/* 欢迎 / 工作切换 */
+function showWelcome() {
+  $("#welcome").style.display = "";
+  const work = $("#work");
+  work.style.display = "none";
+}
+function showWork() {
+  $("#welcome").style.display = "none";
+  const work = $("#work");
+  work.style.display = "flex";
+}
+function syncView() {
+  if (tabs.length && state.activeId) showWork(); else showWelcome();
+  if (tabs.length) renderLive();
+}
+
+/* ── 初始化 ─────────────────────────────────────────────────── */
+(function init() {
+  loadSettings();
+  // 预设演示统计
+  state.stats.tx = 1362; state.stats.rx = 4912;
+  state.stats.txWin = [320, 512]; state.stats.rxWin = [840, 1024];
+  state.stats.count = tabs.reduce((a, t) => a + t.msgs.length, 0);
+  syncView();
+  $("#sb-filter").value = state.filter;
+})();
+</script>
+
+
+</body></html>

@@ -1,0 +1,15 @@
+{
+  "change": "ui-refactor-to-prototype",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "a3222b5dbdd3953c7dea022f6fe3d6c4acace8d19816f6cb1f7bf61d7beddaaa",
+  "files": [
+    { "path": "openspec/changes/ui-refactor-to-prototype/proposal.md", "sha256": "62cb6ac1e390e08bf8b1e828c6b9865438cb306aa131a515784ae196ef95e072" },
+    { "path": "openspec/changes/ui-refactor-to-prototype/design.md", "sha256": "40163196fc0809aeae0b33ede474733356a9f4366fc158d4a0269d55f4d4a348" },
+    { "path": "openspec/changes/ui-refactor-to-prototype/tasks.md", "sha256": "e51607408684921b09837828e7be92962c775419fd199fbb23d7ef46c73fc5fc" },
+    { "path": "openspec/changes/ui-refactor-to-prototype/specs/multi-tab/spec.md", "sha256": "d49942d6c9803b3af2e67c4247a575b2306fed69c3e5eb9105966c507b1fa377" },
+    { "path": "openspec/changes/ui-refactor-to-prototype/specs/quick-send/spec.md", "sha256": "cc8e40c3fe1ff5dd1263e950d266d21ffc0bcd3b3501295b4929f420d78bb2d9" }
+  ]
+}
