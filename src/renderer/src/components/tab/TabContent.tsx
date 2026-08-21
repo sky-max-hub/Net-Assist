@@ -1,123 +1,66 @@
-import { useState, useCallback, useRef } from 'react'
-import { Button } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
-import type { TabState } from '../../../shared/types'
+import { useState } from 'react'
+import type { TabState, TabConfig } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
-import TcpClientConfigPanel from '../config/TcpClientConfig'
-import TcpServerConfigPanel from '../config/TcpServerConfig'
-import UdpConfigPanel from '../config/UdpConfig'
+import { useConnectionActions } from '../../hooks/useConnectionActions'
+import { useServerClients } from '../../hooks/useServerClients'
+import { TYPE_META, STATUS_META, statusLabelFor } from '../../store/tab-meta'
+import Icon from '../common/Icons'
+import TcpClientConfigFields from '../config/TcpClientConfig'
+import TcpServerConfigFields from '../config/TcpServerConfig'
+import UdpConfigFields from '../config/UdpConfig'
 import MessageList from '../messages/MessageList'
+import StatsBar from '../stats/StatsBar'
 import SendPanel from '../send/SendPanel'
+import './TabContent.css'
 
-const MSG_MIN_PCT = 30
-const MSG_MAX_PCT = 80
-const SPLIT_MIN_PCT = 25
-const SPLIT_MAX_PCT = 75
-
-interface Props {
-  tab: TabState
-}
+interface Props { tab: TabState }
 
 export default function TabContent({ tab }: Props): JSX.Element {
+  const setTabConfig = useTabStore((s) => s.setTabConfig)
   const updateSendOptions = useTabStore((s) => s.updateSendOptions)
-  const clearMessages = useTabStore((s) => s.clearMessages)
-  const clearDirectionMessages = useTabStore((s) => s.clearDirectionMessages)
-  const displayMode = tab.sendOptions.displayMode
-  const encoding = tab.sendOptions.encoding
-  const splitView = tab.sendOptions.splitView
+  const clients = useServerClients(tab.id)
+  const [target, setTarget] = useState<string>('broadcast')
+  const { live, connecting, actionLabel, loading, handleToggle } = useConnectionActions(tab)
 
-  const [msgPct, setMsgPct] = useState(60)
-  const [splitPct, setSplitPct] = useState(50)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  const startDrag = useCallback((axis: 'msg' | 'split') => (e: React.MouseEvent) => {
-    e.preventDefault()
-    const start = axis === 'msg' ? e.clientY : e.clientX
-    const startPct = axis === 'msg' ? msgPct : splitPct
-
-    const onMove = (ev: MouseEvent) => {
-      const container = containerRef.current
-      if (!container) return
-      const rect = container.getBoundingClientRect()
-      const total = axis === 'msg' ? rect.height : rect.width
-      if (total <= 0) return
-      const cur = axis === 'msg' ? ev.clientY : ev.clientX
-      const delta = ((cur - start) / total) * 100
-      const [minPct, maxPct] = axis === 'msg' ? [MSG_MIN_PCT, MSG_MAX_PCT] : [SPLIT_MIN_PCT, SPLIT_MAX_PCT]
-      const pct = Math.min(maxPct, Math.max(minPct, startPct + delta))
-      if (axis === 'msg') setMsgPct(pct)
-      else setSplitPct(pct)
-    }
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
-    }
-    document.body.style.cursor = axis === 'msg' ? 'row-resize' : 'col-resize'
-    document.body.style.userSelect = 'none'
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-  }, [msgPct, splitPct])
-
-  const renderConfigPanel = (): JSX.Element | null => {
-    switch (tab.type) {
-      case 'tcp-client': return <TcpClientConfigPanel tab={tab} />
-      case 'tcp-server': return <TcpServerConfigPanel tab={tab} />
-      case 'udp': return <UdpConfigPanel tab={tab} />
-      default: return null
-    }
+  const onConfigChange = (config: TabConfig): void => setTabConfig(tab.id, config)
+  const onTargetChange = async (clientId: string | null): Promise<void> => {
+    setTarget(clientId ?? 'broadcast')
+    await window.electronAPI.serverSetTarget({ tabId: tab.id, clientId })
   }
 
-  const txMessages = tab.messages.filter((m) => m.direction === 'tx')
-  const rxMessages = tab.messages.filter((m) => m.direction === 'rx')
+  const tm = TYPE_META[tab.type]
+  const sm = STATUS_META[tab.status]
+  const split = tab.sendOptions.splitView
 
   return (
-    <div key={tab.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
-      <div style={{ flexShrink: 0 }}>{renderConfigPanel()}</div>
-      <div ref={containerRef} style={{ flex: 1, minHeight: 150, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 8px', flexShrink: 0 }}>
-          {!splitView && (
-            <Button type="text" danger size="small" icon={<DeleteOutlined />}
-              onClick={() => clearMessages(tab.id)} disabled={tab.messages.length === 0}>清空</Button>
-          )}
+    <>
+      <div className="ws-header">
+        <div className="ws-title">
+          <span className="ws-type-icon"><Icon name={tm.icon} size={16} className={`ic ct-${tm.tag.toLowerCase()}`} /></span>
+          <span className="conn-name-ws">{tab.title}</span>
+          <span className="ws-count num">{tab.messages.length} 条</span>
         </div>
-        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-          {splitView ? (
-            <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
-              <div style={{ width: `${splitPct}%`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div style={{ fontSize: 11, color: '#6a9955', padding: '2px 8px', flexShrink: 0, fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>TX 发送</span>
-                  <Button type="text" danger size="small" style={{ fontSize: 11 }}
-                    onClick={() => clearDirectionMessages(tab.id, 'tx')} disabled={txMessages.length === 0}>清空</Button>
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                  <MessageList tabId={tab.id} messages={txMessages} displayMode={displayMode} encoding={encoding} direction="tx" />
-                </div>
-              </div>
-              <div className="split-resize-handle" onMouseDown={startDrag('split')} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div style={{ fontSize: 11, color: '#569cd6', padding: '2px 8px', flexShrink: 0, fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>RX 接收</span>
-                  <Button type="text" danger size="small" style={{ fontSize: 11 }}
-                    onClick={() => clearDirectionMessages(tab.id, 'rx')} disabled={rxMessages.length === 0}>清空</Button>
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                  <MessageList tabId={tab.id} messages={rxMessages} displayMode={displayMode} encoding={encoding} direction="rx" />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div style={{ height: '100%', overflow: 'hidden' }}>
-              <MessageList tabId={tab.id} messages={tab.messages} displayMode={displayMode} encoding={encoding} />
-            </div>
-          )}
+        <div className="ws-config">
+          {tab.type === 'tcp-client' && <TcpClientConfigFields tab={tab} onChange={onConfigChange} />}
+          {tab.type === 'tcp-server' && <TcpServerConfigFields tab={tab} clients={clients} target={target} onTargetChange={onTargetChange} onChange={onConfigChange} />}
+          {tab.type === 'udp' && <UdpConfigFields tab={tab} onChange={onConfigChange} />}
+        </div>
+        <span className={`status-pill${live ? ' sp-success' : tab.status === 'connecting' ? ' sp-warn' : tab.status === 'error' ? ' sp-error' : ''}`}>
+          <span className={`status-dot ${sm.cls}${sm.pulse ? ' pulse' : ''}`} />{statusLabelFor(tab, clients.length)}
+        </span>
+        <div className="spacer" />
+        <div className="ws-actions">
+          <button className={`btn btn-sm${live ? ' btn-danger' : ' btn-dark'}`} disabled={connecting || loading} onClick={() => handleToggle()}>
+            {actionLabel}
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={() => updateSendOptions(tab.id, { splitView: !split })}>
+            <Icon name={split ? 'merge' : 'split'} size={14} /><span className="lbl">{split ? '合并' : '分屏'}</span>
+          </button>
         </div>
       </div>
-      <div className="msg-send-resize-handle" onMouseDown={startDrag('msg')} />
-      <div style={{ flexShrink: 0, height: `${100 - msgPct}%`, maxHeight: `${100 - MSG_MIN_PCT}%` }}>
-        <SendPanel tabId={tab.id} splitView={splitView} onToggleSplit={() => updateSendOptions(tab.id, { splitView: !splitView })} />
-      </div>
-    </div>
+      <MessageList tab={tab} />
+      <StatsBar tab={tab} />
+      <SendPanel tab={tab} />
+    </>
   )
 }
