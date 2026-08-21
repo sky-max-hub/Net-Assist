@@ -1161,7 +1161,7 @@ git commit -m "refactor: 布局壳重构为 AppBar+Sidebar+Workspace，侧栏搜
 - Consumes: `useTabStore`（tabs/activeTabId/createTab/closeTab/reorderTabs/setActiveTab/updateTabTitle）、`useIpc.disconnect`、`useUiStore`（sidebarFilter/showToast）、`filterConnections`、`TYPE_META/STATUS_META`、`Icon`、`Menu/menuPosition`。
 - Produces: `TabBar()` 渲染 `.sb-section`（连接列表）：`+` icon-btn 弹新建菜单；`.conn-row` 列表（状态点/类型图标/名称/悬停关闭/双击重命名/拖拽排序）；空态 `.sb-none`。
 
-- [ ] **Step 1: 重写 TabBar.tsx**
+- [x] **Step 1: 重写 TabBar.tsx**
 
 ```tsx
 import { useState } from 'react'
@@ -1272,11 +1272,11 @@ export default function TabBar(): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 重写 TabBar.css** —— 从原型 `.conn-list`（行 95）、`.conn-row`（96–100）、`.conn-type-icon`（112）、`.ct-tc/.ct-ts/.ct-ud`（115–117）、`.conn-name`（118–119）、`.conn-close`（120–122）原样迁移。
+- [x] **Step 2: 重写 TabBar.css** —— 从原型 `.conn-list`（行 95）、`.conn-row`（96–100）、`.conn-type-icon`（112）、`.ct-tc/.ct-ts/.ct-ud`（115–117）、`.conn-name`（118–119）、`.conn-close`（120–122）原样迁移。
 
-- [ ] **Step 3: 验证** —— `npm run build` 通过；`npm test` 通过。
+- [x] **Step 3: 验证** —— `npm run build` 通过；`npm test` 通过。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/tab/TabBar.tsx src/renderer/src/components/tab/TabBar.css
