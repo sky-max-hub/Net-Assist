@@ -28,6 +28,10 @@
 .rail-conn:hover { background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
 .rail-conn.active { background: var(--bg); box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(0,0,0,.05); color: var(--fg); }
 .rail-conn .ic { width: 17px; height: 17px; }
+/* 连接类型图标颜色（来源：原型行 115–117，rail 图标按连接类型着色） */
+.ct-tc { color: color-mix(in oklab, var(--success) 62%, var(--fg)); }
+.ct-ts { color: color-mix(in oklab, var(--accent-active) 62%, var(--fg)); }
+.ct-ud { color: color-mix(in oklab, var(--warn) 52%, var(--fg)); }
 .rail-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--surface); }
 .rail-empty { color: var(--meta); font-size: 18px; text-align: center; padding-top: 8px; }
 /* rail 悬浮提示：React 条件渲染，存在即显示（原型用 style.display 切换，此处由渲染控制） */

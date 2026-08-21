@@ -30,7 +30,9 @@ export default function Sidebar({ onQuickSend }: Props): JSX.Element {
   const setCollapsed = useUiStore((s) => s.setSidebarCollapsed)
   const setFilter = useUiStore((s) => s.setSidebarFilter)
   const [width, setWidth] = useState(292)
-  const resizing = useRef(false)
+  const asideRef = useRef<HTMLElement>(null)
+  const moveRef = useRef<((ev: MouseEvent) => void) | null>(null)
+  const upRef = useRef<(() => void) | null>(null)
   const [railTip, setRailTip] = useState<RailTip | null>(null)
 
   // 小屏 920px 自动折叠
@@ -44,18 +46,37 @@ export default function Sidebar({ onQuickSend }: Props): JSX.Element {
 
   const startResize = (e: React.MouseEvent): void => {
     e.preventDefault()
-    resizing.current = true
+    // 拖拽期间抑制 width 过渡，并锁定光标/文本选择
+    asideRef.current?.classList.add('no-trans')
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
     const startX = e.clientX
     const startW = width
     const onMove = (ev: MouseEvent) => setWidth(Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, startW + (ev.clientX - startX))))
     const onUp = () => {
-      resizing.current = false
+      asideRef.current?.classList.remove('no-trans')
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
+      moveRef.current = null
+      upRef.current = null
     }
+    moveRef.current = onMove
+    upRef.current = onUp
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
   }
+
+  // 拖拽监听器卸载清理：组件卸载时移除 document 级监听并恢复 body 样式，避免泄漏
+  useEffect(() => {
+    return () => {
+      if (moveRef.current) document.removeEventListener('mousemove', moveRef.current)
+      if (upRef.current) document.removeEventListener('mouseup', upRef.current)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [])
 
   // rail 悬浮提示：鼠标进入连接按钮时按按钮位置显示提示
   const showRailTip = (e: React.MouseEvent<HTMLButtonElement>, id: string): void => {
@@ -71,7 +92,7 @@ export default function Sidebar({ onQuickSend }: Props): JSX.Element {
   }
 
   return (
-    <aside className={`sidebar${collapsed ? ' collapsed' : ''}`} style={{ width }}>
+    <aside ref={asideRef} className={`sidebar${collapsed ? ' collapsed' : ''}`} style={{ width }}>
       <div className="sb-resize" onMouseDown={startResize} title="拖拽调整宽度" />
       <div className="sb-search">
         <div className="search-box">

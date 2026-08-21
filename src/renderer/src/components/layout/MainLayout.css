@@ -5,3 +5,7 @@
    ════════════════════════════════════════════════════════════════ */
 .app-body { flex: 1; display: flex; min-height: 0; }
 .workspace { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+
+/* 过渡期保留：Task 15 重写 TabContent 后移除 */
+.split-resize-handle { width: 4px; cursor: col-resize; }
+.msg-send-resize-handle { height: 4px; cursor: row-resize; }
