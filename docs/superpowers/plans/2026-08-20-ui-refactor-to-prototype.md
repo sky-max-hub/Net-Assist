@@ -759,7 +759,7 @@ git commit -m "feat: 新增 ui-store（settings/toast/侧栏 UI 态）"
   - `Menu({ title?, style, onClose, children })`：`.menu` 浮层，点击外部/Escape 关闭；`menuPosition(anchor: DOMRect): React.CSSProperties`（`{ top: bottom+6, left: max(8, right-216) }`）。
   - `Modal({ title, sub?, onClose, children, actions? })`：`.modal-backdrop` + `.modal`，Escape/点背景关闭。
 
-- [ ] **Step 1: 创建 Toast.tsx + Toast.css**
+- [x] **Step 1: 创建 Toast.tsx + Toast.css**
 
 ```tsx
 import { useUiStore } from '../../store/ui-store'
@@ -772,7 +772,7 @@ export default function ToastHost(): JSX.Element {
 ```
 `Toast.css`：从原型 `.toast`/`.toast.show`（行 343–344）原样拷贝。
 
-- [ ] **Step 2: 创建 Menu.tsx + Menu.css**
+- [x] **Step 2: 创建 Menu.tsx + Menu.css**
 
 ```tsx
 import { useEffect, useRef } from 'react'
@@ -810,7 +810,7 @@ export function menuPosition(anchor: DOMRect): React.CSSProperties {
 ```
 `Menu.css`：从原型 `.menu/.menu-title/.menu-item/.menu-item .mi-*/.menu-item.history-item/.menu-empty`（行 271–281）原样拷贝（已在 base.css 中的可不重复）。
 
-- [ ] **Step 3: 创建 Modal.tsx + Modal.css**
+- [x] **Step 3: 创建 Modal.tsx + Modal.css**
 
 ```tsx
 import { useEffect } from 'react'
@@ -846,9 +846,9 @@ export default function Modal({ title, sub, onClose, children, actions }: ModalP
 ```
 `Modal.css`：从原型 `.modal-backdrop/.modal/.modal h3/.modal-sub/.field/.input/.textarea/.modal-select/.modal-actions`（行 283–293）原样拷贝（已在 base.css 中的可不重复）。
 
-- [ ] **Step 4: 验证** —— `npm test`；`npm run build` 通过。
+- [x] **Step 4: 验证** —— `npm test`；`npm run build` 通过。
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/components/common/Toast.tsx src/renderer/src/components/common/Toast.css src/renderer/src/components/common/Menu.tsx src/renderer/src/components/common/Menu.css src/renderer/src/components/common/Modal.tsx src/renderer/src/components/common/Modal.css
