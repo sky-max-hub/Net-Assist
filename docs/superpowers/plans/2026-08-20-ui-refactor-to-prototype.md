@@ -869,7 +869,7 @@ git commit -m "feat: 通用 Toast/Menu/Modal 组件"
   - `AppBar()`：`.titlebar` → `.app-title`（Icon network + "NetAssist" + `.at-sub` 网络调试助手）+ `.title-right`（`.global-status` 胶囊 + 设置 icon-btn）。
   - `Welcome()`：无标签时显示；三模式卡片（TCP Client/TCP Server/UDP）+ 快捷键提示；卡片点击/Enter/空格 → `createTab(type)`。
 
-- [ ] **Step 1: 创建 AppBar.tsx + AppBar.css**
+- [x] **Step 1: 创建 AppBar.tsx + AppBar.css**
 
 ```tsx
 import { useTabStore } from '../../store/tab-store'
@@ -905,7 +905,7 @@ export default function AppBar(): JSX.Element {
 ```
 `AppBar.css`：从原型 `.titlebar`（行 38）、`.app-title`（44–46）、`.title-right`（47）、`.global-status`（48–49）原样拷贝，**不**迁移 `.traffic`（保留原生边框）。
 
-- [ ] **Step 2: 创建 Welcome.tsx + Welcome.css**
+- [x] **Step 2: 创建 Welcome.tsx + Welcome.css**
 
 ```tsx
 import type { TabType } from '../../../shared/types'
@@ -957,9 +957,9 @@ export default function Welcome(): JSX.Element {
 ```
 `Welcome.css`：从原型 `.welcome` 区块（行 324–341）原样拷贝。
 
-- [ ] **Step 3: 验证** —— `npm run build` 通过（AppBar/Welcome 尚未接线，仅编译）。
+- [x] **Step 3: 验证** —— `npm run build` 通过（AppBar/Welcome 尚未接线，仅编译）。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/layout/AppBar.tsx src/renderer/src/components/layout/AppBar.css src/renderer/src/components/common/Welcome.tsx src/renderer/src/components/common/Welcome.css
