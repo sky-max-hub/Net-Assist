@@ -2154,9 +2154,9 @@ git commit -m "refactor: 发送区按原型重写（seg/switch/chips/历史菜�
 - Consumes: `TabState`、`useTabStore`（updateSendOptions）、`useConnectionActions`、`useServerClients`、`statusLabelFor`、`TYPE_META`、`STATUS_META`、`Icon`、`TcpClientConfigFields/TcpServerConfigFields/UdpConfigFields`、`MessageList`、`StatsBar`、`SendPanel`。
 - Produces: `TabContent({ tab })`：`.ws-header`（类型图标+标题+消息数 → 内联配置字段 → 状态 pill → 连接/断开按钮 + 分屏切换按钮）+ `MessageList` + `StatsBar` + `SendPanel`。移除原 `msgPct/splitPct` 拖拽与分屏比例。
 
-- [ ] **Step 1: 创建 TabContent.css** —— 从原型 `.ws-header`（行 146）、`.ws-title`（147–148）、`.ws-config`（149–150）、`.ws-header .spacer`（150）、`.ws-actions`（151）、`.ws-count`（187）原样迁移（`.workspace` 已在 MainLayout.css）。
+- [x] **Step 1: 创建 TabContent.css** —— 从原型 `.ws-header`（行 146）、`.ws-title`（147–148）、`.ws-config`（149–150）、`.ws-header .spacer`（150）、`.ws-actions`（151）、`.ws-count`（187）原样迁移（`.workspace` 已在 MainLayout.css）。
 
-- [ ] **Step 2: 重写 TabContent.tsx**
+- [x] **Step 2: 重写 TabContent.tsx**
 
 ```tsx
 import { useState } from 'react'
@@ -2227,9 +2227,9 @@ export default function TabContent({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 3: 验证** —— `npm run build` 通过；`npm test` 全绿；`npm run dev` 手工冒烟（新建连接→收发→分屏→清空→统计）。
+- [x] **Step 3: 验证** —— `npm run build` 通过；`npm test` 全绿；`npm run dev` 手工冒烟（新建连接→收发→分屏→清空→统计）。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/tab/TabContent.tsx src/renderer/src/components/tab/TabContent.css
