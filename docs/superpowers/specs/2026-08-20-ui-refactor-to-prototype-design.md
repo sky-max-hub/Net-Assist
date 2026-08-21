@@ -2,6 +2,8 @@
 comet_change: ui-refactor-to-prototype
 role: technical-design
 canonical_spec: openspec
+archived-with: 2026-08-21-ui-refactor-to-prototype
+status: final
 ---
 
 # NetAssist UI 重构 — 深度技术设计

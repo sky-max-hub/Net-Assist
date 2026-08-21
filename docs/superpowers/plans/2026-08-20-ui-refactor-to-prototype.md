@@ -2,6 +2,7 @@
 change: ui-refactor-to-prototype
 design-doc: docs/superpowers/specs/2026-08-20-ui-refactor-to-prototype-design.md
 base-ref: e9232eab32b296326a33447210dbb8864886dce7
+archived-with: 2026-08-21-ui-refactor-to-prototype
 ---
 
 # NetAssist UI 重构为原型 — 实施计划
