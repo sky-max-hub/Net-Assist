@@ -979,7 +979,7 @@ git commit -m "feat: AppBar 应用壳与 Welcome 欢迎页"
 - Consumes: `useTabStore`（tabs/activeTabId/setActiveTab/loadPersistedTabs/loadQuickSend）、`useUiStore`（sidebarCollapsed/sidebarFilter）、`useIpcListeners`、`TabBar`（Task 9，先用旧组件过渡）、`QuickSendPanel`（Task 10）、`TabContent`、`Welcome`、`AppBar`、`ToastHost`、`Icon`。
 - Produces: `MainLayout()` 新布局壳 + `Sidebar()` 侧栏（搜索、折叠、rail、宽度拖拽、连接列表区、快捷指令区、底部版本号）。
 
-- [ ] **Step 1: 重写 MainLayout.css** —— 布局壳样式：
+- [x] **Step 1: 重写 MainLayout.css** —— 布局壳样式：
 
 ```css
 .app-body { flex: 1; display: flex; min-height: 0; }
@@ -987,7 +987,7 @@ git commit -m "feat: AppBar 应用壳与 Welcome 欢迎页"
 ```
 （`.app-root` 已在 tokens.css 定义；删除旧 `.main-layout/.sidebar-resize-handle/.msg-send-resize-handle/.split-resize-handle/.content-area/.content-placeholder` 等全部旧规则。）
 
-- [ ] **Step 2: 创建 Sidebar.tsx + Sidebar.css**
+- [x] **Step 2: 创建 Sidebar.tsx + Sidebar.css**
 
 ```tsx
 import { useEffect, useRef, useState } from 'react'
@@ -1073,7 +1073,7 @@ export default function Sidebar({ onQuickSend }: Props): JSX.Element {
 
 `Sidebar.css`：从原型 `.sidebar`（行 53）、`.sb-resize`（54–55）、`.sb-search`（56）、`.search-box`（57–62）、`.sb-body`（63）、`.sb-toggle-btn`（64–65）、`.sidebar` transition（66–67）、`.collapsed`（68–72）、`.sb-rail`（73–74）、`.rail-conn`（75–78）、`.rail-dot`（79）、`.rail-empty`（80）、`.rail-tip`（81–84）、`.sb-section`（85）、`.sb-head`（86–88）、`.sb-foot`（141）原样迁移；`#sidebar` → `.sidebar`。
 
-- [ ] **Step 3: 重写 MainLayout.tsx**
+- [x] **Step 3: 重写 MainLayout.tsx**
 
 ```tsx
 import { useEffect, useCallback } from 'react'
@@ -1138,11 +1138,11 @@ export default function MainLayout(): JSX.Element {
 }
 ```
 
-- [ ] **Step 4: 验证** —— `npm run build` 通过；`npm test` 中既有渲染层用例通过（此时 TabBar/QuickSendPanel/TabContent 仍为旧 antd 实现，仅换壳）。
+- [x] **Step 4: 验证** —— `npm run build` 通过；`npm test` 中既有渲染层用例通过（此时 TabBar/QuickSendPanel/TabContent 仍为旧 antd 实现，仅换壳）。
 
-- [ ] **Step 5: rail 悬浮提示（可选增强）** —— 在 `Sidebar` 中加 `railTip` state（`{ left, top, name, label }`），`onMouseEnter` rail-conn 时设置、`onMouseLeave` 清除，渲染 `<div className="rail-tip" style={{left, top}}>`（内容：`.rt-name` 名称 + `.rt-meta` 状态点 + 状态文案）。CSS 已含 `.rail-tip`。
+- [x] **Step 5: rail 悬浮提示（可选增强）** —— 在 `Sidebar` 中加 `railTip` state（`{ left, top, name, label }`），`onMouseEnter` rail-conn 时设置、`onMouseLeave` 清除，渲染 `<div className="rail-tip" style={{left, top}}>`（内容：`.rt-name` 名称 + `.rt-meta` 状态点 + 状态文案）。CSS 已含 `.rail-tip`。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/renderer/src/components/layout/MainLayout.tsx src/renderer/src/components/layout/MainLayout.css src/renderer/src/components/layout/Sidebar.tsx src/renderer/src/components/layout/Sidebar.css
