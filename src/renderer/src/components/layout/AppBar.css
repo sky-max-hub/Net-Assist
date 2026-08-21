@@ -1,0 +1,15 @@
+/* ════════════════════════════════════════════════════════════════
+   AppBar 应用外壳头部（原样迁移自 docs/ui/netassist-app.html 行 38、44–49）
+   不迁移 .traffic（行 39–43）：保留原生窗口边框，红绿灯由系统绘制
+   ════════════════════════════════════════════════════════════════ */
+/* ── 标题栏（原型行 38）──────────────────────────────────────── */
+.titlebar { height: 46px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 14px; background: color-mix(in oklab, var(--bg) 84%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); position: relative; z-index: 30; }
+/* ── 应用标题（原型行 44–46）─────────────────────────────────── */
+.app-title { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; }
+.app-title .ic { width: 19px; height: 19px; stroke-width: 1.5; }
+.app-title .at-sub { color: var(--muted); font-weight: 400; font-size: 12px; }
+/* ── 右侧（原型行 47）────────────────────────────────────────── */
+.title-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+/* ── 全局状态胶囊（原型行 48–49；.dot 颜色类 st-idle/st-connected/st-error 见 base.css）─ */
+.global-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); padding: 4px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-warm); }
+.global-status .dot { width: 7px; height: 7px; border-radius: 50%; }
