@@ -8,6 +8,7 @@ import Sidebar from './Sidebar'
 import Welcome from '../common/Welcome'
 import TabContent from '../tab/TabContent'
 import ToastHost from '../common/Toast'
+import SettingsModal from '../settings/SettingsModal'
 import './MainLayout.css'
 
 export default function MainLayout(): JSX.Element {
@@ -57,6 +58,7 @@ export default function MainLayout(): JSX.Element {
         </main>
       </div>
       <ToastHost />
+      <SettingsModal />
     </div>
   )
 }
