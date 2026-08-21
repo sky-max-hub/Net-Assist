@@ -1295,7 +1295,7 @@ git commit -m "refactor: 连接列表按原型重写（状态点/类型图标/�
 - Consumes: `useTabStore`（quickSendItems/quickSendGroups/add/update/remove item & group）、`useUiStore`（sidebarFilter/showToast/quickSendModalOpen/closeQuickSendModal/openQuickSendModal）、`filterCommands`、`Icon`、`Modal`、`CrPreservingEditor`、`onSend` prop。
 - Produces: `QuickSendPanel({ onSend })` 渲染 `.sb-section`（快捷指令）：`.sb-head`（+分组 folder、+指令 plus）；`.cmd-groups`（每组 `.cmd-group-head` chev+folder+名称+`.count`，展开 `.cmd-list` 的 `.cmd-row` 名称+hover 发送/编辑/删除）；指令编辑 Modal（名称 input + 内容 CodeMirror + 分组 select）；分组 Modal（名称 input）；未分组指令归入隐式"未分组"组；空态 `.sb-none`。
 
-- [ ] **Step 1: 重写 QuickSendPanel.tsx**
+- [x] **Step 1: 重写 QuickSendPanel.tsx**
 
 ```tsx
 import { useEffect, useRef, useState } from 'react'
@@ -1427,11 +1427,11 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 重写 QuickSendPanel.css** —— 从原型 `.cmd-groups`（行 124）、`.cmd-group-head`（125–129）、`.cmd-list`（130）、`.cmd-row`（131–140，含 `.cmd-preview`/`.cmd-actions`/`.play-btn`）原样迁移。删除全部 `.ant-tree-*`/`.quick-send-*` 旧规则。
+- [x] **Step 2: 重写 QuickSendPanel.css** —— 从原型 `.cmd-groups`（行 124）、`.cmd-group-head`（125–129）、`.cmd-list`（130）、`.cmd-row`（131–140，含 `.cmd-preview`/`.cmd-actions`/`.play-btn`）原样迁移。删除全部 `.ant-tree-*`/`.quick-send-*` 旧规则。
 
-- [ ] **Step 3: 验证** —— `npm run build` 通过；`npm test` 通过（`sendpanel-render` 此时仍走旧 SendPanel，无影响）。
+- [x] **Step 3: 验证** —— `npm run build` 通过；`npm test` 通过（`sendpanel-render` 此时仍走旧 SendPanel，无影响）。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/quick-send/QuickSendPanel.tsx src/renderer/src/components/quick-send/QuickSendPanel.css
