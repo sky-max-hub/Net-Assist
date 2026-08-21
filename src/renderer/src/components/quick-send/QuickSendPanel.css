@@ -1,75 +1,18 @@
-.quick-send-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid #e8e8e8;
-  overflow: hidden;
-}
-
-.quick-send-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-}
-
-.quick-send-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-}
-
-.quick-send-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 4px;
-}
-
-.quick-send-item {
-  padding: 4px 8px !important;
-}
-
-.qs-group-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  font-weight: 600;
-  font-size: 12px;
-  color: #555;
-}
-
-.qs-group-actions {
-  display: none;
-}
-
-.ant-tree-treenode:hover .qs-group-actions {
-  display: inline-flex;
-  gap: 2px;
-}
-
-.qs-item-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.qs-item-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-}
-
-.qs-item-actions {
-  display: none;
-  flex-shrink: 0;
-}
-
-.ant-tree-treenode:hover .qs-item-actions {
-  display: inline-flex;
-  gap: 2px;
-}
+/* ── 快捷指令（原型 cmd-groups 迁移） ───────────────────────── */
+.cmd-groups { display: flex; flex-direction: column; gap: 2px; }
+.cmd-group-head { display: flex; align-items: center; gap: 7px; padding: 5px 7px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--fg-2); }
+.cmd-group-head:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.cmd-group-head .chev { transition: transform var(--motion-fast) var(--ease-standard); }
+.cmd-group-head .chev.rot { transform: rotate(-90deg); }
+.cmd-group-head .count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+.cmd-list { display: flex; flex-direction: column; gap: 1px; margin-top: 1px; }
+.cmd-row { display: flex; align-items: center; gap: 7px; padding: 4px 7px 4px 27px; border-radius: 8px; cursor: pointer; font-size: 12.5px; color: var(--fg-2); }
+.cmd-row:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.cmd-row .cmd-preview { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: none; }
+.cmd-row .cmd-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd-row .cmd-actions { display: none; gap: 1px; flex: none; }
+.cmd-row:hover .cmd-actions { display: flex; }
+.cmd-row .icon-btn { width: 22px; height: 22px; }
+.cmd-row .icon-btn .ic { width: 13px; height: 13px; }
+.cmd-row .play-btn { color: var(--success); }
+.cmd-row .play-btn:hover { background: color-mix(in oklab, var(--success) 13%, transparent); }
