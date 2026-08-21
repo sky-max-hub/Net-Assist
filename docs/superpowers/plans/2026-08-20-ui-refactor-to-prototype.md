@@ -1645,7 +1645,7 @@ git commit -m "refactor: ws-header 内联配置字段渲染与连接动作 hook"
   - `MessageList({ tab })`：`.msg-area`（分屏两列 `.msg-col` 含 `.msg-col-head` 清空按钮，或合并单列），双击所在列清空，空态 `.empty-msg`，自动滚动底部。
   - `MessageItem({ message, displayMode })`：`.msg-row.{tx|rx}`，`.msg-meta`（`[时间]` →/← peer bytes 复制按钮）+ `.msg-body`。
 
-- [ ] **Step 1: 写失败测试 `fmtBody.test.tsx`**
+- [x] **Step 1: 写失败测试 `fmtBody.test.tsx`**
 
 ```tsx
 // @vitest-environment jsdom
@@ -1677,9 +1677,9 @@ describe('fmtBody 控制符可视化', () => {
 })
 ```
 
-- [ ] **Step 2: 运行确认失败。**
+- [x] **Step 2: 运行确认失败。**
 
-- [ ] **Step 3: 实现 fmtBody.tsx**
+- [x] **Step 3: 实现 fmtBody.tsx**
 
 ```tsx
 import React from 'react'
@@ -1710,9 +1710,9 @@ export function renderMessageBody(text: string, mode: 'text' | 'hex'): React.Rea
 }
 ```
 
-- [ ] **Step 4: 运行确认 PASS。**
+- [x] **Step 4: 运行确认 PASS。**
 
-- [ ] **Step 5: 重写 MessageItem.tsx**
+- [x] **Step 5: 重写 MessageItem.tsx**
 
 ```tsx
 import { useState, useCallback } from 'react'
@@ -1760,7 +1760,7 @@ export default function MessageItem({ message, displayMode }: Props): JSX.Elemen
 }
 ```
 
-- [ ] **Step 6: 重写 MessageList.tsx**
+- [x] **Step 6: 重写 MessageList.tsx**
 
 ```tsx
 import { useEffect, useRef } from 'react'
@@ -1823,11 +1823,11 @@ export default function MessageList({ tab }: Props): JSX.Element {
 }
 ```
 
-- [ ] **Step 7: 重写 MessageList.css** —— 从原型 `.msg-area`（188–198）、`.msg-row`（199–204）、`.msg-meta`（205–215）、`.msg-body`（216）、`.empty-msg`（218–219）原样迁移。删除旧 `.message-*`/`.ascii-*` 规则（`AsciiHighlighter` 仍导出但不再用于消息渲染；`countControlChars` 继续用于 ascii-hint）。
+- [x] **Step 7: 重写 MessageList.css** —— 从原型 `.msg-area`（188–198）、`.msg-row`（199–204）、`.msg-meta`（205–215）、`.msg-body`（216）、`.empty-msg`（218–219）原样迁移。删除旧 `.message-*`/`.ascii-*` 规则（`AsciiHighlighter` 仍导出但不再用于消息渲染；`countControlChars` 继续用于 ascii-hint）。
 
-- [ ] **Step 8: 验证** —— `npm test`（新增 fmtBody 用例 + 既有通过）；`npm run build` 通过。
+- [x] **Step 8: 验证** —— `npm test`（新增 fmtBody 用例 + 既有通过）；`npm run build` 通过。
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/renderer/src/components/messages/fmtBody.tsx src/renderer/src/components/messages/__tests__/fmtBody.test.tsx src/renderer/src/components/messages/MessageList.tsx src/renderer/src/components/messages/MessageItem.tsx src/renderer/src/components/messages/MessageList.css
