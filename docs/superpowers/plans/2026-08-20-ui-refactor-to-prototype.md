@@ -622,7 +622,7 @@ git commit -m "feat: 设置 Schema/默认值与 localStorage 存储纯函数"
   - 动作：`loadSettings/updateSetting/openSettings/closeSettings/saveSettings/cancelSettings/resetSettings/showToast/setSidebarCollapsed/setSidebarFilter/openQuickSendModal/closeQuickSendModal`
   - `showToast(msg)`：底部居中，1.8s 自动消失（单实例，重入重置计时器）。
 
-- [ ] **Step 1: 写失败测试 `ui-store.test.ts`**
+- [x] **Step 1: 写失败测试 `ui-store.test.ts`**
 
 ```ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -667,9 +667,9 @@ describe('ui-store', () => {
 })
 ```
 
-- [ ] **Step 2: 运行确认失败。**
+- [x] **Step 2: 运行确认失败。**
 
-- [ ] **Step 3: 实现 ui-store.ts**
+- [x] **Step 3: 实现 ui-store.ts**
 
 ```ts
 import { create } from 'zustand'
@@ -734,9 +734,9 @@ export const useUiStore = create<UiStore>((set, get) => ({
 }))
 ```
 
-- [ ] **Step 4: 运行确认 PASS。**
+- [x] **Step 4: 运行确认 PASS。**
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/store/ui-store.ts src/renderer/src/store/__tests__/ui-store.test.ts
