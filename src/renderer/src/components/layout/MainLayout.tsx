@@ -1,54 +1,34 @@
-import { useEffect, useCallback, useState, useRef } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useTabStore } from '../../store/tab-store'
+import { useUiStore } from '../../store/ui-store'
 import { useIpcListeners, useIpc } from '../../hooks/useIpc'
 import { normalizeToLf } from '../../hooks/lineEnding'
-import TabBar from '../tab/TabBar'
+import AppBar from './AppBar'
+import Sidebar from './Sidebar'
+import Welcome from '../common/Welcome'
 import TabContent from '../tab/TabContent'
-import QuickSendPanel from '../quick-send/QuickSendPanel'
+import ToastHost from '../common/Toast'
 import './MainLayout.css'
 
-const SIDEBAR_MIN = 200
-const SIDEBAR_MAX = 450
-
 export default function MainLayout(): JSX.Element {
-  const { tabs, activeTabId, loadPersistedTabs, loadQuickSend } = useTabStore()
+  const tabs = useTabStore((s) => s.tabs)
+  const activeTabId = useTabStore((s) => s.activeTabId)
+  const loadPersistedTabs = useTabStore((s) => s.loadPersistedTabs)
+  const loadQuickSend = useTabStore((s) => s.loadQuickSend)
+  const loadSettings = useUiStore((s) => s.loadSettings)
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null
   const { send } = useIpc()
-  const [sidebarWidth, setSidebarWidth] = useState(240)
-  const resizing = useRef(false)
 
   useIpcListeners()
 
   useEffect(() => {
     loadPersistedTabs()
     loadQuickSend()
+    loadSettings()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    resizing.current = true
-    const startX = e.clientX
-    const startWidth = sidebarWidth
-
-    const onMove = (ev: MouseEvent) => {
-      const delta = ev.clientX - startX
-      const w = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, startWidth + delta))
-      setSidebarWidth(w)
-    }
-    const onUp = () => {
-      resizing.current = false
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
-    }
-    document.body.style.cursor = 'col-resize'
-    document.body.style.userSelect = 'none'
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-  }, [sidebarWidth])
-
+  // 快捷指令发送：沿用既有 handleQuickSend 语义（直接编码发送）
   const handleQuickSend = useCallback(async (content: string) => {
     if (!activeTab) return
     const opts = activeTab.sendOptions
@@ -68,21 +48,15 @@ export default function MainLayout(): JSX.Element {
   }, [activeTab, send])
 
   return (
-    <div className="main-layout">
-      <aside className="sidebar" style={{ width: sidebarWidth, minWidth: sidebarWidth, maxWidth: sidebarWidth }}>
-        <TabBar />
-        <QuickSendPanel onSend={handleQuickSend} />
-      </aside>
-      <div className="sidebar-resize-handle" onMouseDown={handleMouseDown} />
-      <main className="content-area">
-        {activeTab ? (
-          <TabContent tab={activeTab} />
-        ) : (
-          <div className="content-placeholder">
-            <p>点击左侧 "+" 按钮新建连接</p>
-          </div>
-        )}
-      </main>
+    <div className="app-root">
+      <AppBar />
+      <div className="app-body">
+        <Sidebar onQuickSend={handleQuickSend} />
+        <main className="workspace">
+          {activeTab ? <TabContent tab={activeTab} /> : <Welcome />}
+        </main>
+      </div>
+      <ToastHost />
     </div>
   )
 }

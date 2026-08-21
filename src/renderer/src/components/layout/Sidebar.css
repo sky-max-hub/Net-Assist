@@ -1,0 +1,43 @@
+/* ════════════════════════════════════════════════════════════════
+   Sidebar 侧栏（搜索/折叠/rail/宽度拖拽）
+   来源：docs/ui/netassist-app.html 行 53–88、141（原样迁移，#sidebar → .sidebar）
+   ════════════════════════════════════════════════════════════════ */
+.sidebar { width: 292px; flex: none; min-width: 224px; max-width: 440px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.sb-resize { position: absolute; right: -3px; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 20; }
+.sb-resize:hover { background: color-mix(in oklab, var(--accent) 25%, transparent); }
+.sb-search { display: flex; gap: 6px; align-items: center; padding: 10px 12px 4px; }
+.search-box { position: relative; display: flex; align-items: center; flex: 1; min-width: 0; }
+.search-box .ic { position: absolute; left: 9px; width: 14px; height: 14px; color: var(--meta); pointer-events: none; }
+.search-box input { width: 100%; height: 30px; padding: 0 10px 0 30px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); font-size: 12.5px; transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.search-box input::placeholder { color: var(--muted); }
+.search-box input:hover { border-color: var(--meta); }
+.search-box input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.sb-body { flex: 1; overflow-y: auto; padding: 6px 10px 10px; }
+.sb-toggle-btn { flex: none; }
+.sb-toggle-btn .ic { transition: transform var(--motion-base) var(--ease-standard); }
+.sidebar { transition: width var(--motion-base) var(--ease-standard); }
+.sidebar.no-trans { transition: none; }
+.sidebar.collapsed { width: 52px !important; min-width: 52px; max-width: 52px; }
+.sidebar.collapsed .search-box { display: none; }
+.sidebar.collapsed .sb-search { justify-content: center; padding: 10px 0; }
+.sidebar.collapsed .sb-body, .sidebar.collapsed .sb-foot, .sidebar.collapsed .sb-resize { display: none; }
+.sidebar.collapsed .sb-toggle-btn .ic { transform: rotate(180deg); }
+.sb-rail { display: none; }
+.sidebar.collapsed .sb-rail { display: flex; flex: 1; flex-direction: column; gap: 3px; padding: 10px 8px; overflow-y: auto; }
+.rail-conn { position: relative; flex: none; width: 36px; height: 36px; margin: 0 auto; display: grid; place-items: center; border: 0; background: transparent; border-radius: 10px; color: var(--fg-2); cursor: pointer; transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
+.rail-conn:hover { background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
+.rail-conn.active { background: var(--bg); box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(0,0,0,.05); color: var(--fg); }
+.rail-conn .ic { width: 17px; height: 17px; }
+.rail-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--surface); }
+.rail-empty { color: var(--meta); font-size: 18px; text-align: center; padding-top: 8px; }
+/* rail 悬浮提示：React 条件渲染，存在即显示（原型用 style.display 切换，此处由渲染控制） */
+.rail-tip { position: fixed; z-index: 200; display: block; transform: translateY(-50%); background: var(--fg); color: var(--surface); border-radius: 10px; padding: 8px 12px; box-shadow: 0 12px 32px rgba(0,0,0,.25); min-width: 160px; pointer-events: none; }
+.rail-tip .rt-name { font-size: 12.5px; font-weight: 600; }
+.rail-tip .rt-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; opacity: .85; margin-top: 3px; font-family: var(--font-mono); }
+.rail-tip .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+/* 预留分组/区块头部（Task 9/10 重写 TabBar/QuickSendPanel 时使用） */
+.sb-section + .sb-section { margin-top: 18px; }
+.sb-head { display: flex; align-items: center; gap: 8px; padding: 2px 6px 8px; }
+.sb-head h2 { margin: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+.sb-head .sb-actions { margin-left: auto; display: flex; gap: 2px; }
+.sb-foot { flex: none; padding: 8px 16px; border-top: 1px solid var(--border-soft); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
