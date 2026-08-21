@@ -2248,7 +2248,7 @@ git commit -m "refactor: 工作区按原型组装（ws-header 内联配置/分�
 - Consumes: `useUiStore`（settingsModalOpen/settings/updateSetting/closeSettings/saveSettings/cancelSettings/resetSettings/showToast）、`SETTINGS_SCHEMA`、`Icon`。
 - Produces: `SettingsModal()`：`.modal-backdrop` + `.settings-modal`（head：设置+sub+关闭；body：`.settings-rail` 分类 + `.settings-panel` 行；foot：恢复默认/取消/保存）。`renderControl(item)` 渲染 switch/seg/select/number，`depends` 禁用；面板注记"设置仅作外观演示，暂不影响实际行为"。
 
-- [ ] **Step 1: 创建 SettingsModal.tsx**
+- [x] **Step 1: 创建 SettingsModal.tsx**
 
 ```tsx
 import { useState } from 'react'
@@ -2356,13 +2356,13 @@ export default function SettingsModal(): JSX.Element | null {
 }
 ```
 
-- [ ] **Step 2: 创建 SettingsModal.css** —— 从原型 `.settings-modal`（行 296）、`.settings-head`（297–300）、`.settings-body`（301）、`.settings-rail`（302）、`.settings-cat`（303–306）、`.settings-panel`（307）、`.set-group-title`（308）、`.set-row`（309–320）、`.settings-foot`（321–322）原样迁移。
+- [x] **Step 2: 创建 SettingsModal.css** —— 从原型 `.settings-modal`（行 296）、`.settings-head`（297–300）、`.settings-body`（301）、`.settings-rail`（302）、`.settings-cat`（303–306）、`.settings-panel`（307）、`.set-group-title`（308）、`.set-row`（309–320）、`.settings-foot`（321–322）原样迁移。
 
-- [ ] **Step 3: 挂载** —— 在 `MainLayout` 中 `import SettingsModal from '../components/settings/SettingsModal'` 并渲染 `<SettingsModal />`（与 `<ToastHost />` 并列）。
+- [x] **Step 3: 挂载** —— 在 `MainLayout` 中 `import SettingsModal from '../components/settings/SettingsModal'` 并渲染 `<SettingsModal />`（与 `<ToastHost />` 并列）。
 
-- [ ] **Step 4: 验证** —— `npm run build` 通过；`npm run dev` 打开设置→切换分类→改值→取消/恢复默认/保存→刷新后 localStorage 生效。
+- [x] **Step 4: 验证** —— `npm run build` 通过；`npm run dev` 打开设置→切换分类→改值→取消/恢复默认/保存→刷新后 localStorage 生效。
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/components/settings/SettingsModal.tsx src/renderer/src/components/settings/SettingsModal.css src/renderer/src/components/layout/MainLayout.tsx
