@@ -306,7 +306,7 @@ git commit -m "feat: 新增原型图标注册表与格式化工具"
   - `filterConnections(tabs, query): TabState[]`
   - `FilteredGroup = { group: QuickSendGroup; items: QuickSendItem[] }` 与 `filterCommands(groups, items, query): FilteredGroup[]`
 
-- [ ] **Step 1: 写失败测试 `tab-meta.test.ts`**
+- [x] **Step 1: 写失败测试 `tab-meta.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest'
@@ -362,9 +362,9 @@ describe('tab-meta 派生逻辑', () => {
 })
 ```
 
-- [ ] **Step 2: 运行确认失败** —— `npx vitest run src/renderer/src/store/__tests__/tab-meta.test.ts`。
+- [x] **Step 2: 运行确认失败** —— `npx vitest run src/renderer/src/store/__tests__/tab-meta.test.ts`。
 
-- [ ] **Step 3: 实现 tab-meta.ts**
+- [x] **Step 3: 实现 tab-meta.ts**
 
 ```ts
 import type { TabState, TabStatus, TabType, QuickSendGroup, QuickSendItem } from '../../shared/types'
@@ -433,9 +433,9 @@ export function filterCommands(groups: QuickSendGroup[], items: QuickSendItem[],
 }
 ```
 
-- [ ] **Step 4: 运行确认 PASS** —— `npx vitest run src/renderer/src/store/__tests__/tab-meta.test.ts`。
+- [x] **Step 4: 运行确认 PASS** —— `npx vitest run src/renderer/src/store/__tests__/tab-meta.test.ts`。
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/store/tab-meta.ts src/renderer/src/store/__tests__/tab-meta.test.ts
