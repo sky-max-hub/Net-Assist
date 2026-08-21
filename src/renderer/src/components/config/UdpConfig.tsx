@@ -15,7 +15,7 @@ export default function UdpConfigFields({ tab, onChange }: Props): JSX.Element {
       </span>
       <span className="cfg-field">
         <span className="cfg-label">目标</span>
-        <input className="cfg-input w-70" value={cfg.targetHost} spellCheck={false} disabled={disabled}
+        <input className="cfg-input w-ip" value={cfg.targetHost} spellCheck={false} disabled={disabled}
           onChange={(e) => onChange({ ...cfg, targetHost: e.target.value })} />
         <span className="cfg-sep" />
         <input className="cfg-input w-70" type="number" min={1} max={65535} value={cfg.targetPort || ''} disabled={disabled}

@@ -8,3 +8,7 @@
 .ws-header .spacer { flex: 1; }
 .ws-actions { display: flex; align-items: center; gap: 8px; }
 .ws-count { flex: none; font-family: var(--font-mono); font-size: 11px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+/* 状态胶囊作为连接/断开按钮：hover 高亮，连接中禁用 */
+.status-pill { cursor: pointer; }
+.status-pill:hover:not(:disabled) { border-color: var(--meta); }
+.status-pill:disabled { opacity: .6; cursor: default; }

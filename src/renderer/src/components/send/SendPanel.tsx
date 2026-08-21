@@ -3,7 +3,6 @@ import type { KeyBinding } from '@codemirror/view'
 import type { TabState, EncodingMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
-import { normalizeToLf } from '../../hooks/lineEnding'
 import { countControlChars } from '../common/AsciiHighlighter'
 import CrPreservingEditor, { type CrPreservingEditorHandle } from '../common/CrPreservingEditor'
 import { useUiStore } from '../../store/ui-store'
@@ -30,7 +29,6 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
 
   const encoding = tab.sendOptions.encoding
   const displayMode = tab.sendOptions.displayMode
-  const lfToCr = tab.sendOptions.lfToCr
   const isConnected = isLive(tab)
 
   const [input, setInput] = useState('')
@@ -43,12 +41,12 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
 
   useEffect(() => { editorRef.current?.setValue(input) }, [input])
 
-  const doSend = useCallback(async (): Promise<void> => {
-    if (!input) return
-    const textToSend = input
+  const doSend = useCallback(async (textToSend?: string): Promise<void> => {
+    const content = textToSend ?? input
+    if (!content) return
     setSending(true)
     try {
-      const finalText = lfToCr ? normalizeToLf(textToSend).replace(/\n/g, '\r') : textToSend
+      const finalText = content
       let bytes: Uint8Array
       if (encoding === 'gbk') {
         const encoded = await window.electronAPI.encoding.encodeText(finalText, 'gbk')
@@ -59,11 +57,11 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
         bytes = new TextEncoder().encode(finalText)
       }
       await send(tabId, bytes, encoding)
-      setHistory((prev) => [textToSend, ...prev])
+      setHistory((prev) => [content, ...prev])
       setHistoryIndex(-1); setDraftInput(''); setInput('')
       showToast('已发送')
     } catch (err) { console.error('send failed:', err) } finally { setSending(false) }
-  }, [input, encoding, tabId, send, lfToCr, showToast])
+  }, [input, encoding, tabId, send, showToast])
 
   const historyUp = useCallback((): void => {
     if (history.length === 0) return
@@ -91,12 +89,12 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
   const chips = quickSendItems.slice(0, quickTagsCount)
 
   const fill = (content: string): void => { setInput(content); editorRef.current?.focus() }
-  const chipSend = (content: string): void => { if (isConnected) { setInput(content); handlersRef.current.doSend() } else showToast('请先建立连接') }
+  const chipSend = (content: string): void => { if (isConnected) { doSend(content) } else showToast('请先建立连接') }
 
   const ctrlHits = countControlChars(input)
   const asciiHint = ctrlHits.length ? `ASCII: ${ctrlHits.join(', ')}` : ''
   const encLabel = ENCODINGS.find((e) => e.value === encoding)?.label ?? encoding
-  const encHint = encLabel + (lfToCr ? ' · LF→CR' : '') + (displayMode === 'hex' ? ' · HEX' : '')
+  const encHint = encLabel + (displayMode === 'hex' ? ' · HEX' : '')
 
   return (
     <div className="composer">
@@ -112,15 +110,10 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
           <button className={displayMode === 'hex' ? 'active' : ''} title="十六进制" onClick={() => updateSendOptions(tabId, { displayMode: 'hex' })}>HEX</button>
         </div>
         <div className="toolbar-sep" />
-        <label className="switch">
-          <input type="checkbox" checked={lfToCr} onChange={(e) => updateSendOptions(tabId, { lfToCr: e.target.checked })} />
-          <span className="track" />LF→CR
-        </label>
         <button className="cmp-history-btn" title="发送历史 (Ctrl+↑↓)" onClick={(e) => setHistoryMenu(menuPosition((e.currentTarget as HTMLElement).getBoundingClientRect()))}>
           <Icon name="history" size={13} />发送历史
         </button>
         <div className="spacer" />
-        <span className="ascii-hint">{asciiHint}</span>
         <button className="btn btn-secondary btn-sm tb-send" title="发送 (Ctrl+Enter)" disabled={!isConnected || !input.trim() || sending} onClick={() => doSend()}>
           <Icon name="send" size={14} />发送
         </button>
@@ -131,7 +124,8 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
           {chips.map((c) => (
             <span key={c.id} className="chip" title="点击填入发送框" onClick={() => fill(c.content)}>
               <span className="chip-name">{c.name}</span>
-              <Icon name="play" size={12} className="chip-send" />
+              <Icon name="play" size={12} className="chip-send" title="立即发送"
+                onClick={(e) => { e.stopPropagation(); chipSend(c.content) }} />
             </span>
           ))}
         </div>
@@ -148,14 +142,9 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
           onChange={setInput}
           extraKeymap={sendKeymap}
           placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送 · Ctrl+↑↓ 历史)' : '请先建立连接'}
-          disabled={!isConnected || sending}
+          disabled={sending}
           className="cmp-input"
         />
-        <div className="cmp-send-col">
-          <button className="btn-send" disabled={!isConnected || !input.trim() || sending} onClick={() => doSend()}>
-            <Icon name="send" size={16} />发送
-          </button>
-        </div>
       </div>
 
       <div className="cmp-hint">
@@ -163,14 +152,15 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
         <span><kbd>Ctrl</kbd>+<kbd>↑↓</kbd> 历史</span>
         <span>双击消息面板清空</span>
         <span className="spacer" />
+        {asciiHint && <span className="ascii-hint">{asciiHint}</span>}
         <span className="enc-hint">{encHint}</span>
       </div>
 
       {historyMenu && (
-        <Menu title="发送历史" style={historyMenu} onClose={() => setHistoryMenu(null)}>
+        <Menu style={{ ...historyMenu, maxHeight: 190 }} onClose={() => setHistoryMenu(null)}>
           {history.length === 0
             ? <div className="menu-empty">暂无历史 · Ctrl+↑↓ 回溯</div>
-            : history.slice(0, 8).map((h) => (
+            : history.slice(0, 50).map((h) => (
                 <div key={h} className="menu-item history-item" onClick={() => { fill(h); setHistoryMenu(null) }}>{h}</div>
               ))}
         </Menu>

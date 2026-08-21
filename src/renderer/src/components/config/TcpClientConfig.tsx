@@ -10,7 +10,7 @@ export default function TcpClientConfigFields({ tab, onChange }: Props): JSX.Ele
     <>
       <span className="cfg-field">
         <span className="cfg-label">主机</span>
-        <input className="cfg-input w-70" value={cfg.host} spellCheck={false} disabled={disabled}
+        <input className="cfg-input w-ip" value={cfg.host} spellCheck={false} disabled={disabled}
           onChange={(e) => onChange({ ...cfg, host: e.target.value })} />
       </span>
       <span className="cfg-field">

@@ -21,7 +21,7 @@
 }
 .cr-editor .cm-editor.cm-focused { outline: none; }
 .cr-editor .cm-scroller { overflow: auto; line-height: 1.6; }
-.cr-editor .cm-content { padding: 9px 12px; }
+.cr-editor .cm-content { padding: 9px 12px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; }
 .cr-editor .cm-placeholder { color: var(--muted); }
 /* 明显的光标：加粗 + 高对比色 */
 .cr-editor .cm-cursor { border-left-width: 2px; border-left-color: var(--accent); }

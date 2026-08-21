@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { TabState } from '../../shared/types'
+import type { TabState, TcpClientConfig, TcpServerConfig, UdpConfig } from '../../shared/types'
 import { useTabStore } from '../store/tab-store'
 import { useIpc } from './useIpc'
 import { isLive } from '../store/tab-meta'
@@ -26,8 +26,27 @@ export function useConnectionActions(tab: TabState): {
       ? '连接中…'
       : (tab.type === 'tcp-server' ? '开始监听' : tab.type === 'udp' ? '绑定' : '连接')
 
+  // 连接前校验配置：端口/主机无效时不发起连接，避免连到非法端口被拒绝
+  const configValid = ((): boolean => {
+    if (tab.type === 'tcp-client') {
+      const c = tab.config as TcpClientConfig
+      return c.host.trim() !== '' && c.port >= 1 && c.port <= 65535
+    }
+    if (tab.type === 'tcp-server') {
+      const c = tab.config as TcpServerConfig
+      return c.port >= 1 && c.port <= 65535
+    }
+    const c = tab.config as UdpConfig
+    return c.localPort >= 1 && c.localPort <= 65535 &&
+      c.targetHost.trim() !== '' && c.targetPort >= 1 && c.targetPort <= 65535
+  })()
+
   const handleToggle = useCallback(async (): Promise<void> => {
     if (connecting) return
+    if (!live && !configValid) {
+      useUiStore.getState().showToast('连接配置无效，请检查主机/端口')
+      return
+    }
     setLoading(true)
     try {
       if (live) {

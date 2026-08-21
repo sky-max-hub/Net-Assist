@@ -2,8 +2,6 @@ import { useEffect, useCallback } from 'react'
 import { useTabStore } from '../../store/tab-store'
 import { useUiStore } from '../../store/ui-store'
 import { useIpcListeners, useIpc } from '../../hooks/useIpc'
-import { normalizeToLf } from '../../hooks/lineEnding'
-import AppBar from './AppBar'
 import Sidebar from './Sidebar'
 import Welcome from '../common/Welcome'
 import TabContent from '../tab/TabContent'
@@ -33,8 +31,7 @@ export default function MainLayout(): JSX.Element {
   const handleQuickSend = useCallback(async (content: string) => {
     if (!activeTab) return
     const opts = activeTab.sendOptions
-    // lfToCr 时先归一化再转换，避免 CRLF 双重转换；否则原样发送（保留 CR/CRLF）
-    const finalText = opts.lfToCr ? normalizeToLf(content).replace(/\n/g, '\r') : content
+    const finalText = content
 
     let bytes: Uint8Array
     if (opts.encoding === 'gbk') {
@@ -50,7 +47,6 @@ export default function MainLayout(): JSX.Element {
 
   return (
     <div className="app-root">
-      <AppBar />
       <div className="app-body">
         <Sidebar onQuickSend={handleQuickSend} />
         <main className="workspace">

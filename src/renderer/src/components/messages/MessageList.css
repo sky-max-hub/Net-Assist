@@ -1,9 +1,9 @@
 /* ── 消息区（原型 msg-area/msg-row 迁移） ───────────────────── */
 .msg-area { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; background: var(--bg); }
-.msg-area.split { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
-.msg-col { min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+.msg-area.split { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr); overflow: hidden; }
+.msg-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
 .msg-col + .msg-col { border-left: 1px solid var(--border-soft); }
-.msg-col-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 5px 14px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border-soft); background: var(--surface-warm); }
+.msg-col-head { flex: none; position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 5px 14px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border-soft); background: var(--surface-warm); }
 .msg-col-head .mch-label { display: flex; align-items: center; gap: 6px; }
 .msg-col-head .mch-count { font-family: var(--font-mono); font-weight: 400; }
 .msg-col-head .spacer { flex: 1; }

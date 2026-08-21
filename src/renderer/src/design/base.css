@@ -48,6 +48,7 @@
 .cfg-input:disabled { background: var(--surface); color: var(--meta); cursor: not-allowed; }
 .cfg-input.w-70 { width: 72px; }
 .cfg-input.w-60 { width: 62px; }
+.cfg-input.w-ip { width: 140px; }
 .cfg-select { height: 28px; padding: 0 24px 0 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; color: var(--fg); font-size: 12.5px; appearance: none; -webkit-appearance: none; cursor: pointer; }
 /* ── 状态胶囊（原型行 181–185）──────────────────────────────── */
 .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); padding: 3px 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); white-space: nowrap; }
@@ -109,4 +110,15 @@
   *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
   .status-dot.pulse { animation: none !important; }
 }
-@media (max-width: 920px) { body { overflow: auto; } .app-root { height: auto; min-height: 100vh; } .app-body { flex-direction: column; } .sidebar { width: 100% !important; max-width: none; min-width: 0; max-height: 42vh; border-right: 0; border-bottom: 1px solid var(--border); } .sb-resize { display: none; } .sidebar.collapsed { width: 100% !important; max-width: none; } .sidebar.collapsed .sb-rail { display: none; } .sidebar.collapsed .search-box { display: block; } .sidebar.collapsed .sb-search { justify-content: flex-start; padding: 10px 12px 4px; } .workspace { min-height: 58vh; } .mode-grid { grid-template-columns: 1fr; } .msg-area.split { grid-template-columns: 1fr; } .msg-area.split .msg-col + .msg-col { border-left: 0; border-top: 1px solid var(--border-soft); } }
+@media (max-width: 920px) {
+  body { overflow: hidden; }
+  /* 小屏保持视口锁定高度，内部滚动（不整页滚动）；折叠侧栏为左侧窄 rail（52px），工作区在右 */
+  .app-root { height: 100%; }
+  .app-body { flex-direction: row; }
+  .sidebar { max-width: 320px; }
+  .sb-resize { display: none; }
+  .workspace { min-width: 0; }
+  .mode-grid { grid-template-columns: 1fr; }
+  .msg-area.split { grid-template-columns: 1fr; }
+  .msg-area.split .msg-col + .msg-col { border-left: 0; border-top: 1px solid var(--border-soft); }
+}

@@ -4,4 +4,5 @@
    （.app-root 定义见 design/tokens.css；滚动条等全局样式亦在 tokens.css）
    ════════════════════════════════════════════════════════════════ */
 .app-body { flex: 1; display: flex; min-height: 0; }
-.workspace { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+/* min-height: 0 使 workspace 可被 app-body 高度约束，msg-area 才能高度受限并滚动 */
+.workspace { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }

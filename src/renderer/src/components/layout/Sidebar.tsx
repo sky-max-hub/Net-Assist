@@ -29,6 +29,7 @@ export default function Sidebar({ onQuickSend }: Props): JSX.Element {
   const collapsed = useUiStore((s) => s.sidebarCollapsed)
   const setCollapsed = useUiStore((s) => s.setSidebarCollapsed)
   const setFilter = useUiStore((s) => s.setSidebarFilter)
+  const openSettings = useUiStore((s) => s.openSettings)
   const [width, setWidth] = useState(292)
   const asideRef = useRef<HTMLElement>(null)
   const moveRef = useRef<((ev: MouseEvent) => void) | null>(null)
@@ -123,7 +124,10 @@ export default function Sidebar({ onQuickSend }: Props): JSX.Element {
         <TabBar />
         <QuickSendPanel onSend={onQuickSend} />
       </div>
-      <div className="sb-foot"><span>NetAssist v2.0</span></div>
+      <div className="sb-foot">
+        <span>NetAssist v2.0</span>
+        <button className="icon-btn" title="设置" aria-label="设置" onClick={openSettings}><Icon name="sliders" /></button>
+      </div>
       {railTip && (
         <div className="rail-tip" style={{ left: railTip.left, top: railTip.top }}>
           <div className="rt-name">{railTip.name}</div>

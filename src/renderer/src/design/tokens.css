@@ -28,4 +28,6 @@ input, select, textarea { font: inherit; }
 ::-webkit-scrollbar-track { background: transparent; }
 :focus { outline: none; }
 :focus-visible { box-shadow: var(--focus-ring); }
+/* #root 需固定高度，否则 .app-root 的 height:100% 解析到 auto，容器随内容增长而非锁定视口 */
+#root { height: 100%; }
 .app-root { display: flex; flex-direction: column; height: 100%; min-height: 100vh; }

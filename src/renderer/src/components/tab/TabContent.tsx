@@ -20,7 +20,7 @@ export default function TabContent({ tab }: Props): JSX.Element {
   const updateSendOptions = useTabStore((s) => s.updateSendOptions)
   const clients = useServerClients(tab.id)
   const [target, setTarget] = useState<string>('broadcast')
-  const { live, connecting, actionLabel, loading, handleToggle } = useConnectionActions(tab)
+  const { live, connecting, loading, handleToggle } = useConnectionActions(tab)
 
   const onConfigChange = (config: TabConfig): void => setTabConfig(tab.id, config)
   const onTargetChange = async (clientId: string | null): Promise<void> => {
@@ -45,14 +45,14 @@ export default function TabContent({ tab }: Props): JSX.Element {
           {tab.type === 'tcp-server' && <TcpServerConfigFields tab={tab} clients={clients} target={target} onTargetChange={onTargetChange} onChange={onConfigChange} />}
           {tab.type === 'udp' && <UdpConfigFields tab={tab} onChange={onConfigChange} />}
         </div>
-        <span className={`status-pill${live ? ' sp-success' : tab.status === 'connecting' ? ' sp-warn' : tab.status === 'error' ? ' sp-error' : ''}`}>
+        <button className={`status-pill${live ? ' sp-success' : tab.status === 'connecting' ? ' sp-warn' : tab.status === 'error' ? ' sp-error' : ''}`}
+          disabled={connecting || loading}
+          title={live ? '断开连接' : '连接'}
+          onClick={() => handleToggle()}>
           <span className={`status-dot ${sm.cls}${sm.pulse ? ' pulse' : ''}`} />{statusLabelFor(tab, clients.length)}
-        </span>
+        </button>
         <div className="spacer" />
         <div className="ws-actions">
-          <button className={`btn btn-sm${live ? ' btn-danger' : ' btn-dark'}`} disabled={connecting || loading} onClick={() => handleToggle()}>
-            {actionLabel}
-          </button>
           <button className="btn btn-secondary btn-sm" onClick={() => updateSendOptions(tab.id, { splitView: !split })}>
             <Icon name={split ? 'merge' : 'split'} size={14} /><span className="lbl">{split ? '合并' : '分屏'}</span>
           </button>

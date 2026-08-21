@@ -7,8 +7,9 @@ import React, {
 } from 'react'
 import { EditorView, keymap, placeholder, type KeyBinding } from '@codemirror/view'
 import { EditorState, StateEffect, type Extension } from '@codemirror/state'
-import { defaultKeymap, history } from '@codemirror/commands'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { detectLineEnding, normalizeToLf } from '../../hooks/lineEnding'
+import { controlCharMarkers } from './controlChars'
 import './CrPreservingEditor.css'
 
 function sepFor(value: string): string {
@@ -68,8 +69,24 @@ const CrPreservingEditor = forwardRef<CrPreservingEditorHandle, Props>(
       return [
         history(),
         EditorState.lineSeparator.of(sep),
-        // 自定义快捷键（Mod+Enter 发送等）须排在 defaultKeymap 之前，否则被默认绑定覆盖
-        keymap.of([...(keymapRef.current ?? []), ...defaultKeymap]),
+        controlCharMarkers(),
+        // 自定义快捷键（Mod+Enter 发送等）须排在 defaultKeymap 之前，否则被默认绑定覆盖；
+        // historyKeymap（Mod-z/Mod-y/Mod-Shift-z 撤销/重做）置最前，确保撤销/还原可用
+        keymap.of([...historyKeymap, ...(keymapRef.current ?? []), ...defaultKeymap]),
+        // 粘贴时若内容为 CR/CRLF 且与当前 lineSeparator 不同，先重配使 CR 作为换行渲染
+        // （返回 false 让 CodeMirror 默认粘贴继续，插入时按新 lineSeparator 切分）
+        EditorView.domEventHandlers({
+          paste: (event, view) => {
+            const text = event.clipboardData?.getData('text')
+            if (text) {
+              const newSep = sepFor(text)
+              if (newSep !== currentSep(view)) {
+                view.dispatch({ effects: [StateEffect.reconfigure.of(buildExtensions(newSep))] })
+              }
+            }
+            return false
+          }
+        }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             // sliceDoc 保留 insert 时的原始换行字符，输出 CRLF/CR
@@ -102,6 +119,15 @@ const CrPreservingEditor = forwardRef<CrPreservingEditorHandle, Props>(
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    // disabled 变化时重新配置 readOnly（CodeMirror 扩展不自动响应 props 变化，
+    // 否则连接后 disabled 变 false 编辑器仍保持只读，无法输入/粘贴/编辑）
+    useEffect(() => {
+      const view = viewRef.current
+      if (!view) return
+      view.dispatch({ effects: [StateEffect.reconfigure.of(buildExtensions(currentSep(view)))] })
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [disabled])
 
     useImperativeHandle(
       ref,

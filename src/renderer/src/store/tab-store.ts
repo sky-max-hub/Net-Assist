@@ -87,11 +87,11 @@ function generateMessageId(): string {
 function defaultConfig(type: TabType): TabConfig {
   switch (type) {
     case 'tcp-client':
-      return { host: '127.0.0.1', port: 0 } as TcpClientConfig
+      return { host: '127.0.0.1', port: 2001 } as TcpClientConfig
     case 'tcp-server':
-      return { port: 0 } as TcpServerConfig
+      return { port: 2001 } as TcpServerConfig
     case 'udp':
-      return { localPort: 0, targetHost: '127.0.0.1', targetPort: 0 } as UdpConfig
+      return { localPort: 9000, targetHost: '127.0.0.1', targetPort: 2001 } as UdpConfig
   }
 }
 

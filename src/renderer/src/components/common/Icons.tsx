@@ -30,13 +30,13 @@ const PATHS: Record<IconName, React.ReactNode> = {
   'chevron-left': (<path d="M15 6l-6 6 6 6" />)
 }
 
-interface IconProps { name: IconName; size?: number; className?: string; style?: React.CSSProperties }
+interface IconProps { name: IconName; size?: number; className?: string; style?: React.CSSProperties; onClick?: React.MouseEventHandler<SVGSVGElement> }
 
-export default function Icon({ name, size = 16, className, style }: IconProps): JSX.Element {
+export default function Icon({ name, size = 16, className, style, onClick }: IconProps): JSX.Element {
   return (
     <svg className={className ?? 'ic'} width={size} height={size} viewBox="0 0 24 24"
       fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round"
-      strokeLinejoin="round" style={style} aria-hidden="true">
+      strokeLinejoin="round" style={style} onClick={onClick} aria-hidden="true">
       {PATHS[name]}
     </svg>
   )

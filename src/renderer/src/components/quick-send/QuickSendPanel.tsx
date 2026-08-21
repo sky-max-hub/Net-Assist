@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTabStore } from '../../store/tab-store'
 import { useUiStore } from '../../store/ui-store'
 import { filterCommands } from '../../store/tab-meta'
+import { renderInlineControls } from '../messages/fmtBody'
 import Icon from '../common/Icons'
 import Modal from '../common/Modal'
 import CrPreservingEditor, { type CrPreservingEditorHandle } from '../common/CrPreservingEditor'
@@ -67,7 +68,7 @@ export default function QuickSendPanel({ onSend }: Props): JSX.Element {
                 onClick={() => onSend(c.content)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSend(c.content) } }}>
                 <span className="cmd-name">{c.name}</span>
-                <span className="cmd-preview">{c.content.replace(/[\r\n]/g, ' ')}</span>
+                <span className="cmd-preview">{renderInlineControls(c.content)}</span>
                 <span className="cmd-actions">
                   <button className="icon-btn play-btn" title="发送" aria-label="发送" onClick={(e) => { e.stopPropagation(); onSend(c.content) }}><Icon name="play" size={13} /></button>
                   <button className="icon-btn" title="编辑" aria-label="编辑" onClick={(e) => { e.stopPropagation(); openEdit(c) }}><Icon name="pencil" size={13} /></button>

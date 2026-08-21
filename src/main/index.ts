@@ -32,6 +32,18 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // 开发者模式：自动打开 DevTools，并注册右键"检查元素"上下文菜单
+  // （应用菜单已移除，默认的右键 Inspect 不可用，故手动补充）
+  if (is.dev) {
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    mainWindow.webContents.on('context-menu', (_event, params) => {
+      Menu.buildFromTemplate([
+        { label: '检查元素', click: () => mainWindow.webContents.inspectElement(params.x, params.y) },
+        { label: '重新加载', click: () => mainWindow.webContents.reload() }
+      ]).popup({ window: mainWindow })
+    })
+  }
+
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
