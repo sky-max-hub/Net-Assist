@@ -150,3 +150,14 @@ store/ui-store.ts                    新增：settings 数据、toast 队列、�
 | CodeMirror 与 textarea 视觉差异 | CSS 套 `.cmp-input` 外观；行为以 CR 保留为优先 |
 | 设置壳不生效可能误导 | spec 明确"不驱动行为"；面板可加注记文案 |
 | ws-header 内联配置空间变窄 | 原型 flex-wrap + `.cfg-input.w-70/.w-60` 宽度规范 |
+
+## Implementation Divergence
+
+实现阶段按用户确认的迭代调整，与 Design Doc 早期描述存在以下偏差（delta spec 已同步，见 `openspec/changes/ui-refactor-to-prototype/specs/`）：
+
+- 顶部标题栏（AppBar）与全局状态指示已移除，设置入口移至侧栏底部 `sb-foot`（与版本号并排）。原 §4「应用外壳」的 AppBar/全局状态设计不再适用。
+- ws-header 连接/断开按钮移除，功能合并进状态胶囊（`status-pill` 点击切换连接/断开，含配置校验与 toast）。
+- LF→CR（`sendOptions.lfToCr`）功能移除；历史数据字段保留但不再解析/使用。
+- 发送框与编辑指令框（cm-editor）的控制字符（CR/LF/TAB/NUL 等）以 `<X>` 标记显示（`controlCharMarkers` 扩展 + `fmtBody`），仅影响显示，发送保持原始字节。
+- 默认连接配置端口从 0 改为原型值（TCP Client/Server 2001、UDP local 9000→target 2001）；连接前增加配置校验。
+- 小屏（≤920px）响应式改为视口锁定 + 内部滚动（不再整页滚动、上下堆叠）。
