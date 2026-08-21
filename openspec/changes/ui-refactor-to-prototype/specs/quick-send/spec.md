@@ -1,4 +1,8 @@
-## MODIFIED Requirements
+## Purpose
+
+快捷指令管理：常用指令按分组可折叠列表展示与一键发送，发送区以 chip 提供立即发送，并支持发送历史菜单。
+
+## ADDED Requirements
 
 ### Requirement: 快捷发送
 系统 SHALL 支持用户预设常用指令列表，一键发送。指令按分组展示为可折叠列表，并以 chip 形式在发送区提供立即发送；发送历史以菜单形式展示。

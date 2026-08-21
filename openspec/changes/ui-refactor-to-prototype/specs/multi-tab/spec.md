@@ -1,4 +1,8 @@
-## MODIFIED Requirements
+## Purpose
+
+多 Tab 连接管理：每个标签独立管理一个 TCP Client、TCP Server 或 UDP 连接，连接列表按原型展示与交互（状态点/类型图标/搜索/折叠导轨/拖拽排序/重命名/悬停关闭）。
+
+## ADDED Requirements
 
 ### Requirement: 多 Tab 管理
 系统 SHALL 支持多 Tab 同时运行，每个 Tab 独立管理一个 TCP Client、TCP Server 或 UDP 连接。连接列表按原型展示：状态点、类型胶囊（TC/TS/UD）、标题；支持搜索过滤、折叠为图标导轨、拖拽排序、双击重命名、悬停关闭。
