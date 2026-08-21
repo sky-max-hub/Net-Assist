@@ -1,5 +1,1 @@
-.config-panel {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
-}
+/* 配置字段样式由 design/base.css 的 .cfg-* 提供，本文件留空。 */

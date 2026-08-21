@@ -1,103 +1,23 @@
-import { useState, useCallback } from 'react'
-import { Form, Input, Button, InputNumber, Space, Tag } from 'antd'
-import { ApiOutlined, DisconnectOutlined } from '@ant-design/icons'
-import type { TcpClientConfig as TcpClientConfigType } from '../../../shared/types'
-import type { TabState } from '../../../shared/types'
-import { useTabStore } from '../../store/tab-store'
-import { useIpc } from '../../hooks/useIpc'
-import './TcpClientConfig.css'
+import type { TabState, TcpClientConfig as TcpClientConfigType } from '../../../shared/types'
+import { isLive } from '../../store/tab-meta'
 
-interface Props {
-  tab: TabState
-}
+interface Props { tab: TabState; onChange: (config: TcpClientConfigType) => void }
 
-export default function TcpClientConfigPanel({ tab }: Props): JSX.Element {
-  const { setTabConfig, updateTabStatus } = useTabStore()
-  const { connect, disconnect } = useIpc()
-  const [host, setHost] = useState(
-    (tab.config as TcpClientConfigType).host || '127.0.0.1'
-  )
-  const [port, setPort] = useState<number | null>((tab.config as TcpClientConfigType).port || null)
-  const [loading, setLoading] = useState(false)
-
-  const isConnected = tab.status === 'connected'
-  const isConnecting = tab.status === 'connecting'
-
-  const handleConnect = useCallback(async (): Promise<void> => {
-    if (port === null || port <= 0) return
-    const config: TcpClientConfigType = { host: host.trim() || '127.0.0.1', port }
-    setTabConfig(tab.id, config)
-    setLoading(true)
-    try {
-      await connect(tab.id, 'tcp-client', config)
-    } catch (err) {
-      console.error('connect failed:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [host, port, tab.id, connect, setTabConfig])
-
-  const handleDisconnect = useCallback(async (): Promise<void> => {
-    setLoading(true)
-    updateTabStatus(tab.id, 'idle')
-    try {
-      await disconnect(tab.id)
-    } catch (err) {
-      console.error('disconnect failed:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [tab.id, disconnect, updateTabStatus])
-
-  const statusColor: Record<string, string> = {
-    idle: 'default',
-    connecting: 'processing',
-    connected: 'success',
-    error: 'error'
-  }
-  const statusLabel: Record<string, string> = {
-    idle: '未连接',
-    connecting: '连接中...',
-    connected: '已连接',
-    error: '错误'
-  }
-
+export default function TcpClientConfigFields({ tab, onChange }: Props): JSX.Element {
+  const cfg = tab.config as TcpClientConfigType
+  const disabled = isLive(tab)
   return (
-    <div className="config-panel">
-      <Space wrap>
-        <Input
-          placeholder="127.0.0.1"
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
-          disabled={isConnected || isConnecting}
-          style={{ width: 180 }}
-        />
-        <InputNumber
-          placeholder="端口"
-          value={port}
-          onChange={(v) => setPort(v)}
-          min={1}
-          max={65535}
-          disabled={isConnected || isConnecting}
-          style={{ width: 100 }}
-        />
-        {isConnected || isConnecting ? (
-          <Button danger icon={<DisconnectOutlined />} onClick={handleDisconnect} loading={isConnecting}>
-            断开
-          </Button>
-        ) : (
-          <Button
-            type="primary"
-            icon={<ApiOutlined />}
-            onClick={handleConnect}
-            loading={loading}
-            disabled={port === null || port <= 0}
-          >
-            连接
-          </Button>
-        )}
-        <Tag color={statusColor[tab.status] || 'default'}>{statusLabel[tab.status] || tab.status}</Tag>
-      </Space>
-    </div>
+    <>
+      <span className="cfg-field">
+        <span className="cfg-label">主机</span>
+        <input className="cfg-input w-70" value={cfg.host} spellCheck={false} disabled={disabled}
+          onChange={(e) => onChange({ ...cfg, host: e.target.value })} />
+      </span>
+      <span className="cfg-field">
+        <span className="cfg-label">端口</span>
+        <input className="cfg-input w-70" type="number" min={1} max={65535} value={cfg.port || ''} disabled={disabled}
+          onChange={(e) => { const v = parseInt(e.target.value, 10); if (Number.isFinite(v) && v >= 1 && v <= 65535) onChange({ ...cfg, port: v }) }} />
+      </span>
+    </>
   )
 }
