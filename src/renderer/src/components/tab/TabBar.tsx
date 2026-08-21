@@ -1,174 +1,106 @@
-import { useState, useRef } from 'react'
-import { Button, Dropdown, Input } from 'antd'
-import { PlusOutlined, CloseOutlined } from '@ant-design/icons'
-import type { MenuProps } from 'antd'
+import React, { useState } from 'react'
 import type { TabType } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
+import { useUiStore } from '../../store/ui-store'
+import { TYPE_META, STATUS_META, filterConnections } from '../../store/tab-meta'
+import Icon, { type IconName } from '../common/Icons'
+import Menu, { menuPosition } from '../common/Menu'
 import './TabBar.css'
 
-const tabTypeLabels: Record<TabType, string> = {
-  'tcp-client': 'TCP Client',
-  'tcp-server': 'TCP Server',
-  udp: 'UDP'
-}
-
-const statusColors: Record<string, string> = {
-  idle: '#999',
-  connecting: '#faad14',
-  connected: '#52c41a',
-  listening: '#52c41a',
-  error: '#ff4d4f'
-}
-
-const tabTypeConfig: Record<TabType, { label: string; color: string }> = {
-  'tcp-client': { label: 'TC', color: '#52c41a' },
-  'tcp-server': { label: 'TS', color: '#1890ff' },
-  udp: { label: 'UD', color: '#fa8c16' }
-}
+const NEW_TAB_ITEMS: { type: TabType; icon: IconName; title: string; desc: string }[] = [
+  { type: 'tcp-client', icon: 'client', title: 'TCP Client', desc: '连接远程主机' },
+  { type: 'tcp-server', icon: 'server', title: 'TCP Server', desc: '本地监听服务' },
+  { type: 'udp', icon: 'udp', title: 'UDP', desc: '无连接定向收发' }
+]
 
 export default function TabBar(): JSX.Element {
   const { tabs, activeTabId, createTab, closeTab, reorderTabs, setActiveTab } = useTabStore()
   const { disconnect } = useIpc()
-  const [editTabId, setEditTabId] = useState<string | null>(null)
-  const [editTitle, setEditTitle] = useState('')
-  const [dragIndex, setDragIndex] = useState<number | null>(null)
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
-  const draggedRef = useRef(false)
+  const filter = useUiStore((s) => s.sidebarFilter)
+  const [newMenu, setNewMenu] = useState<React.CSSProperties | null>(null)
+  const [renameId, setRenameId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
 
-  const handleCloseTab = async (tabId: string): Promise<void> => {
-    try { await disconnect(tabId) } catch { /* force close */ }
-    closeTab(tabId)
-  }
+  const visible = filterConnections(tabs, filter)
 
-  const newTabItems: MenuProps['items'] = (
-    Object.entries(tabTypeLabels) as [TabType, string][]
-  ).map(([type, label]) => ({
-    key: type,
-    label,
-    onClick: () => createTab(type)
-  }))
+  const handleClose = async (id: string): Promise<void> => { try { await disconnect(id) } catch { /* 强制关闭 */ } closeTab(id) }
 
-  const handleDoubleClick = (tabId: string, currentTitle: string): void => {
-    setEditTabId(tabId)
-    setEditTitle(currentTitle)
-  }
-
-  const handleTitleSave = (): void => {
-    if (editTabId && editTitle.trim()) {
-      useTabStore.getState().updateTabTitle(editTabId, editTitle.trim())
-    }
-    setEditTabId(null)
-    setEditTitle('')
-  }
-
-  const handleDragStart = (e: React.DragEvent, index: number): void => {
-    setDragIndex(index)
-    draggedRef.current = false
-    e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', String(index))
-  }
-
-  const handleDragOver = (e: React.DragEvent, index: number): void => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-    setDragOverIndex(index)
-  }
-
-  const handleDrop = (e: React.DragEvent, index: number): void => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (dragIndex !== null && dragIndex !== index) {
-      reorderTabs(dragIndex, index)
-      draggedRef.current = true
-    }
-    setDragIndex(null)
-    setDragOverIndex(null)
-  }
-
-  const handleDragEnd = (): void => {
-    setDragIndex(null)
-    setDragOverIndex(null)
-  }
-
-  const handleItemClick = (tabId: string): void => {
-    // 拖拽结束后抑制 click，避免切换标签
-    if (draggedRef.current) {
-      draggedRef.current = false
-      return
-    }
-    setActiveTab(tabId)
+  const commitRename = (): void => {
+    if (renameId && renameValue.trim()) useTabStore.getState().updateTabTitle(renameId, renameValue.trim())
+    setRenameId(null)
   }
 
   return (
-    <div className="tab-bar">
-      <div className="tab-bar-header">
-        <span className="tab-bar-title">连接列表</span>
-        <Dropdown menu={{ items: newTabItems }} trigger={['click']}>
-          <Button type="text" size="small" icon={<PlusOutlined />} />
-        </Dropdown>
+    <section className="sb-section">
+      <div className="sb-head">
+        <h2>连接列表</h2>
+        <div className="sb-actions">
+          <button className="icon-btn" title="新建连接" aria-label="新建连接"
+            onClick={(e) => setNewMenu(menuPosition((e.currentTarget as HTMLElement).getBoundingClientRect()))}>
+            <Icon name="plus" />
+          </button>
+        </div>
       </div>
-      <div className="tab-list">
-        {tabs.map((tab, index) => (
-          <div
-            key={tab.id}
-            className={`tab-item ${tab.id === activeTabId ? 'active' : ''} ${dragOverIndex === index && dragIndex !== index ? 'drag-over' : ''}`}
-            onClick={() => handleItemClick(tab.id)}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDrop={(e) => handleDrop(e, index)}
-            onDragEnd={handleDragEnd}
-          >
-            <span
-              className="tab-status-dot"
-              style={{ backgroundColor: statusColors[tab.status] || '#999' }}
-            />
-            <span className="tab-type-tag" title={tabTypeLabels[tab.type]} style={{
-              background: tabTypeConfig[tab.type].color,
-              color: '#fff',
-              fontSize: 10,
-              fontWeight: 700,
-              padding: '1px 5px',
-              borderRadius: 3,
-              flexShrink: 0,
-              lineHeight: '16px',
-              letterSpacing: 0.5
-            }}>
-              {tabTypeConfig[tab.type].label}
-            </span>
-            {editTabId === tab.id ? (
-              <Input
-                size="small"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                onBlur={handleTitleSave}
-                onPressEnter={handleTitleSave}
-                autoFocus
-                onClick={(e) => e.stopPropagation()}
-                className="tab-title-input"
-              />
-            ) : (
-              <span
-                className="tab-label"
-                onDoubleClick={() => handleDoubleClick(tab.id, tab.title)}
-              >
-                {tab.title}
-              </span>
-            )}
-            <Button
-              type="text"
-              size="small"
-              icon={<CloseOutlined />}
-              onClick={(e) => {
-                e.stopPropagation()
-                handleCloseTab(tab.id)
+      <div className="conn-list">
+        {visible.length === 0 ? (
+          <div className="sb-none">没有匹配的连接</div>
+        ) : visible.map((tab) => {
+          const sm = STATUS_META[tab.status]
+          const tm = TYPE_META[tab.type]
+          return (
+            <div key={tab.id}
+              className={`conn-row${tab.id === activeTabId ? ' active' : ''}${dragOverId === tab.id && dragId !== tab.id ? ' drag-over' : ''}`}
+              draggable tabIndex={0} title={`${tm.label} · ${sm.label}`}
+              onClick={() => setActiveTab(tab.id)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(tab.id) } }}
+              onDragStart={(e) => { setDragId(tab.id); e.dataTransfer.effectAllowed = 'move' }}
+              onDragOver={(e) => { e.preventDefault(); setDragOverId(tab.id) }}
+              onDrop={(e) => {
+                e.preventDefault()
+                if (dragId && dragId !== tab.id) {
+                  const from = tabs.findIndex((t) => t.id === dragId)
+                  const to = tabs.findIndex((t) => t.id === tab.id)
+                  if (from > -1 && to > -1) reorderTabs(from, to)
+                }
+                setDragId(null); setDragOverId(null)
               }}
-              className="tab-close-btn"
-            />
-          </div>
-        ))}
+              onDragEnd={() => { setDragId(null); setDragOverId(null) }}>
+              <span className={`status-dot ${sm.cls}${sm.pulse ? ' pulse' : ''}`} />
+              <Icon name={tm.icon} size={15} className={`conn-type-icon ct-${tm.tag.toLowerCase()}`} />
+              {renameId === tab.id ? (
+                <input className="conn-name renaming" autoFocus value={renameValue}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  onBlur={commitRename}
+                  onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); if (e.key === 'Escape') { setRenameValue(tab.title); (e.target as HTMLInputElement).blur() } }}
+                  onClick={(e) => e.stopPropagation()} />
+              ) : (
+                <span className="conn-name" onDoubleClick={(e) => { e.stopPropagation(); setRenameId(tab.id); setRenameValue(tab.title) }}>{tab.title}</span>
+              )}
+              <button className="icon-btn conn-close" title="关闭并断开" aria-label="关闭"
+                onClick={(e) => { e.stopPropagation(); handleClose(tab.id) }}>
+                <Icon name="x" />
+              </button>
+            </div>
+          )
+        })}
       </div>
-    </div>
+      {newMenu && (
+        <Menu title="新建连接" style={newMenu} onClose={() => setNewMenu(null)}>
+          {NEW_TAB_ITEMS.map((it) => (
+            <div key={it.type} className="menu-item" onClick={() => {
+              const id = createTab(it.type)
+              if (id) useUiStore.getState().showToast(`已创建 ${TYPE_META[it.type].label}`)
+              setNewMenu(null)
+            }}>
+              <span className="mi-icon"><Icon name={it.icon} /></span>
+              <span className="mi-text"><span className="mi-title">{it.title}</span><br /><span className="mi-desc">{it.desc}</span></span>
+            </div>
+          ))}
+        </Menu>
+      )}
+    </section>
   )
 }
