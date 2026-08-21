@@ -2383,20 +2383,20 @@ git commit -m "feat: 设置壳（5 分类/localStorage/取消回滚/恢复默认
 **Interfaces:**
 - 约束：渲染层不得再出现 `from 'antd'` / `from '@ant-design/icons'`。
 
-- [ ] **Step 1: 全局扫描并清除**
+- [x] **Step 1: 全局扫描并清除**
 
 ```bash
 grep -rn "from 'antd'\|@ant-design/icons" src/renderer/src
 ```
 预期在 Task 1–16 完成后输出为空；若有残留逐文件替换为手写组件。删除 `EncodingSelector.tsx`、`HexEditor.tsx`、`HexEditor.css`、`WhitespaceRenderer.tsx`（均无引用）。
 
-- [ ] **Step 2: 移除依赖** —— 从 `package.json` `dependencies` 删除 `"antd"` 与 `"@ant-design/icons"` 两行；运行 `npm install`（或 `pnpm install`）更新锁文件。
+- [x] **Step 2: 移除依赖** —— 从 `package.json` `dependencies` 删除 `"antd"` 与 `"@ant-design/icons"` 两行；运行 `npm install`（或 `pnpm install`）更新锁文件。
 
-- [ ] **Step 3: 全量测试** —— `npm test`，期望：既有渲染层用例（sendpanel-render、CrPreservingEditor、paste-flow、lineEnding、tab-store）与新增用例（Icons/format/tab-meta/settings-schema/ui-store/fmtBody）全部 PASS；`src/main/connections/tcp-client-connection.test.ts` 的既有失败保持原样（src/main 只读，不在本 change 范围），确认无新增失败。
+- [x] **Step 3: 全量测试** —— `npm test`，期望：既有渲染层用例（sendpanel-render、CrPreservingEditor、paste-flow、lineEnding、tab-store）与新增用例（Icons/format/tab-meta/settings-schema/ui-store/fmtBody）全部 PASS；`src/main/connections/tcp-client-connection.test.ts` 的既有失败保持原样（src/main 只读，不在本 change 范围），确认无新增失败。
 
-- [ ] **Step 4: 构建** —— `npm run build`，期望 electron-vite 三端全部构建成功。
+- [x] **Step 4: 构建** —— `npm run build`，期望 electron-vite 三端全部构建成功。
 
-- [ ] **Step 5: 手动验收（对应 tasks.md 7.3 场景）** —— `npm run dev` 逐项核对：
+- [x] **Step 5: 手动验收（对应 tasks.md 7.3 场景）** —— `npm run dev` 逐项核对：
   1. 欢迎页显示三模式卡片，点击 TCP Client 进入工作区，标题/图标/消息数正确；
   2. ws-header 内联配置字段可编辑、连接中禁用；连接→断开有 toast 提示；
   3. 发送文本（含 `\r\n`）后 TX 消息出现，`<CR>`/`<LF>` 控制符可视化；接收 RX 列着色正确；
@@ -2409,7 +2409,7 @@ grep -rn "from 'antd'\|@ant-design/icons" src/renderer/src
   10. 小屏 920px 自动折叠；`prefers-reduced-motion` 下动效关闭；
   11. 状态胶囊：全空闲→"空闲"，连接中→"N 个连接活跃"，error→"N 个连接异常"。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/renderer/src package.json
