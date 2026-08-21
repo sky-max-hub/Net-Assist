@@ -457,7 +457,7 @@ git commit -m "feat: 状态/类型元数据与派生纯函数（全局状态、�
   - `SETTINGS_SCHEMA: SettingsCategory[]`（结构：category → groups → items{type,key,label,desc?,min?,max?,depends?,options?}）
   - `loadSettingsFromStorage(): Settings`、`saveSettingsToStorage(s: Settings): void`
 
-- [ ] **Step 1: 写失败测试 `settings-schema.test.ts`**
+- [x] **Step 1: 写失败测试 `settings-schema.test.ts`**
 
 ```ts
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -493,9 +493,9 @@ describe('settings-schema', () => {
 })
 ```
 
-- [ ] **Step 2: 运行确认失败。**
+- [x] **Step 2: 运行确认失败。**
 
-- [ ] **Step 3: 实现 settings-schema.ts** —— 数据逐字取自原型：`SETTINGS_DEFAULTS`（行 1340–1346）、`SETTINGS_SCHEMA`（行 1347–1403）。类型定义与存储函数：
+- [x] **Step 3: 实现 settings-schema.ts** —— 数据逐字取自原型：`SETTINGS_DEFAULTS`（行 1340–1346）、`SETTINGS_SCHEMA`（行 1347–1403）。类型定义与存储函数：
 
 ```ts
 export type Settings = Record<string, string | number | boolean>
@@ -598,9 +598,9 @@ export function loadSettingsFromStorage(): Settings {
 }
 ```
 
-- [ ] **Step 4: 运行确认 PASS。**
+- [x] **Step 4: 运行确认 PASS。**
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/store/settings-schema.ts src/renderer/src/store/__tests__/settings-schema.test.ts
