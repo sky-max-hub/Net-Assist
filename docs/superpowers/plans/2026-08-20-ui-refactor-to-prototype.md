@@ -98,16 +98,16 @@ src/renderer/src/components/send/__tests__/sendpanel-render.test.tsx  更新 pro
 **Interfaces:**
 - Produces: 全局 CSS 变量 `--bg/--surface/--fg/--muted/--border/--accent/--success/--warn/--danger/--radius-*/--motion-*/--ease-standard/--focus-ring/--shadow-pop/--shadow-modal/--scrim` 与全局基元类 `.btn`/`.cfg-*`/`.switch`/`.seg`/`.chip`/`.icon-btn`/`.status-dot`/`.st-*`/`.menu`/`.modal`/`.toast`/`.ctrl`/`.sb-none`。后续所有组件样式引用 `var(--*)` 与这些基元类。
 
-- [ ] **Step 1: 创建 tokens.css** —— 从原型 `netassist-app.html` 第 10–33 行拷贝 `:root` 令牌块与全局 reset：
+- [x] **Step 1: 创建 tokens.css** —— 从原型 `netassist-app.html` 第 10–33 行拷贝 `:root` 令牌块与全局 reset：
   - 第 10 行 `:root { ... }`（含 `--font-body` 中文栈的第 12 行覆盖）原样拷贝。
   - 第 13–20 行（`--tl-*`、`--shadow-pop`、`--shadow-modal`、`--scrim`）原样拷贝（`.traffic` 不用，但令牌保留供 modal/toast 投影使用）。
   - 第 21–33 行全局 reset 原样迁移，唯一改动：`#app { display:flex; ... }` → `.app-root { display:flex; flex-direction:column; height:100%; min-height:100vh; }`。
 
-- [ ] **Step 2: 创建 base.css** —— 按下列原型行号把共享基元类原样迁移（类名与内容逐字一致）：
+- [x] **Step 2: 创建 base.css** —— 按下列原型行号把共享基元类原样迁移（类名与内容逐字一致）：
   - `.ic`（行 36）、`.icon-btn`（89–93）、`.status-dot`/`.pulse`/`@keyframes pulse`/`.st-idle/.st-connecting/.st-connected/.st-listening/.st-bound/.st-error`（101–107）、`.sb-none`（142）、`.btn` 及 `.btn-primary/.btn-dark/.btn-danger/.btn-secondary/.btn-ghost/.btn-sm`（153–169）、`.cfg-sep/.cfg-field/.cfg-label/.cfg-input/.cfg-input.w-70/.cfg-input.w-60/.cfg-select`（171–180）、`.status-pill` 及 `.sp-success/.sp-warn/.sp-error`（181–185）、`.seg`（232–235）、`.switch`（236–241）、`.toolbar-sep`（242）、`.ctrl`（217）、`.chip`/`.chip-name`/`.chip-send`（251–254）、`.menu/.menu-title/.menu-item/.menu-item .mi-*/.menu-item.history-item/.menu-empty`（271–281）、`.modal-backdrop/.modal/.modal h3/.modal-sub/.field/.input/.textarea/.modal-select/.modal-actions`（283–293）、`.toast/.toast.show`（343–344）。
   - 追加 `@media (prefers-reduced-motion: reduce)`（346–349）与 `@media (max-width: 920px)`（350 行）两块响应式，改宿主：`#app`→`.app-root`、`#sidebar`→`.sidebar`。
 
-- [ ] **Step 3: main.tsx 挂载并去掉 ConfigProvider**
+- [x] **Step 3: main.tsx 挂载并去掉 ConfigProvider**
 
 ```tsx
 import React from 'react'
@@ -123,11 +123,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 )
 ```
 
-- [ ] **Step 4: index.html 标题对齐** —— `<title>NetAssist · 网络调试助手</title>`（当前为 `NetAssist`）。
+- [x] **Step 4: index.html 标题对齐** —— `<title>NetAssist · 网络调试助手</title>`（当前为 `NetAssist`）。
 
-- [ ] **Step 5: 验证** —— 运行 `npm test`，期望既有渲染层用例全部通过（antd 组件无 ConfigProvider 仍可用，无行为变化）。
+- [x] **Step 5: 验证** —— 运行 `npm test`，期望既有渲染层用例全部通过（antd 组件无 ConfigProvider 仍可用，无行为变化）。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/renderer/src/design src/renderer/src/main.tsx src/renderer/index.html
