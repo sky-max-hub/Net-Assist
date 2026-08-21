@@ -1457,7 +1457,7 @@ git commit -m "refactor: 快捷指令按原型重写（分组折叠/hover 操作
   - `useServerClients(tabId)` → `ClientInfo[]`
   - `TcpClientConfigFields({ tab, onChange })`、`TcpServerConfigFields({ tab, clients, target, onTargetChange, onChange })`、`UdpConfigFields({ tab, onChange })`：渲染 `.cfg-field` 内联字段，live 时 disabled；`onChange(config)` 由 TabContent 调 `setTabConfig`。
 
-- [ ] **Step 1: 创建 useConnectionActions.ts**
+- [x] **Step 1: 创建 useConnectionActions.ts**
 
 ```ts
 import { useState, useCallback } from 'react'
@@ -1505,7 +1505,7 @@ export function useConnectionActions(tab: TabState) {
 }
 ```
 
-- [ ] **Step 2: 创建 useServerClients.ts**
+- [x] **Step 2: 创建 useServerClients.ts**
 
 ```ts
 import { useState, useEffect } from 'react'
@@ -1522,7 +1522,7 @@ export function useServerClients(tabId: string): ClientInfo[] {
 }
 ```
 
-- [ ] **Step 3: 重写三个 config 组件为字段渲染**
+- [x] **Step 3: 重写三个 config 组件为字段渲染**
 
 ```tsx
 // TcpClientConfig.tsx
@@ -1618,9 +1618,9 @@ export default function UdpConfigFields({ tab, onChange }: Props): JSX.Element {
 ```
 清空 `TcpClientConfig.css`（字段样式来自 base.css `.cfg-*`）。
 
-- [ ] **Step 4: 验证** —— `npm run build` 通过（TabContent 尚未接线新字段，编译期验证导出签名）。
+- [x] **Step 4: 验证** —— `npm run build` 通过（TabContent 尚未接线新字段，编译期验证导出签名）。
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/renderer/src/hooks/useConnectionActions.ts src/renderer/src/hooks/useServerClients.ts src/renderer/src/components/config/
