@@ -1,45 +1,31 @@
+/* CodeMirror 编辑器外观（对齐原型 .cmp-input；通过 className 覆盖） */
 .cr-editor {
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
   overflow: hidden;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 13px;
-  min-height: 132px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  min-height: 72px;
+  max-height: 150px;
+  transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
-
+.cr-editor:hover { border-color: var(--meta); }
+.cr-editor:focus-within { border-color: var(--accent); box-shadow: var(--focus-ring); }
 .cr-editor .cm-editor {
   height: 100%;
-  background: #fff;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 13px;
-  color: #333;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg);
 }
-
-.cr-editor .cm-editor.cm-focused {
-  outline: none;
-}
-
-.cr-editor .cm-scroller {
-  overflow: auto;
-  line-height: 1.6;
-}
-
-.cr-editor .cm-content {
-  padding: 6px 8px;
-}
-
-.cr-editor .cm-placeholder {
-  color: #bbb;
-}
-
+.cr-editor .cm-editor.cm-focused { outline: none; }
+.cr-editor .cm-scroller { overflow: auto; line-height: 1.6; }
+.cr-editor .cm-content { padding: 9px 12px; }
+.cr-editor .cm-placeholder { color: var(--muted); }
 /* 明显的光标：加粗 + 高对比色 */
-.cr-editor .cm-cursor {
-  border-left-width: 2px;
-  border-left-color: #1890ff;
-}
-
+.cr-editor .cm-cursor { border-left-width: 2px; border-left-color: var(--accent); }
 .cr-editor .cm-selectionBackground,
-.cr-editor .cm-focused .cm-selectionBackground {
-  background: rgba(24, 144, 255, 0.15);
-}
+.cr-editor .cm-focused .cm-selectionBackground { background: color-mix(in oklab, var(--accent) 15%, transparent); }
+/* 只读（disabled）灰化 */
+.cr-editor .cm-content[contenteditable="false"] { opacity: 0.55; }

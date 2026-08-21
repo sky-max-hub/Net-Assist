@@ -1,93 +1,79 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import type { KeyBinding } from '@codemirror/view'
-import { Button, Space, Switch } from 'antd'
-import { SendOutlined, ClearOutlined, ColumnWidthOutlined, MergeCellsOutlined } from '@ant-design/icons'
-import type { EncodingMode, DisplayMode } from '../../../shared/types'
+import type { TabState } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
 import { normalizeToLf } from '../../hooks/lineEnding'
 import { countControlChars } from '../common/AsciiHighlighter'
 import CrPreservingEditor, { type CrPreservingEditorHandle } from '../common/CrPreservingEditor'
-import EncodingSelector from '../encoding/EncodingSelector'
+import { useUiStore } from '../../store/ui-store'
+import { isLive } from '../../store/tab-meta'
+import Icon from '../common/Icons'
+import Menu, { menuPosition } from '../common/Menu'
 import './SendPanel.css'
 
-interface Props {
-  tabId: string
-  splitView?: boolean
-  onToggleSplit?: () => void
-}
+const ENCODINGS = ['ASCII', 'UTF-8', 'GBK'] as const
 
-export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): JSX.Element {
+export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
+  const tabId = tab.id
+  const updateSendOptions = useTabStore((s) => s.updateSendOptions)
+  const quickSendItems = useTabStore((s) => s.quickSendItems)
+  const quickTagsCount = (useUiStore((s) => s.settings.quickTagsCount) as number) || 5
+  const showToast = useUiStore((s) => s.showToast)
+  const openQuickSendModal = useUiStore((s) => s.openQuickSendModal)
+  const { send } = useIpc()
+
+  const encoding = tab.sendOptions.encoding
+  const displayMode = tab.sendOptions.displayMode
+  const lfToCr = tab.sendOptions.lfToCr
+  const isConnected = isLive(tab)
+
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [history, setHistory] = useState<string[]>([])
-  const [historyIndex, setHistoryIndex] = useState<number>(-1)
-  const [draftInput, setDraftInput] = useState<string>('')
-  const { send } = useIpc()
-  const tab = useTabStore((s) => s.tabs.find((t) => t.id === tabId))
-  const quickSendItems = useTabStore((s) => s.quickSendItems)
-  const updateSendOptions = useTabStore((s) => s.updateSendOptions)
-  const encoding = tab?.sendOptions.encoding ?? 'utf-8'
-  const displayMode = tab?.sendOptions.displayMode ?? 'text'
-  const lfToCr = tab?.sendOptions.lfToCr ?? true
-  const isConnected = tab?.status === 'connected' || tab?.status === 'listening'
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [draftInput, setDraftInput] = useState('')
+  const [historyMenu, setHistoryMenu] = useState<React.CSSProperties | null>(null)
+  const editorRef = useRef<CrPreservingEditorHandle>(null)
+
+  useEffect(() => { editorRef.current?.setValue(input) }, [input])
 
   const doSend = useCallback(async (): Promise<void> => {
     if (!input) return
     const textToSend = input
     setSending(true)
     try {
-      const encoder = new TextEncoder()
-      let bytes: Uint8Array
-      // lfToCr 时先归一化再转换，避免 CRLF 双重转换；否则按原样发送（保留粘贴/编辑的 CR/CRLF）
       const finalText = lfToCr ? normalizeToLf(textToSend).replace(/\n/g, '\r') : textToSend
+      let bytes: Uint8Array
       if (encoding === 'gbk') {
         const encoded = await window.electronAPI.encoding.encodeText(finalText, 'gbk')
         bytes = new Uint8Array(encoded)
-      } else if (encoding === 'utf-8') {
-        bytes = encoder.encode(finalText)
       } else if (encoding === 'ascii') {
         bytes = new Uint8Array(finalText.split('').map((c) => c.charCodeAt(0) & 0x7f))
       } else {
-        bytes = encoder.encode(finalText)
+        bytes = new TextEncoder().encode(finalText)
       }
       await send(tabId, bytes, encoding)
       setHistory((prev) => [textToSend, ...prev])
-      setHistoryIndex(-1)
-      setDraftInput('')
-      setInput('')
-    } catch (err) {
-      console.error('send failed:', err)
-    } finally {
-      setSending(false)
-    }
-  }, [input, encoding, tabId, send, lfToCr])
+      setHistoryIndex(-1); setDraftInput(''); setInput('')
+      showToast('已发送')
+    } catch (err) { console.error('send failed:', err) } finally { setSending(false) }
+  }, [input, encoding, tabId, send, lfToCr, showToast])
 
   const historyUp = useCallback((): void => {
     if (history.length === 0) return
-    if (historyIndex === -1) {
-      setDraftInput(input)
-    }
-    const newIndex = Math.min(historyIndex + 1, history.length - 1)
-    setHistoryIndex(newIndex)
-    setInput(history[newIndex])
+    if (historyIndex === -1) setDraftInput(input)
+    const idx = Math.min(historyIndex + 1, history.length - 1)
+    setHistoryIndex(idx)
+    setInput(history[idx])
   }, [history, historyIndex, input])
 
   const historyDown = useCallback((): void => {
     if (history.length === 0) return
-    if (historyIndex <= 0) {
-      setHistoryIndex(-1)
-      setInput(draftInput)
-      setDraftInput('')
-      return
-    }
-    const newIndex = historyIndex - 1
-    setHistoryIndex(newIndex)
-    setInput(history[newIndex])
+    if (historyIndex <= 0) { setHistoryIndex(-1); setInput(draftInput); setDraftInput('') }
+    else { const idx = historyIndex - 1; setHistoryIndex(idx); setInput(history[idx]) }
   }, [history, historyIndex, draftInput])
 
-  // CodeMirror keymap 只在首次挂载时创建，闭包固定。
-  // 用 ref 转发最新 handler，避免 keymap 捕获过期闭包导致快捷键无响应。
   const handlersRef = useRef({ doSend, historyUp, historyDown })
   handlersRef.current = { doSend, historyUp, historyDown }
 
@@ -97,78 +83,92 @@ export default function SendPanel({ tabId, splitView, onToggleSplit }: Props): J
     { key: 'Mod-ArrowDown', run: () => { handlersRef.current.historyDown(); return true } }
   ], [])
 
-  // 编辑器实例：外部设置内容（历史切换/清空/快捷填充）时同步
-  const editorRef = useRef<CrPreservingEditorHandle>(null)
-  useEffect(() => {
-    editorRef.current?.setValue(input)
-  }, [input])
+  const chips = quickSendItems.slice(0, quickTagsCount)
 
-  const ctrlChars = countControlChars(input)
+  const fill = (content: string): void => { setInput(content); editorRef.current?.focus() }
+  const chipSend = (content: string): void => { if (isConnected) { setInput(content); handlersRef.current.doSend() } else showToast('请先建立连接') }
 
-  const handleQuickTag = useCallback((content: string) => {
-    setInput(content)
-  }, [])
+  const ctrlHits = countControlChars(input)
+  const asciiHint = ctrlHits.length ? `ASCII: ${ctrlHits.join(', ')}` : ''
+  const encHint = encoding + (lfToCr ? ' · LF→CR' : '') + (displayMode === 'hex' ? ' · HEX' : '')
 
   return (
-    <div className="send-panel">
-      <div className="send-toolbar">
-        <Space wrap size="small">
-          <EncodingSelector value={encoding} onChange={(v) => updateSendOptions(tabId, { encoding: v })} />
-          <Button size="small" onClick={() => updateSendOptions(tabId, { displayMode: displayMode === 'text' ? 'hex' : 'text' })}>
-            {displayMode === 'text' ? 'TXT' : 'HEX'}
-          </Button>
-          <span className="send-option">
-            <Switch
-              checked={lfToCr}
-              onChange={(v) => updateSendOptions(tabId, { lfToCr: v })}
-              size="small"
-            />
-            <span className="send-option-label">LF转CR</span>
-          </span>
-        </Space>
-        {onToggleSplit && (
-          <Button type="text" size="small"
-            icon={splitView ? <MergeCellsOutlined /> : <ColumnWidthOutlined />}
-            onClick={onToggleSplit}>
-            {splitView ? '合并' : '分开'}
-          </Button>
-        )}
+    <div className="composer">
+      <div className="cmp-toolbar">
+        <div className="seg" role="group" aria-label="编码">
+          {ENCODINGS.map((e) => (
+            <button key={e} className={encoding === e ? 'active' : ''} onClick={() => updateSendOptions(tabId, { encoding: e })}>{e}</button>
+          ))}
+        </div>
+        <div className="toolbar-sep" />
+        <div className="seg" role="group" aria-label="显示格式">
+          <button className={displayMode === 'text' ? 'active' : ''} title="文本" onClick={() => updateSendOptions(tabId, { displayMode: 'text' })}>TXT</button>
+          <button className={displayMode === 'hex' ? 'active' : ''} title="十六进制" onClick={() => updateSendOptions(tabId, { displayMode: 'hex' })}>HEX</button>
+        </div>
+        <div className="toolbar-sep" />
+        <label className="switch">
+          <input type="checkbox" checked={lfToCr} onChange={(e) => updateSendOptions(tabId, { lfToCr: e.target.checked })} />
+          <span className="track" />LF→CR
+        </label>
+        <button className="cmp-history-btn" title="发送历史 (Ctrl+↑↓)" onClick={(e) => setHistoryMenu(menuPosition((e.currentTarget as HTMLElement).getBoundingClientRect()))}>
+          <Icon name="history" size={13} />发送历史
+        </button>
+        <div className="spacer" />
+        <span className="ascii-hint">{asciiHint}</span>
+        <button className="btn btn-secondary btn-sm tb-send" title="发送 (Ctrl+Enter)" disabled={!isConnected || !input.trim() || sending} onClick={() => doSend()}>
+          <Icon name="send" size={14} />发送
+        </button>
       </div>
-      {quickSendItems.length > 0 && (
-        <div className="send-quick-tags">
-          {quickSendItems.map((item) => (
-            <span key={item.id} className="send-quick-tag" title={item.content}
-              onClick={() => handleQuickTag(item.content)}>
-              {item.name}
+
+      {chips.length > 0 ? (
+        <div className="cmp-chips">
+          {chips.map((c) => (
+            <span key={c.id} className="chip" title="点击填入发送框" onClick={() => fill(c.content)}>
+              <span className="chip-name">{c.name}</span>
+              <Icon name="play" size={12} className="chip-send" />
             </span>
           ))}
         </div>
+      ) : (
+        <div className="cmp-chips">
+          <span className="chip" onClick={openQuickSendModal}>+ 添加快捷指令</span>
+        </div>
       )}
-      <div className="send-input-area" onClick={() => editorRef.current?.focus()}>
+
+      <div className="cmp-row">
         <CrPreservingEditor
           ref={editorRef}
           initialValue={input}
           onChange={setInput}
           extraKeymap={sendKeymap}
-          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送, Ctrl+↑↓ 历史)' : '请先建立连接'}
+          placeholder={isConnected ? '输入要发送的内容 (Ctrl+Enter 发送 · Ctrl+↑↓ 历史)' : '请先建立连接'}
           disabled={!isConnected || sending}
+          className="cmp-input"
         />
+        <div className="cmp-send-col">
+          <button className="btn-send" disabled={!isConnected || !input.trim() || sending} onClick={() => doSend()}>
+            <Icon name="send" size={16} />发送
+          </button>
+        </div>
       </div>
-      <div className="send-actions">
-        <Space>
-          <Button type="primary" icon={<SendOutlined />} onClick={doSend} loading={sending} disabled={!isConnected || !input.trim()}>
-            发送
-          </Button>
-          <Button icon={<ClearOutlined />} onClick={() => setInput('')} disabled={!input}>
-            清空
-          </Button>
-        </Space>
-        <span className="send-hint">
-          {ctrlChars.length > 0
-            ? `ASCII: ${ctrlChars.join(', ')}`
-            : 'Ctrl+Enter 发送'}
-        </span>
+
+      <div className="cmp-hint">
+        <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 发送</span>
+        <span><kbd>Ctrl</kbd>+<kbd>↑↓</kbd> 历史</span>
+        <span>双击消息面板清空</span>
+        <span className="spacer" />
+        <span className="enc-hint">{encHint}</span>
       </div>
+
+      {historyMenu && (
+        <Menu title="发送历史" style={historyMenu} onClose={() => setHistoryMenu(null)}>
+          {history.length === 0
+            ? <div className="menu-empty">暂无历史 · Ctrl+↑↓ 回溯</div>
+            : history.slice(0, 8).map((h) => (
+                <div key={h} className="menu-item history-item" onClick={() => { fill(h); setHistoryMenu(null) }}>{h}</div>
+              ))}
+        </Menu>
+      )}
     </div>
   )
 }
