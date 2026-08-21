@@ -1846,7 +1846,7 @@ git commit -m "refactor: 消息区按原型重写（分屏/控制符可视化/�
 - Consumes: `TabState`、`isLive`、`fmtBytes`、`fmtDur`。
 - Produces: `StatsBar({ tab })`：`.stats` 条（发送/接收/发送速率/接收速率/消息/会话时长）。数据由 `tab.messages` 派生（按方向求和 bytes + 计数），速率与时长用 1s 采样窗口（本地 state）。
 
-- [ ] **Step 1: 重写 StatsBar.tsx**
+- [x] **Step 1: 重写 StatsBar.tsx**
 
 ```tsx
 import { useEffect, useState } from 'react'
@@ -1889,11 +1889,11 @@ export default function StatsBar({ tab }: { tab: TabState }): JSX.Element {
 }
 ```
 
-- [ ] **Step 2: 重写 StatsBar.css** —— 从原型 `.stats`（221–228）原样迁移。删除旧 `.stats-bar` 规则。
+- [x] **Step 2: 重写 StatsBar.css** —— 从原型 `.stats`（221–228）原样迁移。删除旧 `.stats-bar` 规则。
 
-- [ ] **Step 3: 验证** —— `npm run build` 通过。
+- [x] **Step 3: 验证** —— `npm run build` 通过。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/renderer/src/components/stats/StatsBar.tsx src/renderer/src/components/stats/StatsBar.css
