@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import type { KeyBinding } from '@codemirror/view'
-import type { TabState } from '../../../shared/types'
+import type { TabState, EncodingMode } from '../../../shared/types'
 import { useTabStore } from '../../store/tab-store'
 import { useIpc } from '../../hooks/useIpc'
 import { normalizeToLf } from '../../hooks/lineEnding'
@@ -12,7 +12,12 @@ import Icon from '../common/Icons'
 import Menu, { menuPosition } from '../common/Menu'
 import './SendPanel.css'
 
-const ENCODINGS = ['ASCII', 'UTF-8', 'GBK'] as const
+// 显示标签大写，存储值用小写 EncodingMode（与 IPC/主进程约定一致）
+const ENCODINGS: { label: string; value: EncodingMode }[] = [
+  { label: 'ASCII', value: 'ascii' },
+  { label: 'UTF-8', value: 'utf-8' },
+  { label: 'GBK', value: 'gbk' }
+]
 
 export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
   const tabId = tab.id
@@ -90,14 +95,15 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
 
   const ctrlHits = countControlChars(input)
   const asciiHint = ctrlHits.length ? `ASCII: ${ctrlHits.join(', ')}` : ''
-  const encHint = encoding + (lfToCr ? ' · LF→CR' : '') + (displayMode === 'hex' ? ' · HEX' : '')
+  const encLabel = ENCODINGS.find((e) => e.value === encoding)?.label ?? encoding
+  const encHint = encLabel + (lfToCr ? ' · LF→CR' : '') + (displayMode === 'hex' ? ' · HEX' : '')
 
   return (
     <div className="composer">
       <div className="cmp-toolbar">
         <div className="seg" role="group" aria-label="编码">
           {ENCODINGS.map((e) => (
-            <button key={e} className={encoding === e ? 'active' : ''} onClick={() => updateSendOptions(tabId, { encoding: e })}>{e}</button>
+            <button key={e.value} className={encoding === e.value ? 'active' : ''} onClick={() => updateSendOptions(tabId, { encoding: e.value })}>{e.label}</button>
           ))}
         </div>
         <div className="toolbar-sep" />
