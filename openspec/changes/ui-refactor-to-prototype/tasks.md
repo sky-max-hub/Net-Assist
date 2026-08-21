@@ -1,7 +1,7 @@
 ## 1. 设计系统基础
 
 - [x] 1.1 从原型 `:root` 迁移设计令牌为 `src/renderer/src/design/tokens.css`（颜色/字体栈/圆角/投影/动效/滚动条/focus），挂载到渲染层全局入口
-- [ ] 1.2 实现 `components/common/Icons.tsx`（原型 `#i-*` 全部线性图标），替换渲染层 `@ant-design/icons` 使用点
+- [x] 1.2 实现 `components/common/Icons.tsx`（原型 `#i-*` 全部线性图标），替换渲染层 `@ant-design/icons` 使用点
 - [ ] 1.3 重建全局基元样式（.btn/.cfg-input/.cfg-select/.switch/.seg/.chip 等，以原型 CSS 为源）
 
 ## 2. 应用外壳

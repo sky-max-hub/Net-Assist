@@ -150,7 +150,7 @@ git commit -m "feat: 迁移原型设计令牌与全局基元样式，渲染层�
   - `fmtBytes(n: number): string`、`formatTime(ts: number): string`（`HH:mm:ss.mmm`）、`fmtDur(seconds: number): string`（`m:ss` / `h:mm:ss`）。
 - Consumes: 无（纯静态）。
 
-- [ ] **Step 1: 写失败测试 `Icons.test.tsx`**
+- [x] **Step 1: 写失败测试 `Icons.test.tsx`**
 
 ```tsx
 // @vitest-environment jsdom
@@ -179,9 +179,9 @@ describe('Icons', () => {
 })
 ```
 
-- [ ] **Step 2: 运行确认失败** —— `npx vitest run src/renderer/src/components/common/__tests__/Icons.test.tsx`，期望 FAIL（模块不存在）。
+- [x] **Step 2: 运行确认失败** —— `npx vitest run src/renderer/src/components/common/__tests__/Icons.test.tsx`，期望 FAIL（模块不存在）。
 
-- [ ] **Step 3: 实现 Icons.tsx** —— path 数据逐字取自原型 `<symbol>`（行 355–376，均为 24×24 viewBox）：
+- [x] **Step 3: 实现 Icons.tsx** —— path 数据逐字取自原型 `<symbol>`（行 355–376，均为 24×24 viewBox）：
 
 ```tsx
 import React from 'react'
@@ -229,7 +229,7 @@ export default function Icon({ name, size = 16, className, style }: IconProps): 
 }
 ```
 
-- [ ] **Step 4: 写失败测试 `format.test.ts`**
+- [x] **Step 4: 写失败测试 `format.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest'
@@ -253,7 +253,7 @@ describe('format 工具', () => {
 })
 ```
 
-- [ ] **Step 5: 实现 format.ts**
+- [x] **Step 5: 实现 format.ts**
 
 ```ts
 export function fmtBytes(n: number): string {
@@ -278,9 +278,9 @@ export function fmtDur(seconds: number): string {
 }
 ```
 
-- [ ] **Step 6: 运行两个测试确认 PASS** —— `npx vitest run src/renderer/src/components/common/__tests__/Icons.test.tsx src/renderer/src/components/common/__tests__/format.test.ts`。
+- [x] **Step 6: 运行两个测试确认 PASS** —— `npx vitest run src/renderer/src/components/common/__tests__/Icons.test.tsx src/renderer/src/components/common/__tests__/format.test.ts`。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/renderer/src/components/common/Icons.tsx src/renderer/src/components/common/format.ts src/renderer/src/components/common/__tests__/
