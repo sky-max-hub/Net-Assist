@@ -26,10 +26,10 @@
 
 ## 5. 发送区
 
-- [ ] 5.1 编码分段（ASCII/UTF-8/GBK）+ HEX 分段（TXT/HEX）+ LF→CR 开关（原型 seg/switch）
-- [ ] 5.2 发送历史菜单（下拉列表，点击填入输入框），保留 Ctrl+↑↓ 历史切换
-- [ ] 5.3 chips 行（快捷指令标签 + 立即发送图标）
-- [ ] 5.4 发送输入区 + ascii-hint + 提示行（保留 CodeMirror CR 保留编辑器与粘贴保留）
+- [x] 5.1 编码分段（ASCII/UTF-8/GBK）+ HEX 分段（TXT/HEX）+ LF→CR 开关（原型 seg/switch）
+- [x] 5.2 发送历史菜单（下拉列表，点击填入输入框），保留 Ctrl+↑↓ 历史切换
+- [x] 5.3 chips 行（快捷指令标签 + 立即发送图标）
+- [x] 5.4 发送输入区 + ascii-hint + 提示行（保留 CodeMirror CR 保留编辑器与粘贴保留）
 
 ## 6. 弹层与设置壳
 

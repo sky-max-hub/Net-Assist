@@ -1914,7 +1914,7 @@ git commit -m "refactor: 统计条按原型重写并派生自消息数据"
 - Consumes: `TabState`、`useTabStore`（updateSendOptions/quickSendItems）、`useIpc.send`、`normalizeToLf`、`countControlChars`、`CrPreservingEditor`、`Icon`、`Menu/menuPosition`、`useUiStore`（settings.quickTagsCount/showToast/openQuickSendModal）。
 - Produces: `SendPanel({ tab })`：`.composer`（编码 seg + HEX seg + LF→CR switch + 发送历史按钮 + spacer + ascii-hint + tb-send；chips；CrPreservingEditor 输入 + 右侧发送按钮；hint 行）。保留 `doSend` 编码分支、Ctrl+Enter/Ctrl+↑↓ 历史、历史菜单（点击填入）。
 
-- [ ] **Step 1: 更新 `sendpanel-render.test.tsx`** —— props 由 `tabId` 改为 `tab`，断言仍为 `.cm-content`：
+- [x] **Step 1: 更新 `sendpanel-render.test.tsx`** —— props 由 `tabId` 改为 `tab`，断言仍为 `.cm-content`：
 
 ```tsx
 // @vitest-environment jsdom
@@ -1949,7 +1949,7 @@ describe('SendPanel 渲染（防白屏回归）', () => {
 })
 ```
 
-- [ ] **Step 2: 重写 SendPanel.tsx**
+- [x] **Step 2: 重写 SendPanel.tsx**
 
 ```tsx
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
@@ -2129,13 +2129,13 @@ export default function SendPanel({ tab }: { tab: TabState }): JSX.Element {
 ```
 > 说明：chip 点击填入输入框（原型行为）；立即发送通过 QuickSendPanel 的 play 按钮/指令行实现（原型 `chip-send` 为增强项，如需保留可将图标单独包一层 onClick 调用 `chipSend`）。
 
-- [ ] **Step 3: 重写 SendPanel.css** —— 从原型 `.composer`（行 230）、`.cmp-toolbar`（231）、`.cmp-history-btn`（244–246）、`.tb-send`（247–249）、`.cmp-chips`（250）、`.cmp-row`（255）、`.cmp-input`（256–259）、`.cmp-send-col`（260）、`.btn-send`（261–265）、`.cmp-hint`（266–269）原样迁移。
+- [x] **Step 3: 重写 SendPanel.css** —— 从原型 `.composer`（行 230）、`.cmp-toolbar`（231）、`.cmp-history-btn`（244–246）、`.tb-send`（247–249）、`.cmp-chips`（250）、`.cmp-row`（255）、`.cmp-input`（256–259）、`.cmp-send-col`（260）、`.btn-send`（261–265）、`.cmp-hint`（266–269）原样迁移。
 
-- [ ] **Step 4: 更新 CrPreservingEditor.css** —— 使 CodeMirror 外观贴合 `.cmp-input`：白底、1px `var(--border)`、`border-radius: 10px`、`var(--font-mono)` 12.5px、`min-height:72px; max-height:150px`、focus 时 `border-color: var(--accent)` + `var(--focus-ring)`、disabled 灰化。保留 `.cm-cursor`/`.cm-selectionBackground` 但颜色改用 `var(--accent)`。
+- [x] **Step 4: 更新 CrPreservingEditor.css** —— 使 CodeMirror 外观贴合 `.cmp-input`：白底、1px `var(--border)`、`border-radius: 10px`、`var(--font-mono)` 12.5px、`min-height:72px; max-height:150px`、focus 时 `border-color: var(--accent)` + `var(--focus-ring)`、disabled 灰化。保留 `.cm-cursor`/`.cm-selectionBackground` 但颜色改用 `var(--accent)`。
 
-- [ ] **Step 5: 验证** —— `npx vitest run src/renderer/src/components/send/__tests__/sendpanel-render.test.tsx` PASS（.cm-content 仍在）；`npm test` 全绿；`npm run build` 通过。
+- [x] **Step 5: 验证** —— `npx vitest run src/renderer/src/components/send/__tests__/sendpanel-render.test.tsx` PASS（.cm-content 仍在）；`npm test` 全绿；`npm run build` 通过。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/renderer/src/components/send/SendPanel.tsx src/renderer/src/components/send/SendPanel.css src/renderer/src/components/send/__tests__/sendpanel-render.test.tsx src/renderer/src/components/common/CrPreservingEditor.css
