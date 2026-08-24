@@ -1,5 +1,13 @@
 import { RangeSetBuilder, StateField, EditorState } from '@codemirror/state'
-import { Decoration, EditorView, WidgetType, type Extension } from '@codemirror/view'
+import { Decoration, EditorView, WidgetType, type DecorationSet, type Extension } from '@codemirror/view'
+import type { LineEnding } from '../../hooks/lineEnding'
+
+/** 从 lineSeparator facet 值推断行分隔符种类：`'\r'` → 'cr'，`'\r\n'` → 'crlf'，否则 'lf' */
+export function separatorKind(sep: string): LineEnding {
+  if (sep === '\r') return 'cr'
+  if (sep === '\r\n') return 'crlf'
+  return 'lf'
+}
 
 /** C0 控制符 + DEL 的名称映射（0x0a LF 与 0x0d CR 也包含——非行分隔符场景下以标记展示） */
 const CTRL_LABELS: Record<number, string> = {
@@ -23,51 +31,63 @@ class CtrlWidget extends WidgetType {
   ignoreEvent(): boolean { return true }
 }
 
-/** 行分隔符标记：<CR><LF>（CRLF）或 <LF>（LF）。以零宽 widget 渲染在行尾，自然换行保留 */
+/** 行分隔符标记：CRLF 显示 `<CR><LF>`，CR 显示 `<CR>`，LF 显示 `<LF>`。以零宽 widget 渲染在行尾，自然换行保留 */
 class LineBreakWidget extends WidgetType {
-  constructor(readonly crlf: boolean) { super() }
+  constructor(readonly kind: LineEnding) { super() }
   toDOM(): HTMLElement {
+    const mk = (label: string): HTMLElement => {
+      const span = document.createElement('span')
+      span.className = 'ctrl'
+      span.textContent = `<${label}>`
+      return span
+    }
     const wrap = document.createElement('span')
     wrap.className = 'cm-linesep'
-    if (this.crlf) {
-      const cr = document.createElement('span')
-      cr.className = 'ctrl'
-      cr.textContent = '<CR>'
-      wrap.appendChild(cr)
+    if (this.kind === 'crlf') {
+      wrap.appendChild(mk('CR'))
+      wrap.appendChild(mk('LF'))
+    } else if (this.kind === 'cr') {
+      wrap.appendChild(mk('CR'))
+    } else {
+      wrap.appendChild(mk('LF'))
     }
-    const lf = document.createElement('span')
-    lf.className = 'ctrl'
-    lf.textContent = '<LF>'
-    wrap.appendChild(lf)
     return wrap
   }
   ignoreEvent(): boolean { return true }
 }
 
-const controlCharField = StateField.define({
-  create() { return Decoration.none },
-  update(deco, tr) {
-    if (!tr.docChanged) return deco.map(tr.changes)
-    const doc = tr.newDoc
-    if (doc.length === 0) return Decoration.none
-    const sep = tr.state.facet(EditorState.lineSeparator) || '\n'
-    const crlf = sep.includes('\r')
-    const builder = new RangeSetBuilder<Decoration>()
-    for (let l = 1; l <= doc.lines; l++) {
-      const line = doc.line(l)
-      const text = line.text
-      for (let i = 0; i < text.length; i++) {
-        const label = CTRL_LABELS[text.charCodeAt(i)]
-        if (label) {
-          builder.add(line.from + i, line.from + i + 1, Decoration.replace({ widget: new CtrlWidget(label) }))
-        }
-      }
-      // 行尾分隔符：以零宽 widget（side -1，渲染在行内容末尾）显示 <CR><LF>/<LF> 标记
-      if (l < doc.lines) {
-        builder.add(line.to, line.to, Decoration.widget({ widget: new LineBreakWidget(crlf), side: -1 }))
+/** 根据状态中的文档与 lineSeparator 构建控制符/行分隔符装饰（初始内容也生效） */
+export function buildDecorations(state: EditorState): DecorationSet {
+  const doc = state.doc
+  if (doc.length === 0) return Decoration.none
+  const sep = state.facet(EditorState.lineSeparator) || '\n'
+  const kind = separatorKind(sep)
+  const builder = new RangeSetBuilder<Decoration>()
+  for (let l = 1; l <= doc.lines; l++) {
+    const line = doc.line(l)
+    const text = line.text
+    for (let i = 0; i < text.length; i++) {
+      const label = CTRL_LABELS[text.charCodeAt(i)]
+      if (label) {
+        builder.add(line.from + i, line.from + i + 1, Decoration.replace({ widget: new CtrlWidget(label) }))
       }
     }
-    return builder.finish()
+    // 行尾分隔符：以零宽 widget（side -1，渲染在行内容末尾）显示 CRLF/CR/LF 标记
+    if (l < doc.lines) {
+      builder.add(line.to, line.to, Decoration.widget({ widget: new LineBreakWidget(kind), side: -1 }))
+    }
+  }
+  return builder.finish()
+}
+
+const controlCharField = StateField.define<DecorationSet>({
+  // create 时即基于初始 doc 计算装饰，否则首次加载（如快捷指令编辑框带初始内容）不显示控制符标记
+  create(state) { return buildDecorations(state) },
+  update(deco, tr) {
+    const sepChanged = tr.startState.facet(EditorState.lineSeparator) !== tr.state.facet(EditorState.lineSeparator)
+    // 仅 doc 或行分隔符变化时重建；其余（selection 等）沿用映射后的装饰
+    if (!tr.docChanged && !sepChanged) return deco.map(tr.changes)
+    return buildDecorations(tr.state)
   },
   provide: (f) => EditorView.decorations.from(f)
 })
