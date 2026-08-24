@@ -15,3 +15,7 @@
 
 - [x] 新增 `separatorKind` 单测：`'\r'` → `'cr'`、`'\r\n'` → `'crlf'`、`'\n'` → `'lf'`
 - [x] 新增装饰生成测试：带控制符的初始 doc 在 `create` 时即有装饰（可用 StateField 值断言）
+
+## 4. 修复快捷指令编辑框无滚动条
+
+- [x] `.cr-editor` 改为确定高度（`height/min-height/max-height: 180px`，与发送框 `.cmp-input` 一致），使 `.cm-scroller` 有界可滚动

@@ -6,8 +6,10 @@
   overflow: hidden;
   font-family: var(--font-mono);
   font-size: 12.5px;
-  min-height: 72px;
-  max-height: 150px;
+  /* 确定高度（与发送框 .cmp-input 的 180px 保持一致），使 cm-scroller 有界可滚动 */
+  height: 180px;
+  min-height: 180px;
+  max-height: 180px;
   transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
 .cr-editor:hover { border-color: var(--meta); }
