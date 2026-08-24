@@ -1,6 +1,6 @@
 workflow: hotfix
 language: zh-CN
-phase: build
+phase: archive
 context_compression: off
 build_mode: direct
 build_pause: null
@@ -13,12 +13,12 @@ auto_transition: true
 base_ref: 97bdf13e17ef4ea89681adc87fb8b4aecf0c5432
 design_doc: null
 plan: null
-verify_result: pending
-verification_report: null
-branch_status: pending
+verify_result: pass
+verification_report: docs/superpowers/reports/2026-08-24-fix-paste-cr-crlf-verify.md
+branch_status: handled
 created_at: 2026-08-24
-verified_at: null
-archive_confirmation: null
+verified_at: 2026-08-24
+archive_confirmation: pending
 archived: false
 direct_override: null
 handoff_context: null
