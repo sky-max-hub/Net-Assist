@@ -76,6 +76,8 @@ h1, h2, h3 { text-wrap: balance; }
 /* ── 布局 ────────────────────────────────────────────────────── */
 .container { max-width: 1080px; margin-inline: auto; padding-inline: 24px; }
 .section { padding-block: 88px; }
+/* 锚点定位偏移：sticky 顶导航下 section 顶部不被遮挡 */
+.section, .pagefoot { scroll-margin-top: 72px; }
 .row-between { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 
 /* ── 顶部导航 ───────────────────────────────────────────────── */
@@ -309,7 +311,7 @@ h1, h2, h3 { text-wrap: balance; }
   </section>
 
   <!-- 功能 -->
-  <section class="section features" data-od-id="landing-features">
+  <section class="section features" id="features" data-od-id="landing-features">
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">核心能力</p>
@@ -352,7 +354,7 @@ h1, h2, h3 { text-wrap: balance; }
   </section>
 
   <!-- 展示 -->
-  <section class="section showcase" data-od-id="landing-showcase">
+  <section class="section showcase" id="showcase" data-od-id="landing-showcase">
     <div class="container">
       <div class="split">
         <div>
@@ -402,7 +404,7 @@ h1, h2, h3 { text-wrap: balance; }
   </section>
 
   <!-- 下载 -->
-  <section class="section download" data-od-id="landing-download">
+  <section class="section download" id="download" data-od-id="landing-download">
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">免费下载</p>
