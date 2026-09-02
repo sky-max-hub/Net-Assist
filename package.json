@@ -2,7 +2,10 @@
   "name": "net-assist",
   "version": "1.0.0",
   "description": "跨平台 TCP/UDP 调试工具",
-  "author": "net-assist",
+  "author": {
+    "name": "net-assist",
+    "email": "zrw1404644784@gmail.com"
+  },
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
