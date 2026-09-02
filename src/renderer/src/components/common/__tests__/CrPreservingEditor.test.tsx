@@ -110,4 +110,25 @@ describe('CodeMirror lineSeparator — CRLF/CR 保留（修复根因）', () => 
     expect(state.doc.toString()).toBe('A\nB')
     expect(state.sliceDoc(0, state.doc.length)).toBe('A\r\nB')
   })
+
+  it('CRLF 文档替换中间片段（不 reconfigure）保留尾部 CRLF（粘贴片段不翻转换行风格）', () => {
+    const state = EditorState.create({
+      doc: 'AAA\r\nBBB\r\n',
+      extensions: [EditorState.lineSeparator.of('\r\n')]
+    })
+    // 模拟粘贴"XXX"替换开头片段（未动到结尾）
+    const txn = state.update({ changes: { from: 0, to: 3, insert: 'XXX' } })
+    const next = txn.state
+    expect(next.sliceDoc(0, next.doc.length)).toBe('XXX\r\nBBB\r\n')
+  })
+
+  it('CRLF 文档粘贴 CR-only 片段保留字面 CR 与尾部 CRLF', () => {
+    const state = EditorState.create({
+      doc: 'AAA\r\nBBB\r\n',
+      extensions: [EditorState.lineSeparator.of('\r\n')]
+    })
+    const txn = state.update({ changes: { from: 0, to: 3, insert: 'X\rY' } })
+    const next = txn.state
+    expect(next.sliceDoc(0, next.doc.length)).toBe('X\rY\r\nBBB\r\n')
+  })
 })

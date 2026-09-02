@@ -73,15 +73,20 @@ const CrPreservingEditor = forwardRef<CrPreservingEditorHandle, Props>(
         // 自定义快捷键（Mod+Enter 发送等）须排在 defaultKeymap 之前，否则被默认绑定覆盖；
         // historyKeymap（Mod-z/Mod-y/Mod-Shift-z 撤销/重做）置最前，确保撤销/还原可用
         keymap.of([...historyKeymap, ...(keymapRef.current ?? []), ...defaultKeymap]),
-        // 粘贴时若内容为 CR/CRLF 且与当前 lineSeparator 不同，先重配使 CR 作为换行渲染
-        // （返回 false 让 CodeMirror 默认粘贴继续，插入时按新 lineSeparator 切分）
+        // 粘贴时仅当替换整个文档时按新内容换行风格重配 lineSeparator。
+        // 片段粘贴若 reconfigure 会翻转全文换行风格（如 CRLF 文档粘贴 LF/无换行片段 → 尾部 CR LF 变 LF），
+        // 故片段粘贴保持当前 lineSeparator，CodeMirror 内置粘贴会保留片段中的 \r 字面字符。
         EditorView.domEventHandlers({
           paste: (event, view) => {
             const text = event.clipboardData?.getData('text')
             if (text) {
-              const newSep = sepFor(text)
-              if (newSep !== currentSep(view)) {
-                view.dispatch({ effects: [StateEffect.reconfigure.of(buildExtensions(newSep))] })
+              const main = view.state.selection.main
+              const replacesAll = main.from === 0 && main.to === view.state.doc.length
+              if (replacesAll) {
+                const newSep = sepFor(text)
+                if (newSep !== currentSep(view)) {
+                  view.dispatch({ effects: [StateEffect.reconfigure.of(buildExtensions(newSep))] })
+                }
               }
             }
             return false
