@@ -1,6 +1,6 @@
 {
   "name": "net-assist",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "跨平台 TCP/UDP 调试工具",
   "author": {
     "name": "net-assist",
